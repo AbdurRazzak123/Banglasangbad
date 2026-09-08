@@ -1,0 +1,27 @@
+বাংলা সংবাদ — Professional Direct Advertiser System
+
+এই website-এর static frontend-এর সঙ্গে direct advertiser workflow সেট করা হয়েছে।
+
+১) Advertiser page
+- advertise.html
+- প্যাকেজ: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM
+- Advertiser form email draft তৈরি করে
+- Banner/creative advertiser email attachment হিসেবে পাঠাবে
+
+২) Existing Google Sheet
+তোমার বর্তমান Ads sheet-ই campaign delivery-এর জন্য ব্যবহার করবে। Active=TRUE করে approved creative-এর Image URL/Click URL/Ad Code বসালে v26 loader সেটি render করবে।
+
+৩) Recommended advertiser management columns
+Advertiser ID | Company | Contact Name | Email | Phone | Position | Start Date | End Date | Price | Payment Status | Creative URL | Click URL | Active | Notes
+
+৪) Workflow
+Inquiry → price/placement confirm → creative receive → payment confirm → Ads sheet-এ row তৈরি → Active TRUE → campaign live → end date-এ Active FALSE।
+
+৫) গুরুত্বপূর্ণ
+- GitHub Pages static site হওয়ায় এই form নিজে server-side database-এ submission save করে না; এটি advertiser-এর email app-এ pre-filled email draft তৈরি করে।
+- Automated payment গ্রহণ করার জন্য পরে Stripe/SSLCOMMERZ/bKash merchant বা অন্য approved payment workflow যোগ করা যাবে।
+- Payment confirmation না পাওয়া পর্যন্ত Active TRUE করা উচিত নয়।
+- Advertiser creative-এ misleading claims, prohibited content বা অন্যের copyrighted material অনুমতি ছাড়া ব্যবহার করা যাবে না।
+
+৬) Google Ad Manager scale-up
+Traffic ও direct deals বড় হলে Google Ad Manager-এ ad units, orders, line items এবং creatives ব্যবহার করা যাবে। Direct-sold campaigns-এ order advertiser agreement-এর প্রতিনিধিত্ব করে এবং line item-এ campaign-এর সময়, price, targeting ও creative delivery details থাকে।

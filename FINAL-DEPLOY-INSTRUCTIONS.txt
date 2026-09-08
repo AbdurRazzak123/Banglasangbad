@@ -1,0 +1,18 @@
+BanglaNews FINAL Google Indexing Fix
+
+1. Keep your existing Google Search Console verification file:
+   google6653b1be630f501c.html
+2. Keep the existing workflow:
+   .github/workflows/update-google-news-sitemap.yml
+3. Replace/add the files from this package into the repository.
+4. Do NOT delete your images, ads files, CSS, JS, or other design files.
+5. The new workflow will generate:
+   news/<article-id>.html
+   sitemap.xml
+   news-sitemap.xml
+6. After upload, open GitHub Actions and run "Update static news pages and sitemaps" manually once.
+7. Then test:
+   /news/23.html
+8. Submit the new article URL in Google Search Console for indexing.
+
+Important: do not upload this ZIP as a single ZIP file to the website root. Extract it first and copy its contents into the repository, preserving folders.

@@ -1,0 +1,14 @@
+/* বাংলা সংবাদ — FINAL Ads CSS v21 */
+.ad-slot,.ad-slot.sheet-ad-slot{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;margin:16px auto!important;padding:0!important;box-sizing:border-box!important;overflow:visible!important;text-align:center!important;background:transparent!important;position:relative!important;clear:both!important}
+.ad-slot:empty{display:block!important;min-height:0!important}.ad-slot[data-ad-error]{min-height:0!important}.ad-slot.ad-loaded{visibility:visible!important}.ad-code-host{display:block!important;width:100%!important;max-width:100%!important;min-height:1px!important;height:auto!important;margin:0 auto!important;padding:0!important;overflow:visible!important;text-align:center!important;position:relative!important}.ad-code-host iframe{max-width:100%!important;border:0!important}.ad-slot>a{display:block;width:100%;text-decoration:none}.ad-slot img{display:block!important;width:auto!important;max-width:100%!important;height:auto!important;max-height:none!important;margin:0 auto!important;border:0!important}@media(max-width:768px){.ad-slot,.ad-slot.sheet-ad-slot{width:100%!important;max-width:100%!important;margin:12px 0!important}}
+
+
+/* v18 built-in diagnostic fallback (not a paid/network advertisement) */
+.ad-test-fallback{box-sizing:border-box;width:100%;min-height:180px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:2px dashed #999;background:#f5f5f5;color:#222;text-align:center;font-family:Arial,sans-serif;padding:20px;}
+.ad-test-fallback strong{font-size:28px;letter-spacing:1px;}
+.ad-test-fallback span{font-size:18px;}
+.ad-test-fallback small{font-size:13px;opacity:.75;}
+
+/* v26: sequential slot rendering is handled by JS; v25 fix: do not use paint containment on ad slots; ad-network creatives may overflow/position internally. */
+.ad-slot { contain: none!important; }
+.ad-code-host img,.ad-code-host iframe { max-width:100%!important; }

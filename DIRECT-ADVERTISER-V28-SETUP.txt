@@ -1,0 +1,26 @@
+বাংলা সংবাদ — v28 Professional Direct Advertiser System
+
+WHAT IS NEW
+1. direct-ad-manager.html — browser-local campaign management console.
+2. Campaign fields: advertiser, contact, position, start/end date, price, payment, delivery, creative URL, click URL, ad code, notes.
+3. Dashboard counters: total, live, pending, paid revenue.
+4. Search/filter by advertiser, status and position.
+5. CSV export/import for campaign backup and migration.
+6. Automatic status logic for Live/Pending/Paused/Expired based on dates + payment + delivery state.
+7. advertise.html form JavaScript fixed so the email body is generated correctly.
+8. Existing v26 sequential ad engine and four working positions are preserved.
+
+IMPORTANT LIMITATION
+GitHub Pages is a static host. The manager stores data in browser localStorage only. It is NOT a secure multi-user admin panel and must not be treated as a real authentication system. For real shared admin, database, payment verification, file uploads, and secure advertiser accounts, add a backend/API later.
+
+RECOMMENDED PRODUCTION WORKFLOW
+Inquiry -> negotiate package/price -> receive creative -> verify payment -> create campaign in manager -> export/transfer approved campaign into Ads Google Sheet -> set Active TRUE -> campaign live -> set Active FALSE at end date.
+
+GOOGLE AD MANAGER SCALE-UP
+When direct sales become substantial, use Google Ad Manager with ad units, orders, line items and creatives. Orders represent advertiser agreements; line items define timing, pricing, targeting and creative delivery. Direct guaranteed campaigns generally use Sponsorship or Standard line items according to Google's documentation.
+
+CURRENT GOOGLE SHEET DELIVERY
+Keep the existing Ads sheet and v26 loader. Do not replace the working loader unless separately tested. The current sheet columns are: Position, Active, Image URL, Click URL, Title, Ad Code.
+
+FUTURE BACKEND VERSION
+A real professional SaaS-style admin should use server-side authentication, a database, audit log, payment webhook, creative storage, campaign scheduler, role permissions and an API. Do not put admin passwords or payment secrets in static HTML/JS.
