@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     
-<link rel="canonical" href="https://abdurrazzak123.github.io/banglanews.2026/">
+<link rel="canonical" href="https://abdurrazzak123.github.io/Banglasangbad/">
 <meta name="description" content="বাংলাদেশ ও বিশ্বের সর্বশেষ জাতীয়, রাজনীতি, আন্তর্জাতিক, খেলাধুলা, বিনোদন ও প্রযুক্তির খবর। তথ্য যাচাই করে দায়িত্বশীল সংবাদ প্রকাশ।">
 <meta name="keywords" content="বাংলা সংবাদ, সর্বশেষ খবর, বাংলাদেশ সংবাদ, জাতীয় খবর, আন্তর্জাতিক খবর, রাজনীতি, খেলাধুলা, বিনোদন, প্রযুক্তি">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -16,8 +16,8 @@
 <meta property="og:title" content="বাংলা সংবাদ | সর্বশেষ খবর">
 <meta property="og:description" content="বাংলাদেশ ও বিশ্বের সর্বশেষ জাতীয়, রাজনীতি, আন্তর্জাতিক, খেলাধুলা, বিনোদন ও প্রযুক্তির খবর। তথ্য যাচাই করে দায়িত্বশীল সংবাদ প্রকাশ।">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://abdurrazzak123.github.io/banglanews.2026/">
-<meta property="og:image" content="https://abdurrazzak123.github.io/banglanews.2026/logo.png">
+<meta property="og:url" content="https://abdurrazzak123.github.io/Banglasangbad/">
+<meta property="og:image" content="https://abdurrazzak123.github.io/Banglasangbad/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="বাংলা সংবাদ | সর্বশেষ খবর">
 <meta name="twitter:description" content="বাংলাদেশ ও বিশ্বের সর্বশেষ জাতীয়, রাজনীতি, আন্তর্জাতিক, খেলাধুলা, বিনোদন ও প্রযুক্তির খবর। তথ্য যাচাই করে দায়িত্বশীল সংবাদ প্রকাশ।">
@@ -521,8 +521,8 @@ main.container {
 {
   "@context":"https://schema.org",
   "@graph":[
-    {"@type":"WebSite","name":"বাংলা সংবাদ","description":"বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ","inLanguage":"bn","url":"https://abdurrazzak123.github.io/banglanews.2026/"},
-    {"@type":"Organization","name":"বাংলা সংবাদ","url":"https://abdurrazzak123.github.io/banglanews.2026/","logo":{"@type":"ImageObject","url":"https://abdurrazzak123.github.io/banglanews.2026/logo.png"}}
+    {"@type":"WebSite","name":"বাংলা সংবাদ","description":"বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ","inLanguage":"bn","url":"https://abdurrazzak123.github.io/Banglasangbad/"},
+    {"@type":"Organization","name":"বাংলা সংবাদ","url":"https://abdurrazzak123.github.io/Banglasangbad/","logo":{"@type":"ImageObject","url":"https://abdurrazzak123.github.io/Banglasangbad/logo.png"}}
   ]
 }
 </script>
@@ -1447,7 +1447,7 @@ function image1(n){return n.image?`<div class="news-image-wrap"><img loading="la
 function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
 function latest(list){return [...list].reverse();}
 
-load().then(list=>{const c=document.getElementById('news-container');const newest=latest(list)[0];if(c&&newest){const chars=Array.from(newest.summary||'');const preview=chars.length>700?chars.slice(0,700).join('')+'...':chars.join('');c.innerHTML=`<div class="vertical-news-block" id="news-${esc(newest.id)}">${newest.image?`<div class="news-image-top"><img loading="lazy" src="${esc(imageUrl(newest.image))}" alt="${esc(newest.title)}" onerror="this.remove()"></div>`:''}<div class="news-text-bottom"><span class="category-tag">${esc(newest.category)}</span><div class="breaking-news-date">${esc(newest.date)}</div><h3>${esc(newest.title)}</h3><p class="home-summary">${esc(preview)}</p><a href="details.html?id=${encodeURIComponent(newest.id)}" data-news-id="${esc(newest.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`;}const ticker=document.querySelector('.breaking .ticker-track');if(ticker&&newest)ticker.textContent=newest.title;const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=latest(list).slice(0,10).map(n=>`<div class="latest-item"><a href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">🔺 ${esc(n.title)}</a></div>`).join('');}).catch(e=>console.error(e));
+load().then(list=>{const c=document.getElementById('news-container');const newest=latest(list)[0];if(c&&newest){const chars=Array.from(newest.summary||'');const preview=chars.length>700?chars.slice(0,700).join('')+'...':chars.join('');c.innerHTML=`<div class="vertical-news-block" id="news-${esc(newest.id)}">${newest.image?`<div class="news-image-top"><img loading="lazy" src="${esc(imageUrl(newest.image))}" alt="${esc(newest.title)}" onerror="this.remove()"></div>`:''}<div class="news-text-bottom"><span class="category-tag">${esc(newest.category)}</span><div class="breaking-news-date">${esc(newest.date)}</div><h3>${esc(newest.title)}</h3><p class="home-summary">${esc(preview)}</p><a href="news/${encodeURIComponent(newest.id)}.html" data-news-id="${esc(newest.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`;}const ticker=document.querySelector('.breaking .ticker-track');if(ticker&&newest)ticker.textContent=newest.title;const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=latest(list).slice(0,10).map(n=>`<div class="latest-item"><a href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">🔺 ${esc(n.title)}</a></div>`).join('');}).catch(e=>console.error(e));
 </script>
 
 
