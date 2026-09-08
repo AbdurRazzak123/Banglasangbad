@@ -1,0 +1,40 @@
+name: Build static news pages and SEO sitemaps
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build article pages and sitemaps
+        run: python3 tools/generate_static_news.py
+
+      - name: Validate generated output
+        run: |
+          test -s sitemap.xml
+          test -s news-sitemap.xml
+          test -d news
+          test "$(find news -maxdepth 1 -name '*.html' | wc -l)" -gt 0
+
+      - name: Commit generated output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add news sitemap.xml news-sitemap.xml
+          if git diff --cached --quiet; then
+            echo "No generated changes."
+          else
+            git commit -m "Build static news pages and SEO sitemaps"
+            git push
+          fi
