@@ -42,14 +42,15 @@ def image_url(v):
     m = re.search(r'drive\.google\.com/(?:file/d/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)', v, re.I)
     return f'https://drive.google.com/thumbnail?id={m.group(1)}&sz=w2000' if m else v
 
-
 def slug_id(v):
     raw = str(v).strip()
-    # Google Sheets GViz may return numeric IDs such as 23.0.
-    # Normalize integer-like IDs so article URLs stay stable: 23.html, not 23-0.html.
+
+    # Google Sheets numeric IDs may arrive as 23.0
+    # Convert 23.0 -> 23 so URLs stay /news/23.html
     m = re.fullmatch(r'(\d+)\.0+', raw)
     if m:
         raw = m.group(1)
+
     s = re.sub(r'[^A-Za-z0-9_-]+', '-', raw).strip('-')
     return s or 'article'
 
