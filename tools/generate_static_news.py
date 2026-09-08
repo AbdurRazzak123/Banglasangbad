@@ -44,7 +44,13 @@ def image_url(v):
 
 
 def slug_id(v):
-    s = re.sub(r'[^A-Za-z0-9_-]+', '-', str(v).strip()).strip('-')
+    raw = str(v).strip()
+    # Google Sheets GViz may return numeric IDs such as 23.0.
+    # Normalize integer-like IDs so article URLs stay stable: 23.html, not 23-0.html.
+    m = re.fullmatch(r'(\d+)\.0+', raw)
+    if m:
+        raw = m.group(1)
+    s = re.sub(r'[^A-Za-z0-9_-]+', '-', raw).strip('-')
     return s or 'article'
 
 
