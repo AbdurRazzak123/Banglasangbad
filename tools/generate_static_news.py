@@ -105,7 +105,7 @@ for i, row in enumerate(rows, 1):
 if not articles:
     raise RuntimeError('No valid news rows found in the Google Sheet.')
 
-CSS = '''*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:#17212b;font-family:Arial,"Noto Sans Bengali","SolaimanLipi",sans-serif;line-height:1.8}.brand-header{position:relative;background:linear-gradient(135deg,#004d3a 0%,#006a4e 58%,#0b2f45 100%);border-bottom:4px solid #e31b23;box-shadow:0 4px 18px rgba(0,0,0,.14);height:96px;min-height:96px;padding:6px 12px;display:flex;align-items:center;justify-content:center}.brand-header:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#e31b23 0 33%,#f4c542 33% 66%,#16a05d 66% 100%)}.logo-link{display:flex;align-items:center;justify-content:center;height:78px}.site-brand-logo{width:300px;max-width:78vw;max-height:78px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.24))}.back-btn{position:absolute;right:18px;background:#e31b23;color:#fff;border-radius:7px;padding:7px 13px;font-weight:700;text-decoration:none}.details-wrap{max-width:1100px;margin:20px auto;padding:0 20px}.details-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.08);overflow:hidden}.details-body{padding:22px}.cat{color:#e31b23;font-weight:700}.title{font-size:32px;line-height:1.4;margin:7px 0 10px}.meta{color:#6b7280;font-size:14px;margin-bottom:18px}.hero,.inline-img{width:100%;height:auto;max-height:620px;object-fit:contain;background:#fff;display:block;margin:0 0 22px}.content{font-size:18px}.content p{margin:0 0 18px}.foot{background:linear-gradient(135deg,#0b2638,#071b2a);color:#fff;border-top:4px solid #006a4e;text-align:center;padding:30px 15px;margin-top:40px}.foot a{color:#fff;margin:0 9px;text-decoration:none}.foot p{color:#dbe7ed;font-size:14px}@media(max-width:768px){.details-wrap{padding:0 10px}.details-body{padding:14px}.title{font-size:24px}.content{font-size:17px}.brand-header{height:76px;min-height:76px}.site-brand-logo{width:210px;max-height:58px}.back-btn{right:8px;padding:6px 10px;font-size:13px}}'''
+CSS = '''*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#202124;font-family:Arial,"Noto Sans Bengali","SolaimanLipi",sans-serif;line-height:1.85}.top{background:#063b2b;color:#fff;text-align:center;padding:8px;font-size:13px}.head{background:#fff;border-bottom:3px solid #d71920;padding:10px;text-align:center}.logo{width:210px;max-width:70vw}.nav{background:#111827}.nav-inner{max-width:1100px;margin:auto;display:flex;justify-content:center;flex-wrap:wrap}.nav a{color:#fff;text-decoration:none;padding:9px 12px;font-size:14px}.wrap{max-width:900px;margin:18px auto;padding:0 12px}.article{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:28px}.crumb{font-size:13px;color:#6b7280}.crumb a{color:#006a4e;text-decoration:none}.cat{color:#c1121f;font-weight:700}.title{font-size:34px;line-height:1.35;margin:7px 0 10px}.meta{color:#6b7280;font-size:14px;margin-bottom:18px}.hero,.inline-img{width:100%;height:auto;max-height:620px;object-fit:contain;border-radius:8px;background:#f2f2f2;display:block;margin:0 0 22px}.content{font-size:18px}.content p{margin:0 0 18px}.video{margin:24px 0}.video iframe,.video video{width:100%;aspect-ratio:16/9;border:0}.foot{margin-top:30px;background:#111827;color:#d1d5db;text-align:center;padding:25px;font-size:13px}.foot a{color:#fff;margin:0 7px}@media(max-width:700px){.nav-inner{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}.nav a{font-size:13px;padding:8px 10px;white-space:nowrap}.article{padding:18px}.title{font-size:25px}.content{font-size:17px}.hero,.inline-img{max-height:420px}}'''
 
 for p in NEWS.glob('*.html'):
     p.unlink()
@@ -115,28 +115,13 @@ for a in articles:
     page = BASE + 'news/' + urllib.parse.quote(sid) + '.html'
     description = desc(a['text'], a['title'])
     keywords = [x.strip() for x in re.split(r'[,،|\n]+', a['keywords']) if x.strip()][:15]
-    def logical_lines(text):
-        raw = (text or '').strip()
-        if not raw:
-            return []
-        explicit = [x.strip() for x in re.split(r'\r?\n', raw) if x.strip()]
-        if len(explicit) > 1:
-            return explicit
-        words = re.split(r'\s+', raw)
-        lines, line = [], ''
-        for word in words:
-            candidate = (line + ' ' + word).strip() if line else word
-            if len(candidate) > 78 and line:
-                lines.append(line); line = word
-            else:
-                line = candidate
-        if line:
-            lines.append(line)
-        return lines
-    full_lines = logical_lines(a['text'])
-    remainder = '\n'.join(full_lines[7:]).strip() if len(full_lines) > 7 else ''
-    paragraphs = [x.strip() for x in re.split(r'\n\s*\n|\n', remainder) if x.strip()]
-    content = ''.join('<p>%s</p>' % escape(x) for x in paragraphs) or '<p>এই সংবাদের অতিরিক্ত বিস্তারিত অংশ নেই।</p>'
+    paragraphs = [x.strip() for x in re.split(r'\n\s*\n|\n', a['text']) if x.strip()]
+    full_text = a['text'].strip()
+    preview_chars = list(full_text)[:700]
+    remaining_text = ''.join(list(full_text)[700:]).strip()
+    detail_source = remaining_text
+    detail_paragraphs = [x.strip() for x in re.split(r'\n\s*\n|\n', detail_source) if x.strip()]
+    content = ''.join('<p>%s</p>' % escape(x) for x in detail_paragraphs) or '<p>এই সংবাদের অতিরিক্ত বিস্তারিত অংশ নেই।</p>'
     hero = ''
     if a['image']:
         hero = '<img class="hero" src="%s" alt="%s" loading="eager">' % (escape(a['image'], quote=True), escape(a['title'], quote=True))
@@ -163,10 +148,26 @@ for a in articles:
     if keywords:
         schema['keywords'] = keywords
     og_image = '<meta property="og:image" content="%s">' % escape(a['image'], quote=True) if a['image'] else ''
-    tag_html = ''
-    html = '''<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><header class="brand-header"><a href="%s" class="logo-link" aria-label="বাংলা সংবাদ - হোম"><img src="%slogo.png" alt="বাংলা সংবাদ লোগো" class="site-brand-logo"></a><a href="%s" class="back-btn">← মূল পাতায় ফিরে যান</a></header><main class="details-wrap"><article class="details-card"><div class="details-body"><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</div></article></main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
-        escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, BASE, BASE, BASE, BASE)
+    tag_html = ''  # Keywords remain in JSON-LD only; never show them to readers.
+    html = '''<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><div class="top">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে</div><header class="head"><a href="%s" aria-label="বাংলা সংবাদ"><img class="logo" src="%slogo.png" alt="বাংলা সংবাদ"></a></header><nav class="nav"><div class="nav-inner"><a href="%shome.html">হোম</a><a href="%snational.html">জাতীয়</a><a href="%spolitics.html">রাজনীতি</a><a href="%sinternational.html">আন্তর্জাতিক</a><a href="%seconomy.html">অর্থনীতি</a><a href="%ssports.html">খেলাধুলা</a><a href="%sentertainment.html">বিনোদন</a><a href="%stechnology.html">প্রযুক্তি</a><a href="%smore.html">আরও</a></div></nav><main class="wrap"><article class="article"><div class="crumb"><a href="%s">হোম</a> / %s</div><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</article></main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
+        escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, BASE, BASE, BASE, BASE)
     (NEWS / (sid + '.html')).write_text(html, encoding='utf-8')
+
+# Public GitHub data used by the homepage and category pages.
+NEWS_DATA = ROOT / 'news-data.json'
+NEWS_DATA.write_text(json.dumps({
+    'generatedAt': datetime.now(TZ).isoformat(timespec='seconds'),
+    'articles': [
+        {
+            'id': slug_id(a['id']), 'category': a['category'], 'title': a['title'],
+            'text': a['text'], 'preview': ''.join(list(a['text'].strip())[:700]),
+            'remainder': ''.join(list(a['text'].strip())[700:]).strip(),
+            'image': a['image'], 'date': a['date'], 'image2': a['image2'],
+            'image3': a['image3'], 'video': a['video'], 'keywords': a['keywords']
+        } for a in articles
+    ]
+}, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 
 now = datetime.now(TZ)
 static = ['', 'home.html', 'national.html', 'politics.html', 'international.html', 'economy.html', 'sports.html', 'entertainment.html', 'technology.html', 'more.html', 'about.html', 'contact.html', 'privacy.html', 'disclaimer.html', 'advertise.html']
@@ -187,4 +188,39 @@ for a in sorted(fresh, key=lambda x: x['dt'], reverse=True)[:1000]:
     n = SubElement(u, 'news:news'); pub_node = SubElement(n, 'news:publication'); SubElement(pub_node, 'news:name').text = 'বাংলা সংবাদ'; SubElement(pub_node, 'news:language').text = 'bn'
     SubElement(n, 'news:publication_date').text = a['dt'].isoformat(timespec='seconds'); SubElement(n, 'news:title').text = a['title']
 ElementTree(ns).write(ROOT / 'news-sitemap.xml', encoding='utf-8', xml_declaration=True)
+
+# Make every category page use the same GitHub news renderer without requiring manual edits.
+CATEGORY_PAGES = ['national.html','politics.html','international.html','economy.html','sports.html','entertainment.html','technology.html','more.html']
+NEWS_SCRIPT = '<script src="news-reader.js"></script>'
+CATEGORY_BOX = '<section id="category-news-container" class="category-live-news"></section>'
+for filename in CATEGORY_PAGES:
+    fp = ROOT / filename
+    if not fp.exists():
+        continue
+    txt = fp.read_text(encoding='utf-8')
+    if 'id="category-news-container"' not in txt:
+        if '</main>' in txt:
+            txt = txt.replace('</main>', CATEGORY_BOX + '\n</main>', 1)
+        else:
+            txt = txt.replace('</body>', CATEGORY_BOX + '\n</body>', 1)
+    if 'src="news-reader.js"' not in txt:
+        txt = txt.replace('</body>', NEWS_SCRIPT + '\n</body>', 1)
+    fp.write_text(txt, encoding='utf-8')
+
+# Responsive repair for the advertising page. It only adds scoped CSS and does not alter ad content.
+advertise = ROOT / 'advertise.html'
+if advertise.exists():
+    txt = advertise.read_text(encoding='utf-8')
+    if 'id="banglasangbad-ad-mobile-fix"' not in txt:
+        css = '''<style id="banglasangbad-ad-mobile-fix">
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+img,iframe,video{max-width:100%;height:auto}
+input,textarea,select,button{max-width:100%;font:inherit}
+.advertise-container,.advertise-wrap,.ad-container,.pricing-container,.packages{width:min(1100px,100%);margin-left:auto;margin-right:auto}
+@media(max-width:768px){body{font-size:15px}.advertise-container,.advertise-wrap,.ad-container,.pricing-container,.packages{width:100%;padding-left:12px;padding-right:12px}.package,.plan,.price-card,.ad-card,.form-container{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important}.packages{display:grid!important;grid-template-columns:1fr!important;gap:14px!important}.package img,.plan img,.price-card img,.ad-card img{width:100%!important;height:auto!important}.package button,.plan button,.price-card button,.ad-card button,button,input[type=submit]{width:100%;min-height:44px}.form-container input,.form-container textarea,.form-container select{width:100%!important;min-width:0!important}.form-container textarea{min-height:120px}.site-header,.header-inner,.nav-inner{max-width:100%;overflow:hidden}.nav-inner{display:flex;flex-wrap:wrap}.nav-inner a{white-space:nowrap}.table-responsive,table{max-width:100%;overflow-x:auto;display:block}.ad-code,pre{white-space:pre-wrap;overflow-wrap:anywhere}}
+</style>'''
+        txt = txt.replace('</head>', css+'\n</head>', 1)
+        advertise.write_text(txt, encoding='utf-8')
+
 print('Generated %d article pages and %d Google News entries.' % (len(articles), len(fresh)))
