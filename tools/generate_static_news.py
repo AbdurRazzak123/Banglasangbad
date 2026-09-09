@@ -42,15 +42,14 @@ def image_url(v):
     m = re.search(r'drive\.google\.com/(?:file/d/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)', v, re.I)
     return f'https://drive.google.com/thumbnail?id={m.group(1)}&sz=w2000' if m else v
 
+
 def slug_id(v):
     raw = str(v).strip()
-
-    # Google Sheets numeric IDs may arrive as 23.0
-    # Convert 23.0 -> 23 so URLs stay /news/23.html
+    # Google Sheets GViz may return numeric IDs such as 23.0.
+    # Normalize integer-like IDs so article URLs stay stable: 23.html, not 23-0.html.
     m = re.fullmatch(r'(\d+)\.0+', raw)
     if m:
         raw = m.group(1)
-
     s = re.sub(r'[^A-Za-z0-9_-]+', '-', raw).strip('-')
     return s or 'article'
 
@@ -144,7 +143,7 @@ for a in articles:
     if keywords:
         schema['keywords'] = keywords
     og_image = '<meta property="og:image" content="%s">' % escape(a['image'], quote=True) if a['image'] else ''
-    tag_html = '<div class="tags">%s</div>' % tags if tags else ''
+    tag_html = ''  # Keywords remain in JSON-LD SEO metadata but are hidden from readers.
     html = '''<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><div class="top">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে</div><header class="head"><a href="%s" aria-label="বাংলা সংবাদ"><img class="logo" src="%slogo.png" alt="বাংলা সংবাদ"></a></header><main class="wrap"><article class="article"><div class="crumb"><a href="%s">হোম</a> / %s</div><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</article></main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
         escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, BASE, BASE, BASE, BASE)
