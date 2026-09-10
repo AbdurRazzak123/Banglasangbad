@@ -48,6 +48,14 @@
     return /^(https?:|mailto:|tel:|\/\/)/i.test(x) ? x : '';
   }
 
+  function imageUrl(v) {
+    const x = String(v || '').trim();
+    if (!x) return '';
+    const m = x.match(/drive\.google\.com\/(?:file\/d\/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);
+    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w2000';
+    try { return new URL(x, document.baseURI).href; } catch (e) { return x; }
+  }
+
   function slots() {
     const out = [], seen = new Set();
     document.querySelectorAll('.sheet-ad-slot, .ad-slot').forEach(el => {
@@ -91,7 +99,7 @@
   }
 
   function imageAd(slot, image, click, title) {
-    const src = url(image); if (!src) return false;
+    const src = imageUrl(image); if (!src) return false;
     clear(slot);
     const img = document.createElement('img');
     img.src = src; img.alt = title || 'Advertisement'; img.loading = 'eager'; img.decoding = 'async';
