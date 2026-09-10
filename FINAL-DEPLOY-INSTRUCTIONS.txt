@@ -35,3 +35,6 @@ DESIGN FIX — ARTICLE PAGE
 - Latest-news cards use absolute /news/<ID>.html URLs, so /news/news/<ID>.html cannot occur.
 - The generator sorts the latest-news cards by parsed date when a valid date is available.
 - If you upload/replace the repository and want the current Sheet data generated immediately, open GitHub Actions -> “Sync Google Sheet to GitHub” -> Run workflow.
+
+
+IMPORTANT: Upload the contents of this ZIP directly into the GitHub repository root. Do not create an extra Banglasangbad-main/ or final test/ folder. The article pages already contain the “সর্বশেষ সংবাদ” section below the article, and the generator keeps it on future Google Sheet syncs.
