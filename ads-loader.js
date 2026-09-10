@@ -12,7 +12,7 @@
   const SHEET_URL = 'ads-data.json';
   const VERSION = 'ads-v26-sequential-final';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
-  const ENABLE_TEST_FALLBACK = true;
+  const ENABLE_TEST_FALLBACK = false;
   const SHEET_TIMEOUT_MS = 5000;
   const CODE_TIMEOUT_MS = 4500;
 
@@ -268,7 +268,7 @@
         await render(slot, candidates(groups, p));
       }
     } catch(e) {
-      console.warn('Google Sheet Ads load failed:',e);
+      console.warn('GitHub Ads data load failed:',e);
       list.forEach(s => {
         s.dataset.adError='sheet-load-failed';
         testFallback(s, 'Google Sheet could not be loaded');
