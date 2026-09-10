@@ -544,6 +544,11 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 
 </style>
   <link rel="stylesheet" href="ads.css?v=20260907-ads-v26-sequential-final">
+<style id="details-image-final-fix">
+/* Details page only: show the complete Sheet/GitHub image without cropping. */
+#news-img,.detail-inline-media img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;display:block!important;background:#f7f7f7;}
+.detail-inline-media{margin:22px 0!important;text-align:center!important;}
+</style>
 </head>
 <body>
 <div class="news-ticker"><div class="news-ticker-label">বিশেষ বার্তা</div><div class="news-ticker-track"><span class="news-ticker-text">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে—তথ্য যাচাই করে, দায়িত্বশীলতার সঙ্গে প্রতিটি গুরুত্বপূর্ণ খবর পৌঁছে দিতে আমরা আছি আপনাদের পাশে।</span></div></div>
@@ -609,10 +614,13 @@ fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
   function imageUrl(url){
     const raw=String(url||'').trim();
     if(!raw) return '';
-    const m=raw.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);
-    return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w2000` : raw;
+    if(/^https?:\/\//i.test(raw) || raw.startsWith('//')){
+      const m=raw.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);
+      return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w2000` : raw;
+    }
+    return raw.replace(/^\.\//,'');
   }
-  const BASE_URL='https://abdurrazzak123.github.io/banglanews.2026/';
+  const BASE_URL='https://abdurrazzak123.github.io/Banglasangbad/';
   let heroImage='';
   if(n.image){heroImage=imageUrl(n.image);hero.src=heroImage;hero.alt=n.title}else hero.remove();
 
@@ -635,34 +643,17 @@ fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
   let schemaEl=document.getElementById('news-article-schema');if(!schemaEl){schemaEl=document.createElement('script');schemaEl.type='application/ld+json';schemaEl.id='news-article-schema';document.head.appendChild(schemaEl)}schemaEl.textContent=JSON.stringify(articleSchema);
   if(heroImage)setProp('og:image',heroImage);
 
-  // ক্যাটাগরি পেজে আগে দেখানো ৫–৬টি ভিজ্যুয়াল লাইনের অংশ বাদ দিয়ে শুধু বাকি সংবাদ দেখানো হবে।
+  // Details page: show the complete news text and all three Sheet images.
   const fullText=String(n.text||'').trim();
-  const width=Math.max(320, document.documentElement.clientWidth||720);
-  const charsPerLine=Math.max(28, Math.floor(width/9));
-  const previewTarget=Math.min(fullText.length, Math.max(300, Math.min(900, charsPerLine*6)));
-  let previewCut=previewTarget;
-  if(fullText.length>previewTarget){
-    const spaceCut=fullText.indexOf(' ', previewTarget);
-    if(spaceCut>=0 && spaceCut<=previewTarget+220) previewCut=spaceCut;
-  }
-  const remaining=fullText.slice(Math.min(previewCut,fullText.length)).trim();
-
   const content=document.getElementById('news-content');
-  content.innerHTML='';
-  if(!remaining){
-    content.textContent='এই সংবাদের আর কোনো বিস্তারিত তথ্য নেই।';
-  }else{
-    // স্বাভাবিক paragraph/line break বজায় রেখে পরিষ্কার ও গোছানো সংবাদ দেখানো।
-    const parts=remaining.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
-    content.innerHTML=parts.length
-      ? parts.map(x=>`<p>${esc(x).replace(/\n/g,'<br>')}</p>`).join('')
-      : `<p>${esc(remaining)}</p>`;
-  }
+  content.innerHTML=fullText
+    ? fullText.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<p>${esc(x).replace(/\n/g,'<br>')}</p>`).join('')
+    : '<p>এই সংবাদের বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
 
-  // এই নিউজের একমাত্র ছবি হলো Image 1। Image 2/Image 3 ব্যবহার করা হবে না।
   const media=document.getElementById('detail-media-slot');
   let html='';
-
+  if(n.image2) html+=img(n.image2,n.title,2);
+  if(n.image3) html+=img(n.image3,n.title,3);
   if(n.video) html+=video(n.video,n.title);
   media.innerHTML=html;
 }).catch(()=>document.getElementById('news-content').textContent='খবর লোড করতে সমস্যা হয়েছে।');
