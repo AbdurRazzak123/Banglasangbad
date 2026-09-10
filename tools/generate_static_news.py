@@ -34,6 +34,16 @@ def parse_date(v):
             return d if d.tzinfo else d.replace(tzinfo=TZ)
         except ValueError:
             pass
+    # Also accept Bangla calendar-style dates used in the Sheet, e.g. “৯ সেপ্টেম্বর ২০২৬”.
+    digits = str.maketrans('০১২৩৪৫৬৭৮৯', '0123456789')
+    b = str(v).strip().translate(digits)
+    months = {
+        'জানুয়ারি':1,'জানুয়ারি':1,'ফেব্রুয়ারি':2,'ফেব্রুয়ারি':2,'মার্চ':3,'এপ্রিল':4,
+        'মে':5,'জুন':6,'জুলাই':7,'আগস্ট':8,'সেপ্টেম্বর':9,'অক্টোবর':10,'নভেম্বর':11,'ডিসেম্বর':12,
+    }
+    m = re.fullmatch(r'(\d{1,2})\s+([^\s]+)\s+(\d{4})', b)
+    if m and m.group(2) in months:
+        return datetime(int(m.group(3)), months[m.group(2)], int(m.group(1)), tzinfo=TZ)
     return None
 
 
@@ -182,7 +192,19 @@ for i, row in enumerate(rows, 1):
 if not articles:
     raise RuntimeError('No valid news rows found in the Google Sheet.')
 
-CSS = '''*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#202124;font-family:Arial,"Noto Sans Bengali","SolaimanLipi",sans-serif;line-height:1.85}.top{background:#063b2b;color:#fff;text-align:center;padding:8px;font-size:13px}.head{background:#fff;border-bottom:3px solid #d71920;padding:10px;text-align:center}.logo{width:210px;max-width:70vw}.wrap{max-width:900px;margin:18px auto;padding:0 12px}.article{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:28px}.crumb{font-size:13px;color:#6b7280}.crumb a{color:#006a4e;text-decoration:none}.cat{color:#c1121f;font-weight:700}.title{font-size:34px;line-height:1.35;margin:7px 0 10px}.meta{color:#6b7280;font-size:14px;margin-bottom:18px}.hero,.inline-img{width:100%;height:auto;max-height:620px;object-fit:contain;border-radius:8px;background:#f2f2f2;display:block;margin:0 0 22px}.content{font-size:18px}.content p{margin:0 0 18px}.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:20px}.tag{border:1px solid #e1e5e8;border-radius:999px;padding:3px 9px;font-size:12px;color:#5f6368}.video{margin:24px 0}.video iframe,.video video{width:100%;aspect-ratio:16/9;border:0}.foot{margin-top:30px;background:#111827;color:#d1d5db;text-align:center;padding:25px;font-size:13px}.foot a{color:#fff;margin:0 7px}@media(max-width:700px){.article{padding:18px}.title{font-size:25px}.content{font-size:17px}}'''
+CSS = '''*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#202124;font-family:Arial,"Noto Sans Bengali","SolaimanLipi",sans-serif;line-height:1.85}.top{background:#063b2b;color:#fff;text-align:center;padding:8px;font-size:13px}.head{background:#fff;border-bottom:3px solid #d71920;padding:10px;text-align:center}.logo{width:210px;max-width:70vw}.wrap{max-width:900px;margin:18px auto;padding:0 12px}.article{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:28px}.crumb{font-size:13px;color:#6b7280}.crumb a{color:#006a4e;text-decoration:none}.cat{color:#c1121f;font-weight:700}.title{font-size:34px;line-height:1.35;margin:7px 0 10px}.meta{color:#6b7280;font-size:14px;margin-bottom:18px}.hero,.inline-img{width:100%;height:auto;max-height:620px;object-fit:contain;border-radius:8px;background:#f2f2f2;display:block;margin:0 0 22px}.content{font-size:18px}.content p{margin:0 0 18px}.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:20px}.tag{border:1px solid #e1e5e8;border-radius:999px;padding:3px 9px;font-size:12px;color:#5f6368}.video{margin:24px 0}.video iframe,.video video{width:100%;aspect-ratio:16/9;border:0}.foot{margin-top:30px;background:#111827;color:#d1d5db;text-align:center;padding:25px;font-size:13px}.foot a{color:#fff;margin:0 7px}@media(max-width:700px){.article{padding:18px}.title{font-size:25px}.content{font-size:17px}}.latest-section{margin-top:24px}.latest-heading{font-size:24px;line-height:1.4;margin:0 0 14px;padding:0 2px}.latest-list{display:flex;flex-direction:column;gap:12px}.latest-card{display:block;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;text-decoration:none;color:#202124;box-shadow:0 1px 5px rgba(0,0,0,.05)}.latest-title{display:block;font-size:18px;font-weight:700;line-height:1.55}.latest-meta{display:block;margin-top:6px;color:#6b7280;font-size:12px}@media(max-width:700px){.latest-heading{font-size:21px}.latest-card{padding:14px}.latest-title{font-size:16px}}'''
+
+
+def latest_section(current_sid):
+    others = [x for x in articles if slug_id(x['id']) != current_sid]
+    others.sort(key=lambda x: x.get('dt') or datetime.min.replace(tzinfo=TZ), reverse=True)
+    cards = []
+    for x in others[:8]:
+        xsid = slug_id(x['id'])
+        xpage = BASE + 'news/' + urllib.parse.quote(xsid) + '.html'
+        meta = ' &nbsp; • &nbsp; '.join([v for v in (x.get('category') or 'সংবাদ', x.get('date') or '') if v])
+        cards.append('<a class="latest-card" href="%s"><span class="latest-title">%s</span><span class="latest-meta">%s</span></a>' % (escape(xpage, quote=True), escape(x['title']), meta))
+    return '<section class="latest-section" aria-label="সর্বশেষ সংবাদ"><h2 class="latest-heading">সর্বশেষ সংবাদ</h2><div class="latest-list">%s</div></section>' % ''.join(cards)
 
 for p in NEWS.glob('*.html'):
     p.unlink()
@@ -222,8 +244,8 @@ for a in articles:
     og_image = '<meta property="og:image" content="%s">' % escape(a['image'], quote=True) if a['image'] else ''
     tag_html = ''  # Keywords remain in JSON-LD SEO metadata but are hidden from readers.
     html = '''<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><div class="top">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে</div><header class="head"><a href="%s" aria-label="বাংলা সংবাদ"><img class="logo" src="%slogo.png" alt="বাংলা সংবাদ"></a></header><main class="wrap"><article class="article"><div class="crumb"><a href="%s">হোম</a> / %s</div><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</article></main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
-        escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, BASE, BASE, BASE, BASE)
+<title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><div class="top">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে</div><header class="head"><a href="%s" aria-label="বাংলা সংবাদ"><img class="logo" src="%slogo.png" alt="বাংলা সংবাদ"></a></header><main class="wrap"><article class="article"><div class="crumb"><a href="%s">হোম</a> / %s</div><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</article>%s</main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
+        escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, latest_section(sid), BASE, BASE, BASE, BASE)
     (NEWS / (sid + '.html')).write_text(html, encoding='utf-8')
 
 now = datetime.now(TZ)
