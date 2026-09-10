@@ -1,6 +1,6 @@
 /* বাংলা সংবাদ — একই পেজে আরও পড়ুন + একাধিক ছবি */
 (function(){
-  const NEWS_DATA_URL='news-data.json';
+  const SHEET_URL='https://docs.google.com/spreadsheets/d/1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg/gviz/tq?tqx=out:json&sheet=Bangla%20News';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=s=>String(s??'').toLowerCase().trim();
   let newsPromise=null;
@@ -14,7 +14,7 @@
     });
   }
   function loadNews(){
-    if(!newsPromise) newsPromise=fetch(NEWS_DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json());
+    if(!newsPromise) newsPromise=fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parse);
     return newsPromise;
   }
   function imageUrl(url){

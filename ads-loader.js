@@ -1,14 +1,16 @@
 /*
  * বাংলা সংবাদ — FINAL Ads Loader v26
  * Same direct rendering engine used by the working ad slots + smart row retry.
- * GitHub ads-data.json fields: A Position | B Active | C Image URL | D Click URL | E Title | F Ad Code
+ * Google Sheet Ads columns: A Position | B Active | C Image URL | D Click URL | E Title | F Ad Code
  * Supported: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM, ALL, MIDDLE
  */
 (function () {
   'use strict';
 
   const SHEET_ID = '1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg';
-  const ADS_DATA_URL = 'ads-data.json';
+  const SHEET_NAME = 'Ads';
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME);
   const VERSION = 'ads-v26-sequential-final';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
   const ENABLE_TEST_FALLBACK = true;
@@ -215,7 +217,7 @@
 
   async function render(slot, ads) {
     clear(slot);
-    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in GitHub ads-data.json');
+    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in Google Sheet');
     // Try every matching row, not only the first one. This prevents one bad TOP/MIDDLE row
     // from blocking a valid ad later in the same position.
     for (const ad of ads) {
@@ -225,26 +227,23 @@
       }
       if (imageAd(slot, ad.image, ad.click, ad.title)) return true;
     }
-    return testFallback(slot, 'Matching ads were found in GitHub, but none could render');
+    return testFallback(slot, 'Matching ad rows were found, but none could render');
   }
 
-  async function fetchAdsData() {
+  async function fetchSheet() {
     let last;
     for (let i=0; i<2; i++) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), SHEET_TIMEOUT_MS);
       try {
-        const r = await fetch(ADS_DATA_URL + '?_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
-        if (!r.ok) throw new Error('GitHub ads-data.json HTTP ' + r.status);
-        const data = await r.json();
-        if (!Array.isArray(data)) throw new Error('ads-data.json is not an array');
-        return data;
+        const r = await fetch(SHEET_URL + '&_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
+        if (!r.ok) throw new Error('Google Sheet HTTP ' + r.status);
+        return parseGViz(await r.text());
       } catch (e) { last=e; if (i<1) await sleep(250); }
       finally { clearTimeout(timer); }
     }
-    throw last || new Error('GitHub ads-data.json request failed');
+    throw last || new Error('Google Sheet request failed');
   }
-
 
   async function loadAds() {
     const list = slots(); if (!list.length) return;
@@ -253,11 +252,11 @@
     if (location.protocol === 'file:') { console.warn('Ads: use HTTPS/GitHub Pages, not file://'); return; }
     list.forEach((s,i) => { const p=slotPos(s,i,list.length); s.dataset.adsLoader=VERSION; s.dataset.adPosition=p.toLowerCase().replace(/_/g,'-'); });
     try {
-      const ads = await fetchAdsData();
+      const rows = await fetchSheet();
       const groups = {TOP:[],MIDDLE:[],MIDDLE_TOP:[],MIDDLE_BOTTOM:[],BOTTOM:[],ALL:[]};
-      ads.forEach(row => {
-        const p=pos(row && row.position); if (!p || !Object.prototype.hasOwnProperty.call(groups,p) || !active(row && row.active)) return;
-        const ad={image:String((row && row.image) || '').trim(),click:String((row && row.click) || '').trim(),title:String((row && row.title) || '').trim(),code:String((row && row.code) || '').trim()};
+      rows.forEach(row => {
+        const p=pos(value(row,0)); if (!p || !Object.prototype.hasOwnProperty.call(groups,p) || !active(value(row,1))) return;
+        const ad={image:value(row,2),click:value(row,3),title:value(row,4),code:value(row,5)};
         if (ad.code || ad.image) groups[p].push(ad);
       });
       // IMPORTANT: ad snippets may temporarily override document.write/document.writeln.
@@ -270,10 +269,10 @@
         await render(slot, candidates(groups, p));
       }
     } catch(e) {
-      console.warn('GitHub ads-data.json load failed:',e);
+      console.warn('Google Sheet Ads load failed:',e);
       list.forEach(s => {
         s.dataset.adError='sheet-load-failed';
-        testFallback(s, 'GitHub ads-data.json could not be loaded');
+        testFallback(s, 'Google Sheet could not be loaded');
       });
     }
   }
