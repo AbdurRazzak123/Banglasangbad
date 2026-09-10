@@ -1,0 +1,5 @@
+এই সংস্করণে /news/*.html আর assets/news/... relative path ব্যবহার করে না।
+ছবির URL এখন https://abdurrazzak123.github.io/Banglasangbad/assets/news/...
+ফলে news/31.html-এ ছবিসহ article দেখা যাবে।
+প্রতিটি article-এর নিচে সর্বশেষ সংবাদ অংশও থাকবে।
+GitHub Actions ভবিষ্যৎ Sheet sync-এ একই নিয়ম ব্যবহার করবে।
