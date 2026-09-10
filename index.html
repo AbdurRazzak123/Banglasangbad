@@ -1430,11 +1430,11 @@ if(liveDate){
   const now=new Date();
   liveDate.textContent=new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(now);
 }
-const SHEET_URL='https://docs.google.com/spreadsheets/d/1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg/gviz/tq?tqx=out:json&sheet=Bangla%20News';
+const NEWS_DATA_URL='news-data.json';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').toLowerCase().trim();
 function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
-function load(){return fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parseSheet);}
+function load(){return fetch(NEWS_DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json());}
 
 function imageUrl(url){
   const raw=String(url||'').trim();
@@ -1444,10 +1444,10 @@ function imageUrl(url){
 }
 
 function image1(n){return n.image?`<div class="news-image-wrap"><img loading="lazy" src="${esc(imageUrl(n.image))}" alt="${esc(n.title)}" onerror="this.closest('.news-image-wrap')?.remove()"></div>`:'';}
-function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
+function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.preview||n.summary)}</p><a class="read-more-btn" href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
 function latest(list){return [...list].reverse();}
 
-load().then(list=>{const c=document.getElementById('news-container');const newest=latest(list)[0];if(c&&newest){const chars=Array.from(newest.summary||'');const preview=chars.length>700?chars.slice(0,700).join('')+'...':chars.join('');c.innerHTML=`<div class="vertical-news-block" id="news-${esc(newest.id)}">${newest.image?`<div class="news-image-top"><img loading="lazy" src="${esc(imageUrl(newest.image))}" alt="${esc(newest.title)}" onerror="this.remove()"></div>`:''}<div class="news-text-bottom"><span class="category-tag">${esc(newest.category)}</span><div class="breaking-news-date">${esc(newest.date)}</div><h3>${esc(newest.title)}</h3><p class="home-summary">${esc(preview)}</p><a href="news/${encodeURIComponent(newest.id)}.html" data-news-id="${esc(newest.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`;}const ticker=document.querySelector('.breaking .ticker-track');if(ticker&&newest)ticker.textContent=newest.title;const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=latest(list).slice(0,10).map(n=>`<div class="latest-item"><a href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">🔺 ${esc(n.title)}</a></div>`).join('');}).catch(e=>console.error(e));
+load().then(list=>{const c=document.getElementById('news-container');const newest=latest(list)[0];if(c&&newest){const preview=newest.preview||newest.summary||'';c.innerHTML=`<div class="vertical-news-block" id="news-${esc(newest.id)}">${newest.image?`<div class="news-image-top"><img loading="lazy" src="${esc(imageUrl(newest.image))}" alt="${esc(newest.title)}" onerror="this.remove()"></div>`:''}<div class="news-text-bottom"><span class="category-tag">${esc(newest.category)}</span><div class="breaking-news-date">${esc(newest.date)}</div><h3>${esc(newest.title)}</h3><p class="home-summary">${esc(preview)}</p><a href="news/${encodeURIComponent(newest.id)}.html" data-news-id="${esc(newest.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`;}const ticker=document.querySelector('.breaking .ticker-track');if(ticker&&newest)ticker.textContent=newest.title;const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=latest(list).slice(0,10).map(n=>`<div class="latest-item"><a href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">🔺 ${esc(n.title)}</a></div>`).join('');}).catch(e=>console.error(e));
 </script>
 
 

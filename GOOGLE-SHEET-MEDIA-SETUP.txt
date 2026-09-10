@@ -19,5 +19,7 @@ I = Video URL (ঐচ্ছিক)
 - ৩টি ছবি: E + G + H
 - ভিডিও: I-তে YouTube URL (youtu.be, watch?v=, shorts, embed) অথবা সরাসরি .mp4/.webm/.ogg URL দিন।
 - ছবি/ভিডিও না দিলে কোনো media block দেখাবে না।
-- হোম/ক্যাটাগরি পেজে existing ৩০ অক্ষরের summary + আরও পড়ুন থাকবে। Details পেজে প্রথম ৩০ অক্ষর বাদ দিয়ে বাকি text থাকবে।
-- Details পেজে E/G/H-এর ছবি এবং I-এর ভিডিও দেখাবে।
+- হোম/ক্যাটাগরি পেজে GitHub-generated ৩-line teaser + আরও পড়ুন থাকবে।
+- Details page-এ নির্বাচিত নিউজের teaser-এর পরের বাকি অংশ দেখাবে।
+- Google Drive-এর ছবি GitHub Actions build-এর সময় assets/news-media/ ফোল্ডারে কপি করার চেষ্টা করবে; runtime-এ Google Sheet থেকে ছবি নেওয়া হবে না।
+- Video URL data-তে থাকবে এবং প্রয়োজন অনুযায়ী Details page-এ দেখানো হবে।
