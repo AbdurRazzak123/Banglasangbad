@@ -1,25 +1,24 @@
-বাংলা সংবাদ — Google Sheet → GitHub → Website FINAL SYSTEM
+বাংলা সংবাদ — Professional Final
 
-1. Google Sheet-এর Bangla News tab build-time-এ GitHub Actions দিয়ে পড়া হয়। Website runtime-এ Bangla News tab সরাসরি পড়ে না।
-2. News data news-data.json-এ আসে। ID অপরিবর্তিত থাকে; একই ID-র row edit করলে একই article page/update সংশোধন হয়।
-3. Image 1/2/3 থাকলে GitHub Actions সেগুলো assets/news-media/ ফোল্ডারে কপি করার চেষ্টা করে। Google Drive share link ব্যবহার করা যায়; GitHub Actions-কে ফাইল দেখতে পারতে হবে (সাধারণত Anyone with the link → Viewer)।
-4. Video URL ও Keywords/Tags data-তে থাকে।
-5. index.html-এ একটিমাত্র Main News: GitHub data-র সর্বশেষ row। Latest News আলাদা থাকবে। যেকোনো headline/আরও পড়ুন-এ ক্লিক করলে /news/ID.html খুলবে।
-6. home.html ও category pages GitHub-এর news-data.json থেকে খবর দেখায়। Google Sheet runtime fetch নেই।
-7. Details /news/ID.html-এ নির্বাচিত নিউজের ৩-line teaser-এর পরের বাকি অংশ উপরে দেখানো হয়। নিচে একই category-র অন্য খবর ধারাবাহিকভাবে থাকে; বর্তমান ID বাদ থাকে। অন্য খবরের headline/আরও পড়ুন চাপলে সেই ID-র Details page খোলে।
-8. Details page-এর URL-এ সবসময় নির্বাচিত News ID থাকে।
-9. Existing SEO structure, canonical URL pattern, sitemap/news-sitemap generation এবং মূল page design অযথা বদলানো হয়নি।
-10. Ads system আলাদা এবং অপরিবর্তিত: ads-loader.js এখনও Ads tab ব্যবহার করে।
-11. GitHub Actions repository_dispatch (news_updated), scheduled sync এবং manual workflow dispatch—তিনভাবেই build চালাতে পারে।
+এই ভার্সনে:
+1) হোম/ক্যাটাগরি পেজে ১০ লাইনের Summary + একবার “আরও পড়ুন”।
+2) Details পেজে হোমের Summary অংশ বাদ দিয়ে পরের অংশ দেখানো হয়।
+3) Google Sheet: A ID, B Category, C Headline, D Details, E Image1, F Date, G Image2, H Image3, I Video.
+4) Image2 থাকলে Details-এর প্রায় ৩০–৪০ লাইনের পরে দেখানোর ব্যবস্থা আছে। Image3 ও Video optional.
+5) মোবাইলে Category ট্যাগ ছবির উপর নয়, ছবির নিচে থাকে।
+6) Professional scrolling ticker যোগ করা হয়েছে।
+7) Ad slots প্রস্তুত করা হয়েছে। এগুলো এখন placeholder; AdSense approval ও Google-এর দেওয়া ad code পাওয়ার পর placeholder-এর ভিতরে code বসাতে হবে।
+8) Logo: assets/logo.png ফাইলটি নিজের লোগো দিয়ে replace করতে পারো, যদি তোমার বর্তমান template এই path ব্যবহার করে।
 
-প্রয়োজনীয় Sheet columns:
-A ID
-B Category
-C Headline
-D Details
-E Image1
-F Date
-G Image2
-H Image3
-I Video
-J Keywords / Tags
+নোট: AdSense publisher/client ID বানিয়ে অনুমান করে দেওয়া হয়নি। অনুমোদনের পরে Google-এর আসল code ব্যবহার করবে।
+
+
+LIVE-SYNC CHECK (2026-09-02)
+- News pages explicitly read the Google Sheet tab named "Bangla News".
+- Details page also reads "Bangla News" directly; news-data.json is not the live source.
+- Ads explicitly read the "Ads" tab.
+- Requests use no-store plus a timestamp cache-buster, so browser/CDN cache does not intentionally serve an old sheet response.
+- Reloading the page fetches the current Google Sheet data; no HTML edit is required when news/ad rows change.
+
+
+FINAL ADS AUDIT NOTE: v21 uses direct sequential ad-code execution in the real HTTPS page context instead of about:blank iframe execution. If the provider still returns HTTP 403, the ad provider is rejecting the request/domain/token; code changes cannot override a server-side 403.
