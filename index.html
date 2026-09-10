@@ -444,7 +444,7 @@ main.container {
 .logo-fallback{display:none}
 @media (max-width:768px){.logo{justify-content:center}.logo-image{width:220px;height:66px;object-position:center}}
 
-/* Google Sheet date for the Breaking News article only */
+/* Breaking News date styling */
 .breaking-news-date{font-size:14px;color:#777;margin:0 0 7px;line-height:1.4;}
 @media(max-width:768px){.breaking-news-date{font-size:13px;}}
 
@@ -1155,7 +1155,7 @@ section.news-grid > article:nth-child(6) .news-image img {
 </style>
 
 <style id="universal-any-image-no-crop-final">
-/* Universal image handling: any Google Sheet / dynamic news image keeps its original aspect ratio.
+/* Universal image handling: any dynamic news image keeps its original aspect ratio.
    No manual width/height is required and no part of the image is cropped. */
 .news-grid .news-card .news-image-wrap,
 .news-grid .news-card .news-image-top,
@@ -1430,11 +1430,11 @@ if(liveDate){
   const now=new Date();
   liveDate.textContent=new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(now);
 }
-const SHEET_URL='news-data.json';
+const DATA_URL='news-data.json';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').toLowerCase().trim();
 function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
-function load(){return fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parseSheet);}
+function load(){return fetch(DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parseSheet);}
 
 function imageUrl(url){
   const raw=String(url||'').trim();

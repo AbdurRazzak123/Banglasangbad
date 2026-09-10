@@ -535,7 +535,7 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 </style>
 
 <style id="universal-any-image-no-crop-final">
-/* Universal image handling: any Google Sheet / dynamic news image keeps its original aspect ratio.
+/* Universal image handling: any dynamic news image keeps its original aspect ratio.
    No manual width/height is required and no part of the image is cropped. */
 .news-grid .news-card .news-image-wrap,
 .news-grid .news-card .news-image-top,
@@ -715,11 +715,11 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 <div class="container" style="margin-top:25px"><h2 class="page-title">গুরুত্বপূর্ণ পেজ</h2><div class="news-grid"><div class="news-card"><h2><a href="about.html" style="color:#990000;text-decoration:none">আমাদের সম্পর্কে</a></h2><p>বাংলা সংবাদ সম্পর্কে বিস্তারিত জানুন।</p></div><div class="news-card"><h2><a href="contact.html" style="color:#990000;text-decoration:none">যোগাযোগ</a></h2><p>আমাদের সঙ্গে ইমেইলে যোগাযোগ করুন: abdurrazzak.imsl123@gmail.com</p></div><div class="news-card"><h2><a href="privacy.html" style="color:#990000;text-decoration:none">গোপনীয়তা নীতি</a></h2><p>আমাদের গোপনীয়তা নীতি পড়ুন।</p></div><div class="news-card"><h2><a href="disclaimer.html" style="color:#990000;text-decoration:none">দাবিত্যাগ</a></h2><p>ওয়েবসাইটের তথ্য ব্যবহারের শর্ত ও সীমাবদ্ধতা দেখুন।</p></div></div></div>
 
 <script>
-const SHEET_URL='news-data.json';
+const DATA_URL='news-data.json';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').toLowerCase().trim();
 function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
-function load(){return fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parseSheet);}
+function load(){return fetch(DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parseSheet);}
 
 function imageUrl(url){
   const raw=String(url||'').trim();

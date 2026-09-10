@@ -1,6 +1,6 @@
-/* বাংলা সংবাদ — একই পেজে আরও পড়ুন + একাধিক ছবি */
+/* বাংলা সংবাদ — GitHub JSON থেকে একই পেজে আরও পড়ুন + একাধিক ছবি */
 (function(){
-  const SHEET_URL='news-data.json';
+  const DATA_URL='news-data.json';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=s=>String(s??'').toLowerCase().trim();
   let newsPromise=null;
@@ -14,7 +14,7 @@
     });
   }
   function loadNews(){
-    if(!newsPromise) newsPromise=fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parse);
+    if(!newsPromise) newsPromise=fetch(DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parse);
     return newsPromise;
   }
   function imageUrl(url){

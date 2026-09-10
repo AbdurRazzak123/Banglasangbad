@@ -1,15 +1,13 @@
 /*
  * বাংলা সংবাদ — FINAL Ads Loader v26
  * Same direct rendering engine used by the working ad slots + smart row retry.
- * Google Sheet Ads columns: A Position | B Active | C Image URL | D Click URL | E Title | F Ad Code
+ * GitHub ads-data.json columns: A Position | B Active | C Image URL | D Click URL | E Title | F Ad Code
  * Supported: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM, ALL, MIDDLE
  */
 (function () {
   'use strict';
 
-  const SHEET_ID = '1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg';
-  const SHEET_NAME = 'Ads';
-  const SHEET_URL = 'ads-data.json';
+  const DATA_URL = 'ads-data.json';
   const VERSION = 'ads-v26-sequential-final';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
   const ENABLE_TEST_FALLBACK = false;
@@ -21,9 +19,9 @@
 
   function parseGViz(raw) {
     const a = raw.indexOf('{'), b = raw.lastIndexOf('}') + 1;
-    if (a < 0 || b <= a) throw new Error('Invalid Google Sheet response');
+    if (a < 0 || b <= a) throw new Error('Invalid GitHub ads-data response');
     const data = JSON.parse(raw.slice(a, b));
-    if (data.status && data.status !== 'ok') throw new Error('Google Sheet status: ' + data.status);
+    if (data.status && data.status !== 'ok') throw new Error('GitHub ads-data status: ' + data.status);
     return data.table && Array.isArray(data.table.rows) ? data.table.rows : [];
   }
 
@@ -224,7 +222,7 @@
 
   async function render(slot, ads) {
     clear(slot);
-    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in Google Sheet');
+    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in GitHub ads-data.json');
     // Try every matching row, not only the first one. This prevents one bad TOP/MIDDLE row
     // from blocking a valid ad later in the same position.
     for (const ad of ads) {
@@ -243,13 +241,13 @@
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), SHEET_TIMEOUT_MS);
       try {
-        const r = await fetch(SHEET_URL + '?_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
-        if (!r.ok) throw new Error('Google Sheet HTTP ' + r.status);
+        const r = await fetch(DATA_URL + '?_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
+        if (!r.ok) throw new Error('GitHub ads-data HTTP ' + r.status);
         return parseGViz(await r.text());
       } catch (e) { last=e; if (i<1) await sleep(250); }
       finally { clearTimeout(timer); }
     }
-    throw last || new Error('Google Sheet request failed');
+    throw last || new Error('GitHub ads-data request failed');
   }
 
   async function loadAds() {
@@ -279,7 +277,7 @@
       console.warn('GitHub Ads data load failed:',e);
       list.forEach(s => {
         s.dataset.adError='sheet-load-failed';
-        testFallback(s, 'Google Sheet could not be loaded');
+        testFallback(s, 'GitHub ads-data.json could not be loaded');
       });
     }
   }
