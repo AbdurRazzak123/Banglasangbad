@@ -9,10 +9,10 @@
 
   const SHEET_ID = '1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg';
   const SHEET_NAME = 'Ads';
-  const SHEET_URL = 'ads-data.json';
+  const SHEET_URL = 'https://abdurrazzak123.github.io/Banglasangbad/ads-data.json';
   const VERSION = 'ads-v26-sequential-final';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
-  const ENABLE_TEST_FALLBACK = false;
+  const ENABLE_TEST_FALLBACK = true;
   const SHEET_TIMEOUT_MS = 5000;
   const CODE_TIMEOUT_MS = 4500;
 
