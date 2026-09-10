@@ -7,25 +7,11 @@
 (function () {
   'use strict';
 
-  const SHEET_ID = 'LOCAL_GITHUB_DATA';
-  const SHEET_NAME = 'Ads';
-  const SHEET_URL = 'ads-data.json';
-  const VERSION = 'ads-v27-github-data';
-  // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
-  const ENABLE_TEST_FALLBACK = false;
-  const SHEET_TIMEOUT_MS = 5000;
+  const ADS_DATA_URL = 'ads-data.json';
+  const VERSION = 'ads-v26-sequential-final';
   const CODE_TIMEOUT_MS = 4500;
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const value = (row, i) => row && row.c && row.c[i] && row.c[i].v != null ? String(row.c[i].v).trim() : '';
-
-  function parseGViz(raw) {
-    const a = raw.indexOf('{'), b = raw.lastIndexOf('}') + 1;
-    if (a < 0 || b <= a) throw new Error('Invalid Google Sheet response');
-    const data = JSON.parse(raw.slice(a, b));
-    if (data.status && data.status !== 'ok') throw new Error('Google Sheet status: ' + data.status);
-    return data.table && Array.isArray(data.table.rows) ? data.table.rows : [];
-  }
 
   function active(v) {
     const x = String(v || '').trim().toLowerCase();
@@ -199,24 +185,9 @@
     } finally { restore(); }
   }
 
-  function testFallback(slot, reason) {
-    if (!ENABLE_TEST_FALLBACK) return false;
-    clear(slot);
-    const box = document.createElement('div');
-    box.className = 'ad-test-fallback';
-    box.innerHTML = '<strong>TEST AD</strong><span>Ad slot is working</span><small>' +
-      (reason || 'Network ad did not render') + '</small>';
-    slot.appendChild(box);
-    slot.classList.add('ad-loaded','ad-test');
-    slot.dataset.adLoaded = 'test';
-    slot.dataset.adType = 'test-fallback';
-    slot.setAttribute('aria-label', 'Test advertisement fallback');
-    return true;
-  }
-
   async function render(slot, ads) {
     clear(slot);
-    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in Google Sheet');
+    if (!ads || !ads.length) { clear(slot); return false; }
     // Try every matching row, not only the first one. This prevents one bad TOP/MIDDLE row
     // from blocking a valid ad later in the same position.
     for (const ad of ads) {
@@ -226,22 +197,14 @@
       }
       if (imageAd(slot, ad.image, ad.click, ad.title)) return true;
     }
-    return testFallback(slot, 'Matching ad rows were found, but none could render');
+    clear(slot); return false;
   }
 
   async function fetchSheet() {
-    let last;
-    for (let i=0; i<2; i++) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), SHEET_TIMEOUT_MS);
-      try {
-        const r = await fetch(SHEET_URL + '&_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
-        if (!r.ok) throw new Error('Google Sheet HTTP ' + r.status);
-        return parseGViz(await r.text());
-      } catch (e) { last=e; if (i<1) await sleep(250); }
-      finally { clearTimeout(timer); }
-    }
-    throw last || new Error('Google Sheet request failed');
+    const r = await fetch(ADS_DATA_URL + '?_=' + Date.now(), {cache:'no-store'});
+    if (!r.ok) throw new Error('ads-data.json HTTP ' + r.status);
+    const data = await r.json();
+    return Array.isArray(data) ? data : [];
   }
 
   async function loadAds() {
@@ -254,8 +217,8 @@
       const rows = await fetchSheet();
       const groups = {TOP:[],MIDDLE:[],MIDDLE_TOP:[],MIDDLE_BOTTOM:[],BOTTOM:[],ALL:[]};
       rows.forEach(row => {
-        const p=pos(value(row,0)); if (!p || !Object.prototype.hasOwnProperty.call(groups,p) || !active(value(row,1))) return;
-        const ad={image:value(row,2),click:value(row,3),title:value(row,4),code:value(row,5)};
+        const p=pos(row && row.position); if (!p || !Object.prototype.hasOwnProperty.call(groups,p) || !active(row && row.active)) return;
+        const ad={image:String(row?.image||''),click:String(row?.click||''),title:String(row?.title||''),code:String(row?.code||'')};
         if (ad.code || ad.image) groups[p].push(ad);
       });
       // IMPORTANT: ad snippets may temporarily override document.write/document.writeln.
@@ -268,11 +231,8 @@
         await render(slot, candidates(groups, p));
       }
     } catch(e) {
-      console.warn('Google Sheet Ads load failed:',e);
-      list.forEach(s => {
-        s.dataset.adError='sheet-load-failed';
-        testFallback(s, 'Google Sheet could not be loaded');
-      });
+      console.warn('GitHub Ads data load failed:',e);
+      list.forEach(s => { clear(s); s.dataset.adError='ads-data-load-failed'; });
     }
   }
 

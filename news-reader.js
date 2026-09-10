@@ -1,20 +1,19 @@
 /* বাংলা সংবাদ — একই পেজে আরও পড়ুন + একাধিক ছবি */
 (function(){
-  const SHEET_URL='news-data.json';
+  const NEWS_DATA_URL='news-data.json';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=s=>String(s??'').toLowerCase().trim();
   let newsPromise=null;
 
-  function parse(text){
-    const a=text.indexOf('{'), b=text.lastIndexOf('}')+1;
-    const rows=JSON.parse(text.slice(a,b)).table.rows||[];
-    return rows.map((r,i)=>{
-      const c=r.c||[], v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';
-      return {id:v(0)||(i+1)+'',category:v(1),title:v(2),text:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8),keywords:v(9)};
-    });
+  function parse(list){
+    return (Array.isArray(list)?list:[]).map((n,i)=>({
+      id:String(n?.id ?? (i+1)), category:String(n?.category ?? ''), title:String(n?.title ?? ''),
+      text:String(n?.text ?? n?.summary ?? ''), image:String(n?.image ?? ''), date:String(n?.date ?? ''),
+      image2:String(n?.image2 ?? ''), image3:String(n?.image3 ?? ''), video:String(n?.video ?? ''), keywords:String(n?.keywords ?? '')
+    }));
   }
   function loadNews(){
-    if(!newsPromise) newsPromise=fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parse);
+    if(!newsPromise) newsPromise=fetch(NEWS_DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('news-data.json HTTP '+r.status);return r.json();}).then(parse);
     return newsPromise;
   }
   function imageUrl(url){
