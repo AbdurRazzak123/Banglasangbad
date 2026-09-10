@@ -1,4 +1,4 @@
-import json, re, urllib.request, urllib.parse
+import json, re, urllib.request, urllib.parse, urllib.error
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -10,8 +10,11 @@ SHEET_NAME = 'Bangla News'
 BASE = 'https://abdurrazzak123.github.io/Banglasangbad/'
 ROOT = Path(__file__).resolve().parent.parent
 NEWS = ROOT / 'news'
-NEWS.mkdir(exist_ok=True)
+MEDIA = ROOT / 'assets' / 'news-media'
+DATA_FILE = ROOT / 'news-data.json'
 TZ = ZoneInfo('Asia/Dhaka')
+
+IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'}
 
 
 def cell(row, idx):
@@ -37,21 +40,103 @@ def parse_date(v):
     return None
 
 
-def image_url(v):
-    v = (v or '').strip()
-    m = re.search(r'drive\.google\.com/(?:file/d/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)', v, re.I)
-    return f'https://drive.google.com/thumbnail?id={m.group(1)}&sz=w2000' if m else v
+def normalize_id(v):
+    raw = str(v or '').strip()
+    m = re.fullmatch(r'(\d+)\.0+', raw)
+    return m.group(1) if m else raw
 
 
 def slug_id(v):
-    raw = str(v).strip()
-    # Google Sheets GViz may return numeric IDs such as 23.0.
-    # Normalize integer-like IDs so article URLs stay stable: 23.html, not 23-0.html.
-    m = re.fullmatch(r'(\d+)\.0+', raw)
-    if m:
-        raw = m.group(1)
+    raw = normalize_id(v)
     s = re.sub(r'[^A-Za-z0-9_-]+', '-', raw).strip('-')
     return s or 'article'
+
+
+def drive_id(url):
+    raw = str(url or '').strip()
+    patterns = [
+        r'drive\.google\.com/file/d/([A-Za-z0-9_-]+)',
+        r'drive\.google\.com/open\?(?:[^#]*&)?id=([A-Za-z0-9_-]+)',
+        r'drive\.google\.com/uc\?(?:[^#]*&)?id=([A-Za-z0-9_-]+)',
+        r'drive\.usercontent\.google\.com/download\?(?:[^#]*&)?id=([A-Za-z0-9_-]+)',
+    ]
+    for p in patterns:
+        m = re.search(p, raw, re.I)
+        if m:
+            return m.group(1)
+    return ''
+
+
+def guess_ext(url, content_type=''):
+    ct = (content_type or '').split(';', 1)[0].lower().strip()
+    by_type = {
+        'image/jpeg': '.jpg', 'image/jpg': '.jpg', 'image/png': '.png',
+        'image/webp': '.webp', 'image/gif': '.gif', 'image/avif': '.avif'
+    }
+    if ct in by_type:
+        return by_type[ct]
+    path = urllib.parse.urlparse(url).path.lower()
+    ext = Path(path).suffix
+    return ext if ext in IMAGE_EXTS else '.jpg'
+
+
+def download_image(url, out_path):
+    raw = str(url or '').strip()
+    if not raw:
+        return ''
+    if raw.startswith('assets/') or raw.startswith('../assets/'):
+        return raw
+    parsed = urllib.parse.urlparse(raw)
+    if parsed.scheme not in ('http', 'https'):
+        return raw
+
+    did = drive_id(raw)
+    candidates = []
+    if did:
+        candidates = [
+            f'https://drive.usercontent.google.com/download?id={did}&export=download&confirm=t',
+            f'https://drive.google.com/uc?export=download&id={did}&confirm=t',
+        ]
+    else:
+        candidates = [raw]
+
+    last_error = None
+    for candidate in candidates:
+        try:
+            req = urllib.request.Request(candidate, headers={'User-Agent': 'Mozilla/5.0 (GitHub Actions; Banglasangbad)'})
+            with urllib.request.urlopen(req, timeout=45) as r:
+                data = r.read()
+                ctype = r.headers.get('Content-Type', '')
+                if not ctype.lower().startswith('image/'):
+                    # Some servers omit Content-Type; accept only a known image extension.
+                    if Path(urllib.parse.urlparse(raw).path).suffix.lower() not in IMAGE_EXTS:
+                        raise ValueError(f'not an image ({ctype})')
+                ext = guess_ext(raw, ctype)
+                final = out_path.with_suffix(ext)
+                final.parent.mkdir(parents=True, exist_ok=True)
+                final.write_bytes(data)
+                return str(final.relative_to(ROOT)).replace('\\', '/')
+        except Exception as e:
+            last_error = e
+    print(f'WARNING: image download failed for {raw}: {last_error}')
+    return raw
+
+
+def preview_remaining(text):
+    clean = re.sub(r'\r\n?', '\n', str(text or '')).strip()
+    if not clean:
+        return '', ''
+    # One deterministic preview is stored in GitHub data. Cards still use CSS line-clamp:3.
+    # Keeping the preview short makes the Details page begin close to the visible 3-line teaser.
+    limit = 180
+    if len(clean) <= limit:
+        return clean, ''
+    cut = clean.rfind(' ', 0, limit + 1)
+    if cut < 120:
+        cut = limit
+    preview = clean[:cut].strip() + '…'
+    remaining = clean[cut:].strip()
+    return preview, remaining
 
 
 def desc(text, title):
@@ -59,168 +144,255 @@ def desc(text, title):
     return title if not t else (t[:152].rstrip() + '...' if len(t) > 155 else t)
 
 
-def video_html(url, title):
+def video_html(url, title, prefix='../'):
     if not url:
         return ''
     m = re.search(r'(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed|shorts|live)/)([\w-]{6,})', url)
     if m:
-        return '<div class="video"><iframe src="https://www.youtube.com/embed/%s" title="%s" loading="lazy" allowfullscreen></iframe></div>' % (escape(m.group(1)), escape(title))
+        return '<div class="sheet-video"><iframe loading="lazy" src="https://www.youtube.com/embed/%s" title="%s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>' % (escape(m.group(1)), escape(title))
     if re.search(r'\.(mp4|webm|ogg)(?:\?.*)?$', url, re.I):
-        return '<div class="video"><video controls preload="metadata" src="%s"></video></div>' % escape(url)
-    return '<p><a href="%s" rel="noopener">▶ ভিডিও দেখুন</a></p>' % escape(url)
+        return '<div class="sheet-video"><video controls preload="metadata" src="%s"></video></div>' % escape(url)
+    return '<p><a href="%s" target="_blank" rel="noopener" class="read-more-btn">▶ ভিডিও দেখুন</a></p>' % escape(url)
 
 
-q = urllib.parse.quote('select *')
-url = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:json&sheet={urllib.parse.quote(SHEET_NAME)}&tq={q}'
-req = urllib.request.Request(url, headers={'User-Agent': 'Banglasangbad-static-builder/1.0'})
-with urllib.request.urlopen(req, timeout=45) as r:
-    raw = r.read().decode('utf-8')
-m = re.search(r'google\.visualization\.Query\.setResponse\((.*)\);?\s*$', raw, re.S)
-if not m:
-    raise RuntimeError('Google Sheet response could not be parsed. Make sure the sheet is public/published.')
-rows = json.loads(m.group(1)).get('table', {}).get('rows', [])
+def load_sheet_articles():
+    q = urllib.parse.quote('select *')
+    url = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:json&sheet={urllib.parse.quote(SHEET_NAME)}&tq={q}'
+    req = urllib.request.Request(url, headers={'User-Agent': 'Banglasangbad-static-builder/2.0'})
+    with urllib.request.urlopen(req, timeout=45) as r:
+        raw = r.read().decode('utf-8')
+    m = re.search(r'google\.visualization\.Query\.setResponse\((.*)\);?\s*$', raw, re.S)
+    if not m:
+        raise RuntimeError('Google Sheet response could not be parsed. Make sure the sheet is public/published.')
+    rows = json.loads(m.group(1)).get('table', {}).get('rows', [])
+    return rows
 
-articles = []
-seen = set()
-for i, row in enumerate(rows, 1):
-    aid = cell(row, 0) or str(i)
-    title = cell(row, 2)
-    if not title or aid in seen:
-        continue
-    seen.add(aid)
-    articles.append({
-        'id': aid,
-        'category': cell(row, 1),
-        'title': title,
-        'text': cell(row, 3),
-        'image': image_url(cell(row, 4)),
-        'date': cell(row, 5),
-        'image2': image_url(cell(row, 6)),
-        'image3': image_url(cell(row, 7)),
-        'video': cell(row, 8),
-        'keywords': cell(row, 9),
-        'dt': parse_date(cell(row, 5)),
-    })
 
+def load_offline_articles():
+    if not DATA_FILE.exists():
+        raise RuntimeError('Offline test requested but news-data.json is missing.')
+    data = json.loads(DATA_FILE.read_text(encoding='utf-8'))
+    return [
+        {**a, 'id': normalize_id(a.get('id')), 'text': a.get('text', a.get('summary', '')), 'dt': parse_date(a.get('date', ''))}
+        for a in data
+    ]
+
+
+def build_articles():
+    offline = False
+    try:
+        rows = load_sheet_articles()
+    except Exception as e:
+        if __import__('os').environ.get('OFFLINE_TEST') == '1':
+            print(f'OFFLINE_TEST=1: using existing news-data.json because Sheet fetch failed: {e}')
+            return load_offline_articles()
+        raise
+
+    articles = []
+    seen = set()
+    for i, row in enumerate(rows, 1):
+        aid = normalize_id(cell(row, 0) or str(i))
+        title = cell(row, 2)
+        if not title or aid in seen:
+            continue
+        seen.add(aid)
+        text = cell(row, 3)
+        preview, remaining = preview_remaining(text)
+        articles.append({
+            'id': aid,
+            'category': cell(row, 1),
+            'title': title,
+            'text': text,
+            'preview': preview,
+            'remaining': remaining,
+            'image': cell(row, 4),
+            'date': cell(row, 5),
+            'image2': cell(row, 6),
+            'image3': cell(row, 7),
+            'video': cell(row, 8),
+            'keywords': cell(row, 9),
+            'dt': parse_date(cell(row, 5)),
+        })
+    return articles
+
+
+def write_media_and_data(articles):
+    MEDIA.mkdir(parents=True, exist_ok=True)
+    # Track generated media so edited/removed images do not leave stale files behind.
+    old_manifest = ROOT / '.generated-news-media.json'
+    if old_manifest.exists():
+        try:
+            for rel in json.loads(old_manifest.read_text(encoding='utf-8')):
+                p = ROOT / rel
+                if p.is_file():
+                    p.unlink()
+        except Exception as e:
+            print('WARNING: old media cleanup skipped:', e)
+
+    generated = []
+    for a in articles:
+        for key, slot in [('image', 1), ('image2', 2), ('image3', 3)]:
+            src = a.get(key, '')
+            if not src:
+                a[key] = ''
+                continue
+            stem = MEDIA / f"{slug_id(a['id'])}-{slot}"
+            local = download_image(src, stem)
+            a[key] = local
+            if local.startswith('assets/news-media/'):
+                generated.append(local)
+
+    old_manifest.write_text(json.dumps(sorted(set(generated)), ensure_ascii=False, indent=2), encoding='utf-8')
+    serial = []
+    for a in articles:
+        x = dict(a)
+        x.pop('dt', None)
+        serial.append(x)
+    DATA_FILE.write_text(json.dumps(serial, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+def render_detail_pages(articles):
+    NEWS.mkdir(exist_ok=True)
+    for p in NEWS.glob('*.html'):
+        p.unlink()
+
+    home = (ROOT / 'home.html').read_text(encoding='utf-8')
+    head = home.split('</head>', 1)[0] + '</head>'
+    body_start = home.split('<body>', 1)[1].split('<div class="container">', 1)[0]
+    body_tail = home.split('<div class="ad-slot footer-ad', 1)[1]
+    body_tail = '<div class="ad-slot footer-ad' + body_tail
+
+    detail_css = '''<style id="generated-detail-feed">
+.detail-feed-page{max-width:1200px;margin:20px auto;padding:0 15px}
+.detail-main-card{background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.detail-main-card .detail-image-wrap{width:100%;text-align:center;background:#f5f5f5}
+.detail-main-card .detail-image-wrap img{display:block;width:100%;height:auto;max-height:650px;object-fit:contain;margin:0 auto}
+.detail-main-content{padding:18px}
+.detail-main-content .category-tag{color:#c1121f;font-weight:bold;font-size:13px;display:inline-block;margin-right:10px}
+.detail-main-content .news-date{color:#777;font-size:13px}
+.detail-main-content h1{font-size:30px;line-height:1.45;color:#111;margin:8px 0 14px}
+.detail-remaining{font-size:17px;line-height:1.9;color:#333}
+.detail-remaining p{margin:0 0 16px}
+.detail-feed-title{font-size:22px;color:#990000;border-left:5px solid #990000;padding-left:10px;margin:28px 0 15px}
+.detail-feed-list{display:flex;flex-direction:column;gap:15px;background:#fff;padding:20px;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.detail-feed-card{border-bottom:1px solid #eee;padding-bottom:15px;margin-bottom:5px}
+.detail-feed-card:last-child{border-bottom:none}
+.detail-feed-card .detail-feed-image{width:100%;text-align:center;margin-bottom:10px}
+.detail-feed-card .detail-feed-image img{display:block;width:100%;height:auto;max-height:460px;object-fit:contain}
+.detail-feed-card h2{font-size:20px;color:#222;margin-bottom:8px;line-height:1.45}
+.detail-feed-card .detail-feed-meta{font-size:12px;color:#888;margin-bottom:5px}
+.detail-feed-card p{font-size:15px;color:#555;line-height:1.6}
+.sheet-video{margin:20px 0;background:#000;border-radius:6px;overflow:hidden}.sheet-video iframe{width:100%;aspect-ratio:16/9;border:0;display:block}.sheet-video video{width:100%;display:block}
+@media(max-width:768px){.detail-feed-page{padding:0 12px}.detail-main-content{padding:14px}.detail-main-content h1{font-size:24px}.detail-remaining{font-size:16px}.detail-feed-list{padding:14px}.detail-feed-card h2{font-size:19px}}
+</style>'''
+
+    for a in articles:
+        sid = slug_id(a['id'])
+        page_url = BASE + 'news/' + urllib.parse.quote(sid) + '.html'
+        description = desc(a.get('text', ''), a['title'])
+        keywords = [x.strip() for x in re.split(r'[,،|\n]+', a.get('keywords', '')) if x.strip()][:15]
+        schema = {
+            '@context':'https://schema.org','@type':'NewsArticle','headline':a['title'],
+            'description':description,'inLanguage':'bn','url':page_url,
+            'mainEntityOfPage':{'@type':'WebPage','@id':page_url},
+            'author':{'@type':'Organization','name':'বাংলা সংবাদ','url':BASE},
+            'publisher':{'@type':'Organization','name':'বাংলা সংবাদ','logo':{'@type':'ImageObject','url':BASE+'logo.png'}},
+            'image':[BASE+a['image'][len('../'):] if a.get('image','').startswith('../') else (BASE+a['image'] if a.get('image','').startswith('assets/') else a.get('image') or BASE+'logo.png')],
+        }
+        if a.get('dt'):
+            pub=a['dt'].isoformat(timespec='seconds'); schema['datePublished']=pub; schema['dateModified']=pub
+        if a.get('category'): schema['articleSection']=a['category']
+        if keywords: schema['keywords']=keywords
+
+        h = head
+        replacements = {
+            r'<title>.*?</title>': f'<title>{escape(a["title"])} | বাংলা সংবাদ</title>',
+            r'<link rel="canonical" href="[^"]*">': f'<link rel="canonical" href="{escape(page_url, quote=True)}">',
+            r'<meta name="description" content="[^"]*">': f'<meta name="description" content="{escape(description, quote=True)}">',
+            r'<meta property="og:title" content="[^"]*">': f'<meta property="og:title" content="{escape(a["title"], quote=True)}">',
+            r'<meta property="og:description" content="[^"]*">': f'<meta property="og:description" content="{escape(description, quote=True)}">',
+            r'<meta property="og:url" content="[^"]*">': f'<meta property="og:url" content="{escape(page_url, quote=True)}">',
+            r'<meta property="og:type" content="[^"]*">': '<meta property="og:type" content="article">',
+            r'<meta name="twitter:title" content="[^"]*">': f'<meta name="twitter:title" content="{escape(a["title"], quote=True)}">',
+            r'<meta name="twitter:description" content="[^"]*">': f'<meta name="twitter:description" content="{escape(description, quote=True)}">',
+            r'<meta name="keywords" content="[^"]*">': f'<meta name="keywords" content="{escape(", ".join(keywords), quote=True)}">',
+        }
+        for pattern, repl in replacements.items():
+            h = re.sub(pattern, repl, h, count=1, flags=re.S)
+        og = a.get('image','')
+        if og:
+            og_abs = BASE + og if og.startswith('assets/') else og
+            h = re.sub(r'<meta property="og:image" content="[^"]*">', f'<meta property="og:image" content="{escape(og_abs, quote=True)}">', h, count=1)
+        h = h.replace('</head>', detail_css + '<script type="application/ld+json">' + json.dumps(schema, ensure_ascii=False, separators=(',',':')) + '</script></head>')
+
+        image = ''
+        if a.get('image'):
+            image = f'<div class="detail-image-wrap"><img src="../{escape(a["image"])}" alt="{escape(a["title"])}" loading="eager"></div>' if a['image'].startswith('assets/') else f'<div class="detail-image-wrap"><img src="{escape(a["image"])}" alt="{escape(a["title"])}" loading="eager"></div>'
+        remaining = a.get('remaining','')
+        if remaining:
+            paragraphs = ''.join(f'<p>{escape(x)}</p>' for x in re.split(r'\n\s*\n|\n', remaining) if x.strip())
+        else:
+            paragraphs = '<p>এই সংবাদের বাকি অংশ নেই।</p>'
+
+        main = f'''<div class="container detail-feed-page">
+  <article class="detail-main-card" id="news-{escape(a['id'])}">
+    {image}
+    <div class="detail-main-content">
+      <span class="category-tag">{escape(a.get('category',''))}</span><span class="news-date">{escape(a.get('date',''))}</span>
+      <h1>{escape(a['title'])}</h1>
+      <div class="detail-remaining">{paragraphs}</div>
+      {video_html(a.get('video',''), a['title'])}
+    </div>
+  </article>
+  <h2 class="detail-feed-title">আরও সংবাদ</h2>
+  <section class="detail-feed-list">
+'''
+        cat = str(a.get('category','')).strip().lower()
+        related = [x for x in reversed(articles) if str(x.get('category','')).strip().lower() == cat and normalize_id(x.get('id')) != normalize_id(a.get('id'))]
+        for x in related:
+            ximg = ''
+            if x.get('image'):
+                src = '../' + x['image'] if x['image'].startswith('assets/') else x['image']
+                ximg = f'<div class="detail-feed-image"><img src="{escape(src)}" alt="{escape(x["title"])}" loading="lazy"></div>'
+            main += f'''    <article class="detail-feed-card">
+      <a href="{escape(sid and ("../news/"+urllib.parse.quote(slug_id(x['id']))+".html"))}">{ximg}<h2>{escape(x['title'])}</h2></a>
+      <div class="detail-feed-meta">{escape(x.get('date',''))}</div>
+      <p>{escape(x.get('preview') or x.get('text',''))}</p>
+      <a class="read-more-btn" href="../news/{urllib.parse.quote(slug_id(x['id']))}.html">আরও পড়ুন</a>
+    </article>\n'''
+        if not related:
+            main += '    <p style="color:#777;">এই ক্যাটাগরিতে আপাতত আর কোনো সংবাদ নেই।</p>\n'
+        main += '  </section>\n</div>\n'
+        html = '<!DOCTYPE html><html lang="bn">' + h.split('<html lang="bn">',1)[1] + '<body>' + body_start + main + body_tail.split('<body>',1)[-1] if False else None
+        # Construct from head/body pieces without duplicating the head's opening tag.
+        html = '<!DOCTYPE html><html lang="bn">' + h.split('<html lang="bn">',1)[1] + '<body>' + body_start + main + body_tail
+        (NEWS / f'{sid}.html').write_text(html, encoding='utf-8')
+
+
+def write_sitemaps(articles):
+    now = datetime.now(TZ)
+    static = ['', 'home.html', 'national.html', 'politics.html', 'international.html', 'economy.html', 'sports.html', 'entertainment.html', 'technology.html', 'more.html', 'about.html', 'contact.html', 'privacy.html', 'disclaimer.html', 'advertise.html']
+    root = Element('urlset', {'xmlns':'http://www.sitemaps.org/schemas/sitemap/0.9'})
+    for p in static:
+        u=SubElement(root,'url'); SubElement(u,'loc').text=BASE+p; SubElement(u,'lastmod').text=now.date().isoformat()
+    for a in articles:
+        u=SubElement(root,'url'); SubElement(u,'loc').text=BASE+'news/'+urllib.parse.quote(slug_id(a['id']))+'.html'
+        if a.get('dt'): SubElement(u,'lastmod').text=a['dt'].date().isoformat()
+    ElementTree(root).write(ROOT/'sitemap.xml',encoding='utf-8',xml_declaration=True)
+
+    cutoff=now-timedelta(days=2)
+    ns=Element('urlset',{'xmlns':'http://www.sitemaps.org/schemas/sitemap/0.9','xmlns:news':'http://www.google.com/schemas/sitemap-news/0.9'})
+    fresh=[a for a in articles if a.get('dt') and cutoff<=a['dt']<=now+timedelta(minutes=10)]
+    for a in sorted(fresh,key=lambda x:x['dt'],reverse=True)[:1000]:
+        u=SubElement(ns,'url'); SubElement(u,'loc').text=BASE+'news/'+urllib.parse.quote(slug_id(a['id']))+'.html'
+        n=SubElement(u,'news:news'); pub=SubElement(n,'news:publication'); SubElement(pub,'news:name').text='বাংলা সংবাদ'; SubElement(pub,'news:language').text='bn'; SubElement(n,'news:publication_date').text=a['dt'].isoformat(timespec='seconds'); SubElement(n,'news:title').text=a['title']
+    ElementTree(ns).write(ROOT/'news-sitemap.xml',encoding='utf-8',xml_declaration=True)
+
+
+articles = build_articles()
 if not articles:
     raise RuntimeError('No valid news rows found in the Google Sheet.')
-
-CSS = '''*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#202124;font-family:Arial,"Noto Sans Bengali","SolaimanLipi",sans-serif;line-height:1.85}.top{background:#063b2b;color:#fff;text-align:center;padding:8px;font-size:13px}.head{background:#fff;border-bottom:3px solid #d71920;padding:10px;text-align:center}.logo{width:210px;max-width:70vw}.nav{background:#111827}.nav-inner{max-width:1100px;margin:auto;display:flex;justify-content:center;flex-wrap:wrap}.nav a{color:#fff;text-decoration:none;padding:9px 12px;font-size:14px}.wrap{max-width:900px;margin:18px auto;padding:0 12px}.article{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:28px}.crumb{font-size:13px;color:#6b7280}.crumb a{color:#006a4e;text-decoration:none}.cat{color:#c1121f;font-weight:700}.title{font-size:34px;line-height:1.35;margin:7px 0 10px}.meta{color:#6b7280;font-size:14px;margin-bottom:18px}.hero,.inline-img{width:100%;height:auto;max-height:620px;object-fit:contain;border-radius:8px;background:#f2f2f2;display:block;margin:0 0 22px}.content{font-size:18px}.content p{margin:0 0 18px}.video{margin:24px 0}.video iframe,.video video{width:100%;aspect-ratio:16/9;border:0}.foot{margin-top:30px;background:#111827;color:#d1d5db;text-align:center;padding:25px;font-size:13px}.foot a{color:#fff;margin:0 7px}@media(max-width:700px){.nav-inner{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}.nav a{font-size:13px;padding:8px 10px;white-space:nowrap}.article{padding:18px}.title{font-size:25px}.content{font-size:17px}.hero,.inline-img{max-height:420px}}'''
-
-for p in NEWS.glob('*.html'):
-    p.unlink()
-
-for a in articles:
-    sid = slug_id(a['id'])
-    page = BASE + 'news/' + urllib.parse.quote(sid) + '.html'
-    description = desc(a['text'], a['title'])
-    keywords = [x.strip() for x in re.split(r'[,،|\n]+', a['keywords']) if x.strip()][:15]
-    paragraphs = [x.strip() for x in re.split(r'\n\s*\n|\n', a['text']) if x.strip()]
-    full_text = a['text'].strip()
-    preview_chars = list(full_text)[:700]
-    remaining_text = ''.join(list(full_text)[700:]).strip()
-    detail_source = remaining_text
-    detail_paragraphs = [x.strip() for x in re.split(r'\n\s*\n|\n', detail_source) if x.strip()]
-    content = ''.join('<p>%s</p>' % escape(x) for x in detail_paragraphs) or '<p>এই সংবাদের অতিরিক্ত বিস্তারিত অংশ নেই।</p>'
-    hero = ''
-    if a['image']:
-        hero = '<img class="hero" src="%s" alt="%s" loading="eager">' % (escape(a['image'], quote=True), escape(a['title'], quote=True))
-    extra = ''.join('<figure><img class="inline-img" src="%s" alt="%s" loading="lazy"></figure>' % (escape(u, quote=True), escape(a['title'], quote=True)) for u in (a['image2'], a['image3']) if u)
-    tags = ''.join('<span class="tag">%s</span>' % escape(x) for x in keywords)
-    pub = a['dt'].isoformat(timespec='seconds') if a['dt'] else ''
-    schema = {
-        '@context': 'https://schema.org',
-        '@type': 'NewsArticle',
-        'headline': a['title'],
-        'description': description,
-        'inLanguage': 'bn',
-        'url': page,
-        'mainEntityOfPage': {'@type': 'WebPage', '@id': page},
-        'author': {'@type': 'Organization', 'name': 'বাংলা সংবাদ', 'url': BASE},
-        'publisher': {'@type': 'Organization', 'name': 'বাংলা সংবাদ', 'logo': {'@type': 'ImageObject', 'url': BASE + 'logo.png'}},
-        'image': [a['image']] if a['image'] else [BASE + 'logo.png'],
-    }
-    if pub:
-        schema['datePublished'] = pub
-        schema['dateModified'] = pub
-    if a['category']:
-        schema['articleSection'] = a['category']
-    if keywords:
-        schema['keywords'] = keywords
-    og_image = '<meta property="og:image" content="%s">' % escape(a['image'], quote=True) if a['image'] else ''
-    tag_html = ''  # Keywords remain in JSON-LD only; never show them to readers.
-    html = '''<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><div class="top">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে</div><header class="head"><a href="%s" aria-label="বাংলা সংবাদ"><img class="logo" src="%slogo.png" alt="বাংলা সংবাদ"></a></header><nav class="nav"><div class="nav-inner"><a href="%shome.html">হোম</a><a href="%snational.html">জাতীয়</a><a href="%spolitics.html">রাজনীতি</a><a href="%sinternational.html">আন্তর্জাতিক</a><a href="%seconomy.html">অর্থনীতি</a><a href="%ssports.html">খেলাধুলা</a><a href="%sentertainment.html">বিনোদন</a><a href="%stechnology.html">প্রযুক্তি</a><a href="%smore.html">আরও</a></div></nav><main class="wrap"><article class="article"><div class="crumb"><a href="%s">হোম</a> / %s</div><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</article></main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
-        escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, BASE, BASE, BASE, BASE)
-    (NEWS / (sid + '.html')).write_text(html, encoding='utf-8')
-
-# Public GitHub data used by the homepage and category pages.
-NEWS_DATA = ROOT / 'news-data.json'
-NEWS_DATA.write_text(json.dumps({
-    'generatedAt': datetime.now(TZ).isoformat(timespec='seconds'),
-    'articles': [
-        {
-            'id': slug_id(a['id']), 'category': a['category'], 'title': a['title'],
-            'text': a['text'], 'preview': ''.join(list(a['text'].strip())[:700]),
-            'remainder': ''.join(list(a['text'].strip())[700:]).strip(),
-            'image': a['image'], 'date': a['date'], 'image2': a['image2'],
-            'image3': a['image3'], 'video': a['video'], 'keywords': a['keywords']
-        } for a in articles
-    ]
-}, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
-
-now = datetime.now(TZ)
-static = ['', 'home.html', 'national.html', 'politics.html', 'international.html', 'economy.html', 'sports.html', 'entertainment.html', 'technology.html', 'more.html', 'about.html', 'contact.html', 'privacy.html', 'disclaimer.html', 'advertise.html']
-root = Element('urlset', {'xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9'})
-for p in static:
-    u = SubElement(root, 'url'); SubElement(u, 'loc').text = BASE + p; SubElement(u, 'lastmod').text = now.date().isoformat()
-for a in articles:
-    u = SubElement(root, 'url'); SubElement(u, 'loc').text = BASE + 'news/' + urllib.parse.quote(slug_id(a['id'])) + '.html'
-    if a['dt']:
-        SubElement(u, 'lastmod').text = a['dt'].date().isoformat()
-ElementTree(root).write(ROOT / 'sitemap.xml', encoding='utf-8', xml_declaration=True)
-
-cutoff = now - timedelta(days=2)
-ns = Element('urlset', {'xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9', 'xmlns:news': 'http://www.google.com/schemas/sitemap-news/0.9'})
-fresh = [a for a in articles if a['dt'] and cutoff <= a['dt'] <= now + timedelta(minutes=10)]
-for a in sorted(fresh, key=lambda x: x['dt'], reverse=True)[:1000]:
-    u = SubElement(ns, 'url'); SubElement(u, 'loc').text = BASE + 'news/' + urllib.parse.quote(slug_id(a['id'])) + '.html'
-    n = SubElement(u, 'news:news'); pub_node = SubElement(n, 'news:publication'); SubElement(pub_node, 'news:name').text = 'বাংলা সংবাদ'; SubElement(pub_node, 'news:language').text = 'bn'
-    SubElement(n, 'news:publication_date').text = a['dt'].isoformat(timespec='seconds'); SubElement(n, 'news:title').text = a['title']
-ElementTree(ns).write(ROOT / 'news-sitemap.xml', encoding='utf-8', xml_declaration=True)
-
-# Make every category page use the same GitHub news renderer without requiring manual edits.
-CATEGORY_PAGES = ['national.html','politics.html','international.html','economy.html','sports.html','entertainment.html','technology.html','more.html']
-NEWS_SCRIPT = '<script src="news-reader.js"></script>'
-CATEGORY_BOX = '<section id="category-news-container" class="category-live-news"></section>'
-for filename in CATEGORY_PAGES:
-    fp = ROOT / filename
-    if not fp.exists():
-        continue
-    txt = fp.read_text(encoding='utf-8')
-    if 'id="category-news-container"' not in txt:
-        if '</main>' in txt:
-            txt = txt.replace('</main>', CATEGORY_BOX + '\n</main>', 1)
-        else:
-            txt = txt.replace('</body>', CATEGORY_BOX + '\n</body>', 1)
-    if 'src="news-reader.js"' not in txt:
-        txt = txt.replace('</body>', NEWS_SCRIPT + '\n</body>', 1)
-    fp.write_text(txt, encoding='utf-8')
-
-# Responsive repair for the advertising page. It only adds scoped CSS and does not alter ad content.
-advertise = ROOT / 'advertise.html'
-if advertise.exists():
-    txt = advertise.read_text(encoding='utf-8')
-    if 'id="banglasangbad-ad-mobile-fix"' not in txt:
-        css = '''<style id="banglasangbad-ad-mobile-fix">
-*{box-sizing:border-box}
-html,body{max-width:100%;overflow-x:hidden}
-img,iframe,video{max-width:100%;height:auto}
-input,textarea,select,button{max-width:100%;font:inherit}
-.advertise-container,.advertise-wrap,.ad-container,.pricing-container,.packages{width:min(1100px,100%);margin-left:auto;margin-right:auto}
-@media(max-width:768px){body{font-size:15px}.advertise-container,.advertise-wrap,.ad-container,.pricing-container,.packages{width:100%;padding-left:12px;padding-right:12px}.package,.plan,.price-card,.ad-card,.form-container{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important}.packages{display:grid!important;grid-template-columns:1fr!important;gap:14px!important}.package img,.plan img,.price-card img,.ad-card img{width:100%!important;height:auto!important}.package button,.plan button,.price-card button,.ad-card button,button,input[type=submit]{width:100%;min-height:44px}.form-container input,.form-container textarea,.form-container select{width:100%!important;min-width:0!important}.form-container textarea{min-height:120px}.site-header,.header-inner,.nav-inner{max-width:100%;overflow:hidden}.nav-inner{display:flex;flex-wrap:wrap}.nav-inner a{white-space:nowrap}.table-responsive,table{max-width:100%;overflow-x:auto;display:block}.ad-code,pre{white-space:pre-wrap;overflow-wrap:anywhere}}
-</style>'''
-        txt = txt.replace('</head>', css+'\n</head>', 1)
-        advertise.write_text(txt, encoding='utf-8')
-
-print('Generated %d article pages and %d Google News entries.' % (len(articles), len(fresh)))
+write_media_and_data(articles)
+render_detail_pages(articles)
+write_sitemaps(articles)
+print(f'Generated GitHub news data, {len(articles)} article pages, local media, sitemap.xml and news-sitemap.xml.')
