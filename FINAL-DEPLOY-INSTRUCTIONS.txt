@@ -8,7 +8,7 @@ WHAT THIS PACKAGE FIXES
 - Article title, full text, canonical, Open Graph and NewsArticle JSON-LD are present in initial HTML
 - sitemap.xml contains all generated article URLs
 - news-sitemap.xml contains articles from the latest 2 days
-- automatic build on push, every 30 minutes, or manual workflow run
+- automatic build every 5 minutes, repository dispatch, or manual workflow run
 - old details.html?id=... links are replaced by static article links
 - old details.html remains only as a noindex compatibility redirect
 
@@ -17,7 +17,7 @@ ONE-TIME DEPLOYMENT
 2. Copy/upload its contents into the ROOT of the Banglasangbad repository.
 3. Keep your existing images, ads, CSS, JS, Google Sheet and any Search Console verification file.
 4. GitHub Settings -> Pages -> Deploy from branch -> main -> /(root).
-5. After the first push, the workflow “Build static news pages and SEO sitemaps” runs automatically.
+5. After the first push, the workflow “Sync Google Sheet to GitHub” runs automatically.
 6. Wait for the workflow to become green. It will generate the news/ folder and article pages.
 7. Test: https://abdurrazzak123.github.io/Banglasangbad/news/23.html (or any current Sheet ID).
 8. In Google Search Console add the new site and submit:
@@ -28,3 +28,10 @@ The “Bangla News” tab must remain publicly readable/published. Columns A-J a
 
 IMPORTANT
 Google controls crawling/indexing timing. This package fixes the technical architecture so Google can crawl real article HTML without depending on JavaScript rendering.
+
+
+DESIGN FIX — ARTICLE PAGE
+- The generated /news/<ID>.html page has the “সর্বশেষ সংবাদ” section AFTER the article, not inside it.
+- Latest-news cards use absolute /news/<ID>.html URLs, so /news/news/<ID>.html cannot occur.
+- The generator sorts the latest-news cards by parsed date when a valid date is available.
+- If you upload/replace the repository and want the current Sheet data generated immediately, open GitHub Actions -> “Sync Google Sheet to GitHub” -> Run workflow.
