@@ -1,6 +1,9 @@
-name: Build static news pages and SEO sitemaps
+name: Sync Google Sheet to GitHub
 
 on:
+  push:
+    branches: [main]
+
   repository_dispatch:
     types: [news_updated]
 
@@ -13,48 +16,32 @@ permissions:
   contents: write
 
 concurrency:
-  group: build-static-news
+  group: sheet-sync
   cancel-in-progress: false
 
 jobs:
-  build:
+  sync:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-      - name: Build article pages and sitemaps
-        run: |
-          for i in 1 2 3; do
-            python3 tools/generate_static_news.py && break
+      - name: Sync Google Sheets data
+        run: python3 tools/generate_static_news.py
 
-            if [ "$i" -eq 3 ]; then
-              echo "Build failed after 3 attempts."
-              exit 1
-            fi
-
-            echo "Build attempt $i failed; retrying in 10 seconds..."
-            sleep 10
-          done
-
-      - name: Validate generated output
-        run: |
-          test -s sitemap.xml
-          test -s news-sitemap.xml
-          test -d news
-          test "$(find news -maxdepth 1 -name '*.html' | wc -l)" -gt 0
-
-      - name: Commit generated output
+      - name: Commit synced data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add news-data.json ads-data.json news-media news sitemap.xml news-sitemap.xml
+          git add news-data.json ads-data.json news-media sitemap.xml news-sitemap.xml news
 
           if git diff --cached --quiet; then
-            echo "No generated changes."
+            echo "No synced changes."
           else
-            git commit -m "Build static news pages and SEO sitemaps"
+            git commit -m "Sync Google Sheet data"
             git push
           fi
