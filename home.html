@@ -728,10 +728,10 @@ function imageUrl(url){
 }
 
 function image1(n){return n.image?`<div class="news-image-wrap"><img loading="lazy" src="${esc(imageUrl(n.image))}" alt="${esc(n.title)}" onerror="this.closest('.news-image-wrap')?.remove()"></div>`:'';}
-function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
+function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="details.html?id=${encodeURIComponent(n.id)}" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
 function latest(list){return [...list].reverse();}
 
-load().then(list=>{const c=document.getElementById('news-grid');if(!c)return;c.innerHTML=latest(list).map(n=>`<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-card-content"><h2>${esc(n.title)}</h2><p class="home-summary">${esc(n.summary)}</p><a href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`).join('')||'<p style="text-align:center;padding:20px;color:gray;">আপাতত কোনো খবর পাওয়া যায়নি।</p>'}).catch(e=>console.error(e));
+load().then(list=>{const c=document.getElementById('news-grid');if(!c)return;c.innerHTML=latest(list).map(n=>`<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-card-content"><h2>${esc(n.title)}</h2><p class="home-summary">${esc(n.summary)}</p><a href="details.html?id=${encodeURIComponent(n.id)}" data-news-id="${esc(n.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`).join('')||'<p style="text-align:center;padding:20px;color:gray;">আপাতত কোনো খবর পাওয়া যায়নি।</p>'}).catch(e=>console.error(e));
 </script>
 
 

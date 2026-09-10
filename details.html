@@ -543,7 +543,7 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 
 
 </style>
-  <link rel="stylesheet" href="ads.css?v=20260907-ads-v26-sequential-final">
+  <link rel="stylesheet" href="ads.css?v=20260910-details-final">
 <style id="details-image-final-fix">
 /* Details page only: show the complete Sheet/GitHub image without cropping. */
 #news-img,.detail-inline-media img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;display:block!important;background:#f7f7f7;}
@@ -644,10 +644,12 @@ fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
   if(heroImage)setProp('og:image',heroImage);
 
   // Details page: show the complete news text and all three Sheet images.
-  const fullText=String(n.text||'').trim();
+  const fullText=String(n.text||'');
   const content=document.getElementById('news-content');
-  content.innerHTML=fullText
-    ? fullText.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<p>${esc(x).replace(/\n/g,'<br>')}</p>`).join('')
+  // Render the Details column exactly as stored in GitHub news-data.json.
+  // No preview, slice, substring or character limit is applied.
+  content.innerHTML=fullText.trim()
+    ? `<p>${esc(fullText).replace(/\r\n|\r|\n/g,'<br>')}</p>`
     : '<p>এই সংবাদের বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
 
   const media=document.getElementById('detail-media-slot');
@@ -659,7 +661,7 @@ fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
 }).catch(()=>document.getElementById('news-content').textContent='খবর লোড করতে সমস্যা হয়েছে।');
 </script>
 
-<script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script>
+<script src="ads-loader.js?v=20260910-details-final"></script>
 
 
 </body></html>

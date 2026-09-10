@@ -704,11 +704,11 @@ function imageUrl(url){
 }
 
 function image1(n){return n.image?`<div class="news-image-wrap"><img loading="lazy" src="${esc(imageUrl(n.image))}" alt="${esc(n.title)}" onerror="this.closest('.news-image-wrap')?.remove()"></div>`:'';}
-function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
+function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="details.html?id=${encodeURIComponent(n.id)}" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
 function latest(list){return [...list].reverse();}
 
 const ALLOWED=['politics', 'রাজনীতি'];
-load().then(list=>{const c=document.getElementById('news-container');if(!c)return;const filtered=list.filter(n=>ALLOWED.includes(norm(n.category)));c.innerHTML=latest(filtered).map(n=>card(n,'রাজনীতি')).join('')||'<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">নতুন খবরের অপেক্ষা করুন...</div>';const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=latest(list).map(n=>`<div class="latest-item"><a href="news/${encodeURIComponent(n.id)}.html">🔺 ${esc(n.title)}</a></div>`).join('');}).catch(e=>console.error(e));
+load().then(list=>{const c=document.getElementById('news-container');if(!c)return;const filtered=list.filter(n=>ALLOWED.includes(norm(n.category)));c.innerHTML=latest(filtered).map(n=>card(n,'রাজনীতি')).join('')||'<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">নতুন খবরের অপেক্ষা করুন...</div>';const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=latest(list).map(n=>`<div class="latest-item"><a href="details.html?id=${encodeURIComponent(n.id)}">🔺 ${esc(n.title)}</a></div>`).join('');}).catch(e=>console.error(e));
 </script>
 
 
