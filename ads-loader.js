@@ -7,10 +7,7 @@
 (function () {
   'use strict';
 
-  const SHEET_ID = '1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg';
-  const SHEET_NAME = 'Ads';
-  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
-    '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME);
+  const ADS_URL = 'ads-data.json';
   const VERSION = 'ads-v26-sequential-final';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
   const ENABLE_TEST_FALLBACK = true;
@@ -217,7 +214,7 @@
 
   async function render(slot, ads) {
     clear(slot);
-    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in Google Sheet');
+    if (!ads || !ads.length) return testFallback(slot, 'No active ad found in GitHub Ads data');
     // Try every matching row, not only the first one. This prevents one bad TOP/MIDDLE row
     // from blocking a valid ad later in the same position.
     for (const ad of ads) {
@@ -230,19 +227,18 @@
     return testFallback(slot, 'Matching ad rows were found, but none could render');
   }
 
-  async function fetchSheet() {
+  async function fetchAdsData() {
     let last;
     for (let i=0; i<2; i++) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), SHEET_TIMEOUT_MS);
       try {
-        const r = await fetch(SHEET_URL + '&_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
-        if (!r.ok) throw new Error('Google Sheet HTTP ' + r.status);
-        return parseGViz(await r.text());
+        const r = await fetch(ADS_URL + '?_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow'});
+        if (!r.ok) throw new Error('GitHub Ads data HTTP ' + r.status);
+        const data = await r.json();
+        if (!Array.isArray(data)) throw new Error('Invalid ads-data.json');
+        return data;
       } catch (e) { last=e; if (i<1) await sleep(250); }
-      finally { clearTimeout(timer); }
     }
-    throw last || new Error('Google Sheet request failed');
+    throw last || new Error('GitHub Ads data request failed');
   }
 
   async function loadAds() {
@@ -252,7 +248,7 @@
     if (location.protocol === 'file:') { console.warn('Ads: use HTTPS/GitHub Pages, not file://'); return; }
     list.forEach((s,i) => { const p=slotPos(s,i,list.length); s.dataset.adsLoader=VERSION; s.dataset.adPosition=p.toLowerCase().replace(/_/g,'-'); });
     try {
-      const rows = await fetchSheet();
+      const rows = await fetchAdsData();
       const groups = {TOP:[],MIDDLE:[],MIDDLE_TOP:[],MIDDLE_BOTTOM:[],BOTTOM:[],ALL:[]};
       rows.forEach(row => {
         const p=pos(value(row,0)); if (!p || !Object.prototype.hasOwnProperty.call(groups,p) || !active(value(row,1))) return;
@@ -269,10 +265,10 @@
         await render(slot, candidates(groups, p));
       }
     } catch(e) {
-      console.warn('Google Sheet Ads load failed:',e);
+      console.warn('GitHub Ads data load failed:',e);
       list.forEach(s => {
         s.dataset.adError='sheet-load-failed';
-        testFallback(s, 'Google Sheet could not be loaded');
+        testFallback(s, 'GitHub Ads data could not be loaded');
       });
     }
   }

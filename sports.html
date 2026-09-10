@@ -690,11 +690,11 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
         <div id="news-container" class="news-grid"><p style="grid-column: 1/-1; text-align:center;">খবর লোড হচ্ছে...</p></div>
     </div>
     <script>
-const SHEET_URL='https://docs.google.com/spreadsheets/d/1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg/gviz/tq?tqx=out:json&sheet=Bangla%20News';
+const SHEET_URL='news-data.json';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').toLowerCase().trim();
 function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
-function load(){return fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parseSheet);}
+function load(){return fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(list=>list.map((n,i)=>({id:String(n.id??i+1),category:String(n.category??''),title:String(n.title??''),summary:String(n.summary??n.text??''),image:String(n.image??''),date:String(n.date??''),image2:String(n.image2??''),image3:String(n.image3??''),video:String(n.video??'')})).filter(n=>n.title||n.summary));}
 
 function imageUrl(url){
   const raw=String(url||'').trim();

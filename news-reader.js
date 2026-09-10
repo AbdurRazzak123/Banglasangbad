@@ -1,6 +1,6 @@
 /* বাংলা সংবাদ — একই পেজে আরও পড়ুন + একাধিক ছবি */
 (function(){
-  const SHEET_URL='https://docs.google.com/spreadsheets/d/1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg/gviz/tq?tqx=out:json&sheet=Bangla%20News';
+  const SHEET_URL='news-data.json';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=s=>String(s??'').toLowerCase().trim();
   let newsPromise=null;
@@ -14,7 +14,7 @@
     });
   }
   function loadNews(){
-    if(!newsPromise) newsPromise=fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parse);
+    if(!newsPromise) newsPromise=fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(list=>list.map((n,i)=>({id:String(n.id??i+1),category:String(n.category??''),title:String(n.title??''),text:String(n.text??n.summary??''),image:String(n.image??''),date:String(n.date??''),image2:String(n.image2??''),image3:String(n.image3??''),video:String(n.video??''),keywords:String(n.keywords??'')})));
     return newsPromise;
   }
   function imageUrl(url){
