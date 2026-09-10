@@ -14,7 +14,7 @@
     });
   }
   function loadNews(){
-    if(!newsPromise) newsPromise=fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parse);
+    if(!newsPromise) newsPromise=fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parse);
     return newsPromise;
   }
   function imageUrl(url){

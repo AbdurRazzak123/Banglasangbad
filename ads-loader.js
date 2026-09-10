@@ -235,7 +235,7 @@
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), SHEET_TIMEOUT_MS);
       try {
-        const r = await fetch(SHEET_URL + '&_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
+        const r = await fetch(SHEET_URL + '?_=' + Date.now() + '-' + i, {cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
         if (!r.ok) throw new Error('Google Sheet HTTP ' + r.status);
         return parseGViz(await r.text());
       } catch (e) { last=e; if (i<1) await sleep(250); }

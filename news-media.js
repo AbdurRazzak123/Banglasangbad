@@ -19,6 +19,6 @@
  function detail(n){
    // Only Image 1 is used. Image 2 and Image 3 are intentionally ignored.
  }
- function run(){styles();fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{let list=parse(t),map=new Map(list.map(n=>[n.id,n]));let id=new URLSearchParams(location.search).get('id');if(id&&map.has(id))detail(map.get(id));}).catch(()=>{});}
+ function run(){styles();fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{let list=parse(t),map=new Map(list.map(n=>[n.id,n]));let id=new URLSearchParams(location.search).get('id');if(id&&map.has(id))detail(map.get(id));}).catch(()=>{});}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();

@@ -719,7 +719,7 @@ const SHEET_URL='news-data.json';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').toLowerCase().trim();
 function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
-function load(){return fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parseSheet);}
+function load(){return fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parseSheet);}
 
 function imageUrl(url){
   const raw=String(url||'').trim();
