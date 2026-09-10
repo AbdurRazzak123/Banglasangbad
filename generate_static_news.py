@@ -1,4 +1,4 @@
-import json, re, urllib.request, urllib.parse
+import json, re, urllib.request, urllib.parse, hashlib, mimetypes
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -43,8 +43,70 @@ def image_url(v):
     return f'https://drive.google.com/thumbnail?id={m.group(1)}&sz=w2000' if m else v
 
 
+MEDIA = ROOT / 'news-media'
+MEDIA.mkdir(exist_ok=True)
+
+def drive_id(v):
+    v = (v or '').strip()
+    m = re.search(r'drive\.google\.com/(?:file/d/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)', v, re.I)
+    return m.group(1) if m else ''
+
+def download_drive_image(v, name_prefix):
+    fid = drive_id(v)
+    if not fid:
+        return v
+    ext = '.jpg'
+    target = MEDIA / (name_prefix + '-' + hashlib.sha1(fid.encode()).hexdigest()[:16] + ext)
+    if not target.exists():
+        urls = [
+            f'https://drive.google.com/thumbnail?id={fid}&sz=w2000',
+            f'https://drive.google.com/uc?export=view&id={fid}',
+        ]
+        last = None
+        for u in urls:
+            try:
+                req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    data = r.read()
+                    ctype = (r.headers.get('Content-Type') or '').split(';')[0].lower()
+                if not data or not ctype.startswith('image/'):
+                    raise RuntimeError('Drive response is not an image')
+                ext_map = {'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif'}
+                ext = ext_map.get(ctype, '.jpg')
+                target = MEDIA / (name_prefix + '-' + hashlib.sha1(fid.encode()).hexdigest()[:16] + ext)
+                target.write_bytes(data)
+                break
+            except Exception as e:
+                last = e
+        else:
+            print('WARNING: Drive image could not be downloaded:', fid, last)
+            return image_url(v)
+    return BASE + 'news-media/' + urllib.parse.quote(target.name)
+
+def snapshot_rows(rows, sheet_name):
+    return {'table': {'rows': rows}}
+
+def fetch_sheet_rows(sheet_name):
+    q = urllib.parse.quote('select *')
+    u = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:json&sheet={urllib.parse.quote(sheet_name)}&tq={q}'
+    req = urllib.request.Request(u, headers={'User-Agent': 'Banglasangbad-static-builder/1.0'})
+    with urllib.request.urlopen(req, timeout=45) as r:
+        raw = r.read().decode('utf-8')
+    m = re.search(r'google\.visualization\.Query\.setResponse\((.*)\);?\s*$', raw, re.S)
+    if not m:
+        raise RuntimeError(f'Google Sheet response could not be parsed for {sheet_name}.')
+    data = json.loads(m.group(1))
+    return data.get('table', {}).get('rows', [])
+
+
 def slug_id(v):
-    s = re.sub(r'[^A-Za-z0-9_-]+', '-', str(v).strip()).strip('-')
+    raw = str(v).strip()
+    # Google Sheets GViz may return numeric IDs such as 23.0.
+    # Normalize integer-like IDs so article URLs stay stable: 23.html, not 23-0.html.
+    m = re.fullmatch(r'(\d+)\.0+', raw)
+    if m:
+        raw = m.group(1)
+    s = re.sub(r'[^A-Za-z0-9_-]+', '-', raw).strip('-')
     return s or 'article'
 
 
@@ -64,15 +126,32 @@ def video_html(url, title):
     return '<p><a href="%s" rel="noopener">▶ ভিডিও দেখুন</a></p>' % escape(url)
 
 
-q = urllib.parse.quote('select *')
-url = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:json&sheet={urllib.parse.quote(SHEET_NAME)}&tq={q}'
-req = urllib.request.Request(url, headers={'User-Agent': 'Banglasangbad-static-builder/1.0'})
-with urllib.request.urlopen(req, timeout=45) as r:
-    raw = r.read().decode('utf-8')
-m = re.search(r'google\.visualization\.Query\.setResponse\((.*)\);?\s*$', raw, re.S)
-if not m:
-    raise RuntimeError('Google Sheet response could not be parsed. Make sure the sheet is public/published.')
-rows = json.loads(m.group(1)).get('table', {}).get('rows', [])
+rows = fetch_sheet_rows(SHEET_NAME)
+
+# Preserve the Sheet row order and all 10 columns in the GitHub snapshot.
+# Drive images are copied into the repository when publicly downloadable.
+news_rows = json.loads(json.dumps(rows))
+for row_no, row in enumerate(news_rows, 1):
+    cells = row.get('c', [])
+    for col in (4, 6, 7):
+        if col < len(cells) and cells[col] is not None:
+            original = str(cells[col].get('v', '') or '').strip()
+            if original:
+                cells[col]['v'] = download_drive_image(original, f'news-{row_no}-img{col-3}')
+(ROOT / 'news-data.json').write_text(json.dumps(snapshot_rows(news_rows, SHEET_NAME), ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+
+# Ads follow the same Sheet -> GitHub snapshot path; no website-side Sheet request.
+ads_rows = fetch_sheet_rows('Ads')
+for row_no, row in enumerate(ads_rows, 1):
+    cells = row.get('c', [])
+    if len(cells) > 2 and cells[2] is not None:
+        original = str(cells[2].get('v', '') or '').strip()
+        if original:
+            cells[2]['v'] = download_drive_image(original, f'ad-{row_no}')
+(ROOT / 'ads-data.json').write_text(json.dumps(snapshot_rows(ads_rows, 'Ads'), ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+
+# The article generator consumes the same transformed rows, keeping article images in sync.
+rows = news_rows
 
 articles = []
 seen = set()
@@ -137,7 +216,7 @@ for a in articles:
     if keywords:
         schema['keywords'] = keywords
     og_image = '<meta property="og:image" content="%s">' % escape(a['image'], quote=True) if a['image'] else ''
-    tag_html = '<div class="tags">%s</div>' % tags if tags else ''
+    tag_html = ''  # Keywords remain in JSON-LD SEO metadata but are hidden from readers.
     html = '''<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%s | বাংলা সংবাদ</title><meta name="description" content="%s"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="%s"><meta property="og:type" content="article"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s"><meta property="og:site_name" content="বাংলা সংবাদ">%s<meta name="twitter:card" content="summary_large_image"><style>%s</style><script type="application/ld+json">%s</script></head><body><div class="top">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে</div><header class="head"><a href="%s" aria-label="বাংলা সংবাদ"><img class="logo" src="%slogo.png" alt="বাংলা সংবাদ"></a></header><main class="wrap"><article class="article"><div class="crumb"><a href="%s">হোম</a> / %s</div><div class="cat">%s</div><h1 class="title">%s</h1><div class="meta">%s &nbsp; • &nbsp; প্রতিবেদক: বাংলা সংবাদ ডেস্ক</div>%s<div class="content">%s</div>%s%s%s</article></main><footer class="foot"><a href="%s">হোম</a><a href="%sabout.html">আমাদের সম্পর্কে</a><a href="%scontact.html">যোগাযোগ</a><a href="%sprivacy.html">গোপনীয়তা নীতি</a><div>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</div></footer></body></html>''' % (
         escape(a['title']), escape(description, quote=True), escape(page, quote=True), escape(a['title'], quote=True), escape(description, quote=True), escape(page, quote=True), og_image, CSS, json.dumps(schema, ensure_ascii=False, separators=(',', ':')), BASE, BASE, BASE, escape(a['category'] or 'সংবাদ'), escape(a['category'] or 'সংবাদ'), escape(a['title']), escape(a['date']), hero, content, extra, video_html(a['video'], a['title']), tag_html, BASE, BASE, BASE, BASE)

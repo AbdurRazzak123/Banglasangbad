@@ -14,7 +14,7 @@
     });
   }
   function loadNews(){
-    if(!newsPromise) newsPromise=fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(list=>list.map((n,i)=>({id:String(n.id??i+1),category:String(n.category??''),title:String(n.title??''),text:String(n.text??n.summary??''),image:String(n.image??''),date:String(n.date??''),image2:String(n.image2??''),image3:String(n.image3??''),video:String(n.video??''),keywords:String(n.keywords??'')})));
+    if(!newsPromise) newsPromise=fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(parse);
     return newsPromise;
   }
   function imageUrl(url){

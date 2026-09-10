@@ -1,0 +1,60 @@
+name: Build static news pages and SEO sitemaps
+
+on:
+  repository_dispatch:
+    types: [news_updated]
+
+  schedule:
+    - cron: "*/5 * * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-static-news
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build article pages and sitemaps
+        run: |
+          for i in 1 2 3; do
+            python3 tools/generate_static_news.py && break
+
+            if [ "$i" -eq 3 ]; then
+              echo "Build failed after 3 attempts."
+              exit 1
+            fi
+
+            echo "Build attempt $i failed; retrying in 10 seconds..."
+            sleep 10
+          done
+
+      - name: Validate generated output
+        run: |
+          test -s sitemap.xml
+          test -s news-sitemap.xml
+          test -d news
+          test "$(find news -maxdepth 1 -name '*.html' | wc -l)" -gt 0
+
+      - name: Commit generated output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add news-data.json ads-data.json news-media news sitemap.xml news-sitemap.xml
+
+          if git diff --cached --quiet; then
+            echo "No generated changes."
+          else
+            git commit -m "Build static news pages and SEO sitemaps"
+            git push
+          fi
