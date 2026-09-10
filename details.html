@@ -567,8 +567,10 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 <div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
 <footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div><a href="about.html">আমাদের সম্পর্কে</a><a href="contact.html">যোগাযোগ</a><a href="privacy.html">গোপনীয়তা নীতি</a><a href="disclaimer.html">দাবিত্যাগ</a></div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="advertise.html">বিজ্ঞাপন দিন</a></footer>
 <script>
-const jsonUrl='news-data.json';
-const id=new URLSearchParams(location.search).get('id');
+const jsonUrl='https://abdurrazzak123.github.io/Banglasangbad/news-data.json';
+const rawId=new URLSearchParams(location.search).get('id')||'';
+const normalizeId=v=>String(v??'').trim().replace(/^(\d+)\.0+$/, '$1');
+const id=normalizeId(rawId);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yt=u=>{let s=String(u||'').trim(),m=s.match(/youtu\.be\/([\w-]{6,})/)||s.match(/[?&]v=([\w-]{6,})/)||s.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/);return m?m[1]:''};
 function getRows(text){let a=text.indexOf('{'),b=text.lastIndexOf('}')+1;return JSON.parse(text.slice(a,b)).table.rows||[]}
@@ -579,7 +581,7 @@ fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
   let list=rows.map((r,i)=>{
     let c=r.c||[];
     return {
-      id:String(c[0]?.v??i+1),
+      id:normalizeId(c[0]?.v??i+1),
       category:String(c[1]?.v??''),
       title:String(c[2]?.v??''),
       text:String(c[3]?.v??''),
@@ -591,7 +593,7 @@ fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
       keywords:String(c[9]?.v??'')
     }
   });
-  let n=list.find(x=>x.id===String(id));
+  let n=list.find(x=>normalizeId(x.id)===id);
   if(!n){document.getElementById('news-content').textContent='দুঃখিত, খবরটি খুঁজে পাওয়া যায়নি।';return}
 
   const pageUrl=new URL(location.href).href;

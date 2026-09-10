@@ -1,21 +1,24 @@
-# Banglasangbad — Detail News Page Final
+# Banglasangbad — Detail News Page Fix
 
-এই প্যাকেজে মূল ডিজাইন/মেনু/কার্ড/SEO কাঠামো না বদলে নিউজ Detail flow ঠিক করা হয়েছে।
+এই build-এ Detail Page-এর আসল flow ঠিক করা হয়েছে।
 
-আরও পড়ুন → news/ID.html
-উদাহরণ: Sheet ID 29 → news/29.html
+আরও পড়ুন → News/ID.html
+উদাহরণ: Sheet ID 29 → News/29.html
+উদাহরণ: Sheet ID 30 → details.html?id=30
 
-`details.html?id=29`-ও আলাদা fallback/detail viewer হিসেবে রাখা আছে।
+ID Google Sheet-এর মতোই থাকবে; ID পরিবর্তন/নতুন ID তৈরি হবে না।
 
-Detail page:
+Detail page-এ:
 - Headline, category, date
-- Details/D column-এর সম্পূর্ণ লেখা; কোনো preview/truncation নয়
+- Details/D column-এর সম্পূর্ণ লেখা; কোনো preview/truncation নেই
 - Image 1, Image 2, Image 3
-- Video
+- Video থাকলে video
 - ঠিক ৪টি ad slot: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM
-- Ads GitHub-এর ads-data.json থেকে আসে
-- News GitHub-এর news-data.json থেকে আসে
-- Google Sheet থেকে সরাসরি website runtime fetch করে না
-- Google Sheet ID অপরিবর্তিত থাকে
+- News data GitHub-এর news-data.json থেকে আসে
+- Ads data GitHub-এর ads-data.json থেকে আসে
+- Website runtime সরাসরি Google Sheet পড়ে না
+- Google Sheet → GitHub Actions → Website flow বজায় থাকে
 
-নোট: `details.html/news/29.html` একটি valid GitHub Pages file URL নয়, কারণ `details.html` একই সঙ্গে file এবং directory হতে পারে না। কার্যকর static URL হলো `news/29.html`; `details.html?id=29` fallback viewer-ও রাখা আছে।
+মূল design/header/menu/footer/SEO কাঠামো অযথা বদলানো হয়নি।
+
+গুরুত্বপূর্ণ: News/29.html বৈধ URL নয়। কারণ details.html একটি file। এই build-এর Detail URL হলো News/29.html।

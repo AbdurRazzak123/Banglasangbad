@@ -1,30 +1,9 @@
-BANGLASANGBAD — PROFESSIONAL FINAL PACKAGE
+Banglasangbad Detail Page Fix — Deploy
 
-Target site:
-https://abdurrazzak123.github.io/Banglasangbad/
-
-WHAT THIS PACKAGE FIXES
-- One crawlable static HTML page per Google Sheet news ID: /news/<ID>.html
-- Article title, full text, canonical, Open Graph and NewsArticle JSON-LD are present in initial HTML
-- sitemap.xml contains all generated article URLs
-- news-sitemap.xml contains articles from the latest 2 days
-- automatic build on push, every 30 minutes, or manual workflow run
-- old details.html?id=... links are replaced by static article links
-- old details.html remains only as a noindex compatibility redirect
-
-ONE-TIME DEPLOYMENT
-1. Extract this ZIP.
-2. Copy/upload its contents into the ROOT of the Banglasangbad repository.
-3. Keep your existing images, ads, CSS, JS, Google Sheet and any Search Console verification file.
-4. GitHub Settings -> Pages -> Deploy from branch -> main -> /(root).
-5. After the first push, the workflow “Build static news pages and SEO sitemaps” runs automatically.
-6. Wait for the workflow to become green. It will generate the news/ folder and article pages.
-7. Test: https://abdurrazzak123.github.io/Banglasangbad/news/23.html (or any current Sheet ID).
-8. In Google Search Console add the new site and submit:
-   https://abdurrazzak123.github.io/Banglasangbad/sitemap.xml
-
-GOOGLE SHEET
-The “Bangla News” tab must remain publicly readable/published. Columns A-J are documented in GOOGLE-SHEET-FINAL-SETUP.txt.
-
-IMPORTANT
-Google controls crawling/indexing timing. This package fixes the technical architecture so Google can crawl real article HTML without depending on JavaScript rendering.
+1. এই ZIP-এর সব ফাইল GitHub repository root-এ upload/replace করুন।
+2. GitHub Actions workflow চালু থাকলে Google Sheet → GitHub sync প্রতি 5 মিনিটে চলবে।
+3. প্রতিটি “আরও পড়ুন” এখন News/ID.html-এ যাবে।
+4. উদাহরণ: ID 30 → /Banglasangbad/News/30.html
+5. Detail page-এর full Details, images 1-3, video এবং 4 ad slots থাকবে।
+6. Website runtime সরাসরি Google Sheet থেকে news/ads load করবে না।
+7. Browser cache এড়াতে প্রয়োজনে hard refresh করুন।
