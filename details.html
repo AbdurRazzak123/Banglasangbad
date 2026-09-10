@@ -544,15 +544,6 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 
 </style>
   <link rel="stylesheet" href="ads.css?v=20260907-ads-v26-sequential-final">
-<style id="details-image-final-fix">
-/* Details page: keep every news image fully visible, including mobile. */
-.details-container>img,.detail-inline-media img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;object-position:center!important;background:#fff!important;display:block!important;border-radius:8px!important;}
-.details-container>img{margin:0 auto 16px!important;}
-.detail-inline-media{margin:24px 0!important;}
-.detail-inline-media img{max-width:100%!important;}
-.full-content p{margin:0 0 16px!important;}
-@media(max-width:768px){.details-container{margin:10px 8px!important;padding:14px!important}.details-container>img,.detail-inline-media img{max-height:none!important;}.full-content{font-size:17px!important;text-align:left!important;}}
-</style>
 </head>
 <body>
 <div class="news-ticker"><div class="news-ticker-label">বিশেষ বার্তা</div><div class="news-ticker-track"><span class="news-ticker-text">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে—তথ্য যাচাই করে, দায়িত্বশীলতার সঙ্গে প্রতিটি গুরুত্বপূর্ণ খবর পৌঁছে দিতে আমরা আছি আপনাদের পাশে।</span></div></div>
@@ -575,110 +566,106 @@ const jsonUrl='news-data.json';
 const id=new URLSearchParams(location.search).get('id');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yt=u=>{let s=String(u||'').trim(),m=s.match(/youtu\.be\/([\w-]{6,})/)||s.match(/[?&]v=([\w-]{6,})/)||s.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/);return m?m[1]:''};
-function getRows(text){
-  let a=text.indexOf('{'),b=text.lastIndexOf('}')+1;
-  if(a<0||b<=a) throw new Error('Invalid news-data.json');
-  const data=JSON.parse(text.slice(a,b));
-  return data?.table?.rows||[];
-}
-function driveId(url){
-  const raw=String(url||'').trim();
-  const m=raw.match(/drive\.google\.com\/(?:file\/d\/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);
-  return m?m[1]:'';
-}
-function imageCandidates(url){
-  const raw=String(url||'').trim(); if(!raw) return [];
-  const out=[];
-  const add=u=>{if(u && !out.includes(u)) out.push(u)};
-  const did=driveId(raw);
-  if(did){
-    add(`assets/news/${encodeURIComponent(id||'')}-image1.jpg`);
-    add(`https://drive.google.com/thumbnail?id=${did}&sz=w2000`);
-    add(`https://drive.google.com/uc?export=view&id=${did}`);
-    add(`https://lh3.googleusercontent.com/d/${did}=w2000`);
-  }
-  add(raw);
-  return out;
-}
-function setImageWithFallback(el,url,alt){
-  if(!el || !url) return false;
-  const list=imageCandidates(url); if(!list.length) return false;
-  let i=0;
-  el.alt=alt||'';
-  el.onload=()=>{el.dataset.loaded='1'};
-  el.onerror=()=>{i++; if(i<list.length) el.src=list[i]; else el.style.display='none';};
-  el.src=list[0];
-  return true;
-}
-function makeInlineImage(url,title,n){
-  if(!url) return '';
-  const candidates=imageCandidates(url);
-  if(!candidates.length) return '';
-  return `<figure class="detail-inline-media"><img loading="lazy" src="${esc(candidates[0])}" data-fallbacks="${esc(JSON.stringify(candidates.slice(1)))}" alt="${esc(title)} - ছবি ${n}"><figcaption>ছবি ${n}</figcaption></figure>`;
-}
-function video(url,title){
-  if(!url)return'';
-  let v=yt(url);
-  if(v)return`<div class="detail-video"><iframe loading="lazy" src="https://www.youtube.com/embed/${esc(v)}" title="${esc(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
-  if(/\.(mp4|webm|ogg)(\?.*)?$/i.test(url))return`<div class="detail-video"><video controls preload="metadata" src="${esc(url)}"></video></div>`;
-  return`<p><a href="${esc(url)}" target="_blank" rel="noopener">▶ ভিডিও দেখুন</a></p>`;
-}
-fetch(jsonUrl+'?_'+Date.now(),{cache:'no-store'})
-.then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text()})
-.then(t=>{
-  const rows=getRows(t);
-  const list=rows.map((r,i)=>{
-    const c=r.c||[];
+function getRows(text){let a=text.indexOf('{'),b=text.lastIndexOf('}')+1;return JSON.parse(text.slice(a,b)).table.rows||[]}
+function img(url,title,n){return url?`<figure class="detail-inline-media"><img loading="lazy" src="${esc(imageUrl(url))}" alt="${esc(title)} - ছবি ${n}" onerror="this.closest('figure').remove()"><figcaption>ছবি ${n}</figcaption></figure>`:''}
+function video(url,title){if(!url)return'';let v=yt(url);if(v)return`<div class="detail-video"><iframe loading="lazy" src="https://www.youtube.com/embed/${esc(v)}" title="${esc(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;if(/\.(mp4|webm|ogg)(\?.*)?$/i.test(url))return`<div class="detail-video"><video controls preload="metadata" src="${esc(url)}"></video></div>`;return`<p><a href="${esc(url)}" target="_blank" rel="noopener">▶ ভিডিও দেখুন</a></p>`}
+fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
+  let rows=getRows(t);
+  let list=rows.map((r,i)=>{
+    let c=r.c||[];
     return {
-      id:String(c[0]?.v??i+1),category:String(c[1]?.v??''),title:String(c[2]?.v??''),
-      text:String(c[3]?.v??''),image:String(c[4]?.v??''),date:String(c[5]?.v??''),
-      image2:String(c[6]?.v??''),image3:String(c[7]?.v??''),video:String(c[8]?.v??''),keywords:String(c[9]?.v??'')
-    };
+      id:String(c[0]?.v??i+1),
+      category:String(c[1]?.v??''),
+      title:String(c[2]?.v??''),
+      text:String(c[3]?.v??''),
+      image:String(c[4]?.v??''),
+      date:String(c[5]?.v??''),
+      image2:String(c[6]?.v??''),
+      image3:String(c[7]?.v??''),
+      video:String(c[8]?.v??''),
+      keywords:String(c[9]?.v??'')
+    }
   });
-  const n=list.find(x=>x.id===String(id));
-  if(!n){document.getElementById('news-title').textContent='খবরটি পাওয়া যায়নি';document.getElementById('news-content').textContent='দুঃখিত, এই ID-এর খবরটি পাওয়া যায়নি।';return;}
+  let n=list.find(x=>x.id===String(id));
+  if(!n){document.getElementById('news-content').textContent='দুঃখিত, খবরটি খুঁজে পাওয়া যায়নি।';return}
 
   const pageUrl=new URL(location.href).href;
   const plainText=String(n.text||n.title||'').replace(/\s+/g,' ').trim();
-  const description=plainText.length>160?plainText.slice(0,157)+'...':(plainText||n.title);
+  const description=plainText.length>160 ? plainText.slice(0,157)+'...' : (plainText || n.title);
   const keywordList=Array.from(new Set(String(n.keywords||'').split(/[,،|\n]+/).map(x=>x.trim()).filter(Boolean))).slice(0,15);
   const fallbackKeywords=[n.title,n.category+' সংবাদ','বাংলা সংবাদ','সর্বশেষ খবর'].filter(Boolean);
   const seoKeywords=Array.from(new Set((keywordList.length?keywordList:fallbackKeywords).map(x=>String(x).trim()).filter(Boolean))).slice(0,15);
-  const setMeta=(name,content)=>{let el=document.querySelector(`meta[name="${name}"]`);if(!el){el=document.createElement('meta');el.name=name;document.head.appendChild(el)}el.content=content};
-  const setProp=(property,content)=>{let el=document.querySelector(`meta[property="${property}"]`);if(!el){el=document.createElement('meta');el.setAttribute('property',property);document.head.appendChild(el)}el.content=content};
+  const setMeta=(name,content)=>{let el=document.querySelector(`meta[name="${name}"]`);if(!el){el=document.createElement('meta');el.setAttribute('name',name);document.head.appendChild(el)}el.setAttribute('content',content)};
+  const setProp=(property,content)=>{let el=document.querySelector(`meta[property="${property}"]`);if(!el){el=document.createElement('meta');el.setAttribute('property',property);document.head.appendChild(el)}el.setAttribute('content',content)};
   let canonical=document.querySelector('link[rel="canonical"]');if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.appendChild(canonical)}canonical.href=pageUrl;
-  document.title=n.title+' | বাংলা সংবাদ';setMeta('description',description);setMeta('keywords',seoKeywords.join(', '));
-  setProp('article:section',n.category||'সংবাদ');setProp('og:title',n.title);setProp('og:description',description);setProp('og:url',pageUrl);setProp('og:type','article');
-  document.getElementById('news-title').textContent=n.title;document.getElementById('news-cat').textContent=n.category;document.getElementById('news-date').textContent=n.date;
+  document.title=n.title+' | বাংলা সংবাদ';
+  setMeta('description',description);setMeta('keywords',seoKeywords.join(', '));setProp('article:section',n.category||'সংবাদ');setProp('og:title',n.title);setProp('og:description',description);setProp('og:url',pageUrl);setProp('og:type','article');
+  const author=document.getElementById('news-author');if(author)author.textContent='প্রতিবেদক: বাংলা সংবাদ ডেস্ক';
+  document.getElementById('news-title').textContent=n.title;
+  document.getElementById('news-cat').textContent=n.category;
+  document.getElementById('news-date').textContent=n.date;
 
   const hero=document.getElementById('news-img');
-  if(n.image){setImageWithFallback(hero,n.image,n.title)}else{hero.remove()}
+  function imageUrl(url){
+    const raw=String(url||'').trim();
+    if(!raw) return '';
+    const m=raw.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);
+    return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w2000` : raw;
+  }
+  const BASE_URL='https://abdurrazzak123.github.io/banglanews.2026/';
+  let heroImage='';
+  if(n.image){heroImage=imageUrl(n.image);hero.src=heroImage;hero.alt=n.title}else hero.remove();
+
+  function schemaDate(value){
+    const raw=String(value||'').trim();
+    let m=raw.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);if(m)return `${m[1]}-${String(Number(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+    m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);if(m)return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+    m=raw.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);if(m)return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+    return '';
+  }
+  const pubDate=schemaDate(n.date);
+  const articleSchema={
+    '@context':'https://schema.org','@type':'NewsArticle','headline':n.title,
+    'description':description,'keywords':seoKeywords.join(', '),'inLanguage':'bn','mainEntityOfPage':{'@type':'WebPage','@id':pageUrl},
+    'author':{'@type':'Organization','name':'বাংলা সংবাদ ডেস্ক','url':BASE_URL},
+    'publisher':{'@type':'Organization','name':'বাংলা সংবাদ','logo':{'@type':'ImageObject','url':BASE_URL+'logo.png'}},
+    'image':heroImage?[heroImage]:[BASE_URL+'logo.png']
+  };
+  if(pubDate){articleSchema.datePublished=pubDate;articleSchema.dateModified=pubDate;}
+  let schemaEl=document.getElementById('news-article-schema');if(!schemaEl){schemaEl=document.createElement('script');schemaEl.type='application/ld+json';schemaEl.id='news-article-schema';document.head.appendChild(schemaEl)}schemaEl.textContent=JSON.stringify(articleSchema);
+  if(heroImage)setProp('og:image',heroImage);
+
+  // ক্যাটাগরি পেজে আগে দেখানো ৫–৬টি ভিজ্যুয়াল লাইনের অংশ বাদ দিয়ে শুধু বাকি সংবাদ দেখানো হবে।
+  const fullText=String(n.text||'').trim();
+  const width=Math.max(320, document.documentElement.clientWidth||720);
+  const charsPerLine=Math.max(28, Math.floor(width/9));
+  const previewTarget=Math.min(fullText.length, Math.max(300, Math.min(900, charsPerLine*6)));
+  let previewCut=previewTarget;
+  if(fullText.length>previewTarget){
+    const spaceCut=fullText.indexOf(' ', previewTarget);
+    if(spaceCut>=0 && spaceCut<=previewTarget+220) previewCut=spaceCut;
+  }
+  const remaining=fullText.slice(Math.min(previewCut,fullText.length)).trim();
 
   const content=document.getElementById('news-content');
-  const fullText=String(n.text||'').trim();
-  content.innerHTML=fullText
-    ? fullText.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<p>${esc(x).replace(/\n/g,'<br>')}</p>`).join('')
-    : '<p>এই সংবাদের বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
+  content.innerHTML='';
+  if(!remaining){
+    content.textContent='এই সংবাদের আর কোনো বিস্তারিত তথ্য নেই।';
+  }else{
+    // স্বাভাবিক paragraph/line break বজায় রেখে পরিষ্কার ও গোছানো সংবাদ দেখানো।
+    const parts=remaining.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+    content.innerHTML=parts.length
+      ? parts.map(x=>`<p>${esc(x).replace(/\n/g,'<br>')}</p>`).join('')
+      : `<p>${esc(remaining)}</p>`;
+  }
 
+  // এই নিউজের একমাত্র ছবি হলো Image 1। Image 2/Image 3 ব্যবহার করা হবে না।
   const media=document.getElementById('detail-media-slot');
   let html='';
-  if(n.image2) html+=makeInlineImage(n.image2,n.title,2);
-  if(n.image3) html+=makeInlineImage(n.image3,n.title,3);
+
   if(n.video) html+=video(n.video,n.title);
   media.innerHTML=html;
-  media.querySelectorAll('img[data-fallbacks]').forEach(img=>{
-    let list=[];try{list=JSON.parse(img.dataset.fallbacks||'[]')}catch(e){}
-    let i=0;img.onerror=()=>{if(i<list.length)img.src=list[i++];else img.closest('figure')?.remove()};
-  });
-
-  const schemaDate=value=>{const raw=String(value||'').trim();let m=raw.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);if(m)return`${m[1]}-${String(+m[2]+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);if(m)return`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;return''};
-  const BASE_URL='https://abdurrazzak123.github.io/Banglasangbad/';
-  const heroImage=hero.dataset.loaded==='1'?hero.currentSrc||hero.src:(n.image||'');
-  const articleSchema={'@context':'https://schema.org','@type':'NewsArticle','headline':n.title,'description':description,'keywords':seoKeywords.join(', '),'inLanguage':'bn','mainEntityOfPage':{'@type':'WebPage','@id':pageUrl},'author':{'@type':'Organization','name':'বাংলা সংবাদ ডেস্ক','url':BASE_URL},'publisher':{'@type':'Organization','name':'বাংলা সংবাদ','logo':{'@type':'ImageObject','url':BASE_URL+'logo.png'}},'image':heroImage?[heroImage]:[BASE_URL+'logo.png']};
-  const pubDate=schemaDate(n.date);if(pubDate){articleSchema.datePublished=pubDate;articleSchema.dateModified=pubDate;}
-  let schemaEl=document.getElementById('news-article-schema');if(!schemaEl){schemaEl=document.createElement('script');schemaEl.type='application/ld+json';schemaEl.id='news-article-schema';document.head.appendChild(schemaEl)}schemaEl.textContent=JSON.stringify(articleSchema);if(heroImage)setProp('og:image',heroImage);
-})
-.catch(e=>{console.error(e);document.getElementById('news-title').textContent='খবর লোড করতে সমস্যা হয়েছে';document.getElementById('news-content').textContent='খবরের তথ্য লোড করা যাচ্ছে না।';});
+}).catch(()=>document.getElementById('news-content').textContent='খবর লোড করতে সমস্যা হয়েছে।');
 </script>
 
 <script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script>
