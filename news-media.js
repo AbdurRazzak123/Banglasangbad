@@ -1,9 +1,9 @@
 /* বাংলা সংবাদ — Google Sheet media loader */
 (function(){
- const NEWS_DATA_URL='news-data.json';
+ const SHEET_URL='news-data.json';
  const esc=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
  function yt(u){let s=String(u||'').trim(),m=s.match(/youtu\.be\/([\w-]{6,})/)||s.match(/[?&]v=([\w-]{6,})/)||s.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/);return m?m[1]:''}
- function parse(list){return (Array.isArray(list)?list:[]).map((n,i)=>({id:String(n?.id??(i+1)),category:String(n?.category??''),title:String(n?.title??''),summary:String(n?.summary??n?.text??''),image:String(n?.image??''),date:String(n?.date??''),image2:String(n?.image2??''),image3:String(n?.image3??''),video:String(n?.video??''),keywords:String(n?.keywords??'')}))}
+ function parse(t){let a=t.indexOf('{'),b=t.lastIndexOf('}')+1;let rows=JSON.parse(t.slice(a,b)).table.rows||[];return rows.map((r,i)=>{let c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8),keywords:v(9)}})}
  function styles(){if(document.getElementById('media-style'))return;let s=document.createElement('style');s.id='media-style';s.textContent=`
  .sheet-media-gallery{display:grid;grid-template-columns:1fr;gap:12px;margin:18px 0}.sheet-media-gallery figure{margin:0;background:#fff;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}.sheet-media-gallery img{width:100%;height:auto;max-height:520px;object-fit:cover;display:block}.sheet-media-gallery figcaption{padding:5px;text-align:center;color:#777;font-size:12px}
  .sheet-video{margin:18px 0;background:#000;border-radius:8px;overflow:hidden}.sheet-video iframe{width:100%;aspect-ratio:16/9;border:0;display:block}.sheet-video video{width:100%;display:block}
@@ -19,6 +19,6 @@
  function detail(n){
    // Only Image 1 is used. Image 2 and Image 3 are intentionally ignored.
  }
- function run(){styles();fetch(NEWS_DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('news-data.json HTTP '+r.status);return r.json();}).then(t=>{let list=parse(t),map=new Map(list.map(n=>[String(n.id),n]));let id=new URLSearchParams(location.search).get('id');if(id&&map.has(String(id)))detail(map.get(String(id)));}).catch(()=>{});}
+ function run(){styles();fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{let list=parse(t),map=new Map(list.map(n=>[n.id,n]));let id=new URLSearchParams(location.search).get('id');if(id&&map.has(id))detail(map.get(id));}).catch(()=>{});}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();

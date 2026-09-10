@@ -1,1 +1,1 @@
-[]
+{"version":"0.6","reqId":"0","status":"ok","sig":"","table":{"cols":[{"id":"A","label":"Position","type":"string"},{"id":"B","label":"Active","type":"string"},{"id":"C","label":"Image URL","type":"string"},{"id":"D","label":"Click URL","type":"string"},{"id":"E","label":"Title","type":"string"},{"id":"F","label":"Ad Code","type":"string"}],"rows":[]}}
