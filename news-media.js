@@ -1,6 +1,6 @@
 /* বাংলা সংবাদ — Google Sheet media loader */
 (function(){
- const SHEET_URL='news-data.json';
+ const SHEET_URL='https://docs.google.com/spreadsheets/d/1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg/gviz/tq?tqx=out:json&sheet=Bangla%20News';
  const esc=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
  function yt(u){let s=String(u||'').trim(),m=s.match(/youtu\.be\/([\w-]{6,})/)||s.match(/[?&]v=([\w-]{6,})/)||s.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/);return m?m[1]:''}
  function parse(t){let a=t.indexOf('{'),b=t.lastIndexOf('}')+1;let rows=JSON.parse(t.slice(a,b)).table.rows||[];return rows.map((r,i)=>{let c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8),keywords:v(9)}})}
@@ -19,6 +19,6 @@
  function detail(n){
    // Only Image 1 is used. Image 2 and Image 3 are intentionally ignored.
  }
- function run(){styles();fetch(SHEET_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(list=>{let map=new Map(list.map(n=>[String(n.id),n]));let id=new URLSearchParams(location.search).get('id');if(id&&map.has(id))detail(map.get(id));}).catch(()=>{});}
+ function run(){styles();fetch(SHEET_URL+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{let list=parse(t),map=new Map(list.map(n=>[n.id,n]));let id=new URLSearchParams(location.search).get('id');if(id&&map.has(id))detail(map.get(id));}).catch(()=>{});}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();

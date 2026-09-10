@@ -562,14 +562,30 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 <div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
 <footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div><a href="about.html">আমাদের সম্পর্কে</a><a href="contact.html">যোগাযোগ</a><a href="privacy.html">গোপনীয়তা নীতি</a><a href="disclaimer.html">দাবিত্যাগ</a></div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="advertise.html">বিজ্ঞাপন দিন</a></footer>
 <script>
-const jsonUrl='news-data.json';
+const jsonUrl='https://docs.google.com/spreadsheets/d/1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg/gviz/tq?tqx=out:json&sheet=Bangla%20News';
 const id=new URLSearchParams(location.search).get('id');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yt=u=>{let s=String(u||'').trim(),m=s.match(/youtu\.be\/([\w-]{6,})/)||s.match(/[?&]v=([\w-]{6,})/)||s.match(/youtube\.com\/(?:embed|shorts|live)\/([\w-]{6,})/);return m?m[1]:''};
 function getRows(text){let a=text.indexOf('{'),b=text.lastIndexOf('}')+1;return JSON.parse(text.slice(a,b)).table.rows||[]}
 function img(url,title,n){return url?`<figure class="detail-inline-media"><img loading="lazy" src="${esc(imageUrl(url))}" alt="${esc(title)} - ছবি ${n}" onerror="this.closest('figure').remove()"><figcaption>ছবি ${n}</figcaption></figure>`:''}
 function video(url,title){if(!url)return'';let v=yt(url);if(v)return`<div class="detail-video"><iframe loading="lazy" src="https://www.youtube.com/embed/${esc(v)}" title="${esc(title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;if(/\.(mp4|webm|ogg)(\?.*)?$/i.test(url))return`<div class="detail-video"><video controls preload="metadata" src="${esc(url)}"></video></div>`;return`<p><a href="${esc(url)}" target="_blank" rel="noopener">▶ ভিডিও দেখুন</a></p>`}
-fetch(jsonUrl+'?_='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(list=>{
+fetch(jsonUrl+'&_='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
+  let rows=getRows(t);
+  let list=rows.map((r,i)=>{
+    let c=r.c||[];
+    return {
+      id:String(c[0]?.v??i+1),
+      category:String(c[1]?.v??''),
+      title:String(c[2]?.v??''),
+      text:String(c[3]?.v??''),
+      image:String(c[4]?.v??''),
+      date:String(c[5]?.v??''),
+      image2:String(c[6]?.v??''),
+      image3:String(c[7]?.v??''),
+      video:String(c[8]?.v??''),
+      keywords:String(c[9]?.v??'')
+    }
+  });
   let n=list.find(x=>x.id===String(id));
   if(!n){document.getElementById('news-content').textContent='দুঃখিত, খবরটি খুঁজে পাওয়া যায়নি।';return}
 
