@@ -1,9 +1,9 @@
-Banglasangbad Detail Page Fix — Deploy
+FINAL DEPLOY
 
-1. এই ZIP-এর সব ফাইল GitHub repository root-এ upload/replace করুন।
-2. GitHub Actions workflow চালু থাকলে Google Sheet → GitHub sync প্রতি 5 মিনিটে চলবে।
-3. প্রতিটি “আরও পড়ুন” এখন News/ID.html-এ যাবে।
-4. উদাহরণ: ID 30 → /Banglasangbad/News/30.html
-5. Detail page-এর full Details, images 1-3, video এবং 4 ad slots থাকবে।
-6. Website runtime সরাসরি Google Sheet থেকে news/ads load করবে না।
-7. Browser cache এড়াতে প্রয়োজনে hard refresh করুন।
+1. Upload the contents of this ZIP to the root of the Banglasangbad main branch.
+2. Every “আরও পড়ুন” link uses News/ID.html.
+3. Google Sheet IDs are preserved; no renumbering.
+4. GitHub Actions syncs Bangla News and Ads every 5 minutes and regenerates News/ID.html pages.
+5. The four article ad slots are TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM.
+6. Ads are loaded from GitHub ads-data.json, not directly from the Google Sheet.
+7. The ZIP contains only the currently bundled seed data; after Actions runs, news-data.json, ads-data.json, images and News/ID.html are replaced with the current Sheet data.
