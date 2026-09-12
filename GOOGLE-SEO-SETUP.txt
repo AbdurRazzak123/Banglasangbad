@@ -1,7 +1,7 @@
 বাংলা সংবাদ — Google SEO সেটআপ
 
 Public URL:
-https://abdurrazzak123.github.io/Banglasangbad/
+https://abdurrazzak123.github.io/banglanews.2026/
 
 এই প্যাকেজে যোগ/আপডেট করা হয়েছে:
 1. sitemap.xml — গুরুত্বপূর্ণ static page URL-এর sitemap
@@ -12,7 +12,7 @@ https://abdurrazzak123.github.io/Banglasangbad/
 6. details.html-এ Google Sheet থেকে খবর লোড হওয়ার পর NewsArticle structured data, article canonical, title/description এবং OG metadata তৈরি হয়
 
 GitHub Pages deploy করার পর:
-- Google Search Console-এ এই sitemap submit করুন: https://abdurrazzak123.github.io/Banglasangbad/sitemap.xml
+- Google Search Console-এ এই sitemap submit করুন: https://abdurrazzak123.github.io/banglanews.2026/sitemap.xml
 - Homepage URL Inspection করে Test Live URL এবং প্রয়োজন হলে Request Indexing করুন।
 
 গুরুত্বপূর্ণ:
