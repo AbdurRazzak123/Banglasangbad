@@ -2,5 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /tools/
 
-Sitemap: https://abdurrazzak123.github.io/Banglasangbad/sitemap.xml
-Sitemap: https://abdurrazzak123.github.io/Banglasangbad/news-sitemap.xml
+Sitemap: https://abdurrazzak123.github.io/banglanews.2026/sitemap.xml
+Sitemap: https://abdurrazzak123.github.io/banglanews.2026/news-sitemap.xml

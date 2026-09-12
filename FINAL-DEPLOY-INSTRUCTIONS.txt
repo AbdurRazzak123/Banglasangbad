@@ -1,7 +1,7 @@
 BANGLASANGBAD — PROFESSIONAL FINAL PACKAGE
 
 Target site:
-https://abdurrazzak123.github.io/Banglasangbad/
+https://abdurrazzak123.github.io/banglanews.2026/
 
 WHAT THIS PACKAGE FIXES
 - One crawlable static HTML page per Google Sheet news ID: /news/<ID>.html
@@ -19,9 +19,9 @@ ONE-TIME DEPLOYMENT
 4. GitHub Settings -> Pages -> Deploy from branch -> main -> /(root).
 5. After the first push, the workflow “Sync Google Sheet to GitHub” runs automatically.
 6. Wait for the workflow to become green. It will generate the news/ folder and article pages.
-7. Test: https://abdurrazzak123.github.io/Banglasangbad/news/23.html (or any current Sheet ID).
+7. Test: https://abdurrazzak123.github.io/banglanews.2026/news/23.html (or any current Sheet ID).
 8. In Google Search Console add the new site and submit:
-   https://abdurrazzak123.github.io/Banglasangbad/sitemap.xml
+   https://abdurrazzak123.github.io/banglanews.2026/sitemap.xml
 
 GOOGLE SHEET
 The “Bangla News” tab must remain publicly readable/published. Columns A-J are documented in GOOGLE-SHEET-FINAL-SETUP.txt.

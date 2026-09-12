@@ -1,61 +1,466 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html lang="bn">
- 
+
 <head>
-  <meta name="google-site-verification" content="DWmqvNp1Et8dA5j1EWfqFnut8siA6yCLVukFGHS6vDE" /> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     
-<link rel="canonical" href="https://abdurrazzak123.github.io/Banglasangbad/home.html">
-<meta name="description" content="বাংলা সংবাদের প্রধান সংবাদ—বাংলাদেশ ও বিশ্বের সর্বশেষ গুরুত্বপূর্ণ খবর একসাথে পড়ুন।">
+<link rel="canonical" href="https://abdurrazzak123.github.io/banglanews.2026/home.html">
+<meta name="description" content="বাংলা সংবাদের সর্বশেষ গুরুত্বপূর্ণ সংবাদ, পূর্ণ বিস্তারিত এবং বিভিন্ন ক্যাটাগরির আপডেট একসাথে পড়ুন।">
 <meta name="keywords" content="বাংলা সংবাদ, প্রধান সংবাদ, সর্বশেষ খবর, বাংলাদেশ খবর, জাতীয় খবর">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="googlebot" content="index, follow, max-image-preview:large">
 <meta property="og:site_name" content="বাংলা সংবাদ">
 <meta property="og:title" content="প্রধান সংবাদ | বাংলা সংবাদ">
-<meta property="og:description" content="বাংলা সংবাদের প্রধান সংবাদ—বাংলাদেশ ও বিশ্বের সর্বশেষ গুরুত্বপূর্ণ খবর একসাথে পড়ুন।">
+<meta property="og:description" content="বাংলা সংবাদের সর্বশেষ গুরুত্বপূর্ণ সংবাদ, পূর্ণ বিস্তারিত এবং বিভিন্ন ক্যাটাগরির আপডেট একসাথে পড়ুন।">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://abdurrazzak123.github.io/Banglasangbad/home.html">
-<meta property="og:image" content="https://abdurrazzak123.github.io/Banglasangbad/logo.png">
+<meta property="og:url" content="https://abdurrazzak123.github.io/banglanews.2026/home.html">
+<meta property="og:image" content="https://abdurrazzak123.github.io/banglanews.2026/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="প্রধান সংবাদ | বাংলা সংবাদ">
-<meta name="twitter:description" content="বাংলা সংবাদের প্রধান সংবাদ—বাংলাদেশ ও বিশ্বের সর্বশেষ গুরুত্বপূর্ণ খবর একসাথে পড়ুন।">
+<meta name="twitter:description" content="বাংলা সংবাদের সর্বশেষ গুরুত্বপূর্ণ সংবাদ, পূর্ণ বিস্তারিত এবং বিভিন্ন ক্যাটাগরির আপডেট একসাথে পড়ুন।">
     <title>প্রধান সংবাদ | বাংলা সংবাদ</title>
-    <style>
-        /* বেসিক সিএসএস ডিজাইন */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'SolaimanLipi', Arial, sans-serif; }
-        body { background-color: #f4f4f4; color: #333; }
-        .header { background-color: #fff; padding: 15px; text-align: center; border-bottom: 2px solid #ff0000; }
-        .header h1 { color: #ff0000; font-size: 28px; }
-        
-        /* নেভিগেশন মেনু */
-        .navbar { background-color: #990000; overflow: hidden; display: flex; justify-content: center; flex-wrap: wrap; }
-        .navbar a { color: white; padding: 14px 20px; text-decoration: none; text-align: center; font-weight: bold; font-size: 16px; }
-        .navbar a:hover, .navbar a.active { background-color: #cc0000; }
 
-        /* কন্টেইনার এবং নিউজ গ্রিড */
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .page-title { font-size: 22px; color: #990000; margin-bottom: 15px; border-left: 5px solid #990000; padding-left: 10px; }
-        .news-grid { display: flex; flex-direction: column; gap: 15px; background: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        /* নিউজের কার্ড স্টাইল */
-        .news-card { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 5px; }
-        .news-card:last-child { border-bottom: none; }
-        .news-card h2 { font-size: 20px; color: #222; margin-bottom: 8px; line-height: 1.4; }
-        .news-card p { font-size: 15px; color: #555; line-height: 1.6; }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, "Noto Sans Bengali", sans-serif;
+            background: #f5f6f8;
+            color: #222;
+            line-height: 1.7;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .top-bar {
+            background: #111827;
+            color: white;
+            padding: 8px 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .site-header {
+            background: white;
+            padding: 22px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo h1 {
+            font-size: 38px;
+            color: #c1121f;
+            line-height: 1.2;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 15px;
+            margin-top: 3px;
+        }
+
+        .date-box {
+            color: #555;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .nav {
+            background: #c1121f;
+            color: white;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            padding: 12px 16px;
+            display: block;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .nav a:hover {
+            background: #8f0d17;
+        }
+
+        .breaking {
+            max-width: 1300px;
+            margin: 15px auto;
+            background: white;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .breaking-title {
+            background: #dc5f0c;
+            color: white;
+            padding: 1px 10px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .breaking-text {
+            padding: 2px 8px;
+            color: #c1121f;
+            font-weight: bold;
+        }
+
+       
+        .side-news {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .side-news article {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .side-news article:last-child {
+            border-bottom: 0;
+        }
+
+        .side-news h3 {
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .news-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .news-image {
+            height: 170px;
+            background: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+        }
+
+        .news-card-content {
+            padding: 14px;
+        }
+
+        .category {
+            color: #c1121f;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .news-card h3 {
+            font-size: 18px;
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+
+        .footer {
+            background: #111827;
+            color: white;
+            text-align: center;
+            padding: 30px 15px;
+            margin-top: 40px;
+        }
+
+        .footer h2 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .footer p {
+            color: #d1d5db;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .date-box {
+                text-align: center;
+            }
+
+            .main-grid,
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-inner {
+                justify-content: center;
+            }
+
+            .nav a {
+                padding: 9px 10px;
+                font-size: 14px;
+            }
+
+            .featured-image {
+                height: 220px;
+            }
+
+            .logo h1 {
+                font-size: 32px;
+            }
+         
+        }
+        /* মেইন লেআউট গ্রিড */
+/* মেইন কন্টেইনার লেআউট */
+main.container {
+    display: grid !important;
+    grid-template-columns: 2.2fr 1fr !important;
+    gap: 20px;
+    width: 95% !important;
+    margin: 15px auto !important;
+}
+
+/* খবরের মেইন বক্স */
+.vertical-news-block {
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* ওপরের হাফ অংশ: ছবি (ফাঁকা জায়গাটুকুর শুধু ওপরে থাকবে) */
+.vertical-news-block .news-image-top {
+    width: 100%;
+    height: 280px; /* ল্যাপটপ ডিসপ্লের ওপরের হাফের জন্য পারফেক্ট */
+}
+.vertical-news-block .news-image-top img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* নিচের অংশ: শিরোনাম ও সারাংশ */
+.vertical-news-block .news-text-bottom {
+    padding: 15px;
+}
+.vertical-news-block .news-text-bottom h3 {
+    font-size: 24px;
+    color: #111;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+.vertical-news-block .news-text-bottom p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #444;
+    margin: 0 0 15px 0;
+}
+
+/* আরও পড়ুন বাটন */
+.read-more-btn {
+    display: inline-block;
+    background-color: #003366;
+    color: #ffffff !important;
+    padding: 10px 20px;
+    text-decoration: none !important;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.read-more-btn:hover {
+    background-color: #002244;
+}
+
+/* 📱 মোবাইল বা ফোনের জন্য রেসপনসিভ */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr; /* ফোনে একটির নিচে আরেকটি চলে আসবে */
+        padding: 0 10px;
+    }
+    .vertical-news-block .news-image-top {
+        height: 220px; /* মোবাইলে ছবির উচ্চতা পারফেক্ট দেখাবে */
+    }
+    .featured-details h3 {
+        font-size: 20px;
+    }
+}
+/* ডানপাশের সর্বশেষ সংবাদের লিংক সরাসরি লাল করার জন্য */
+#latest-news-container .latest-item a, 
+.latest-item a {
+    color: #cc0000 !important; /* নিখুঁত লাল কালার */
+    text-decoration: none !important;
+}
+
+#latest-news-container .latest-item a:hover, 
+.latest-item a:hover {
+    color: #990000 !important; /* মাউস নিলে গাঢ় লাল */
+}
+   /* ======================================================
+   📱 মোবাইল বা ফোনের জন্য ১০০% পারফেক্ট রেসপনসিভ লেআউট 
+   ====================================================== */
+@media (max-width: 768px) {
+    /* ১. মেইন কন্টেইনারকে উপর-নিচ করে দেওয়া হলো */
+    main.container, 
+    body > .container,
+    div.container {
+        display: flex !important;
+        flex-direction: column !important; /* বামের খবর উপরে, ডানের খবর নিচে যাবে */
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 12px !important;
+        gap: 25px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ২. বাম পাশের মূল সংবাদকে পুরো স্ক্রিন জুড়ে বড় করা */
+    #news-container,
+    .news-grid,
+    .vertical-news-block {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+    }
+
+    /* ৩. মোবাইলে মেইন খবরের ছবির সাইজ পারফেক্ট করা */
+    .vertical-news-block .news-image-top,
+    .news-card img,
+    #news-container img {
+        width: 100% !important;
+        height: 240px !important; /* ছবি আর চ্যাপ্টা বা কাটা দেখাবে না */
+        object-fit: cover !important;
+        border-radius: 6px !important;
+    }
+
+    /* ৪. শিরোনাম ও সারাংশের ফন্ট সাইজ ফোনের জন্য ফিক্স */
+    .news-text-bottom h3,
+    .news-details h3 {
+        font-size: 22px !important;
+        line-height: 1.4 !important;
+        margin: 12px 0 !important;
+    }
+
+    .news-text-bottom p,
+    .news-details p {
+        font-size: 15px !important;
+        line-height: 1.6 !important;
+    }
+
+    /* ৫. ডানপাশের সর্বশেষ সংবাদ সেকশনটি নিচে চলে আসবে এবং চওড়া হবে */
+    .sidebar,
+    aside {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 15px !important;
+        padding: 15px !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+    }
+
+    /* ৬. মোবাইলে সর্বশেষ সংবাদের শিরোনামগুলো সুন্দর নিচে নিচে স্ক্রল হবে */
+    .latest-news-scroll,
+    #latest-news-container {
+        max-height: 280px !important; /* ৪টি খবরের পর অটো স্ক্রলবার আসবে */
+        overflow-y: auto !important; /* উপর-নিচ স্ক্রলিং চালু করা হলো */
+        padding-right: 5px !important;
+        display: block !important;
+    }
+
+    /* ৭. লাল শিরোনামের লিংকগুলো যাতে মোবাইলে ভেঙে না যায় */
+    .latest-item {
+        padding: 12px 0 !important;
+        border-bottom: 1px solid #eee !important;
+        width: 100% !important;
+    }
+
+    .latest-item a {
+        color: #cc0000 !important; /* সরাসরি নিখুঁত লাল কালার */
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+        text-decoration: none !important;
+        font-weight: bold !important;
+        display: block !important;
+        word-wrap: break-word !important; /* বড় লেখা হলে অটো পরের লাইনে যাবে */
+    }
+} 
     
-        .read-more-btn { display:inline-block; margin-top:10px; padding:9px 16px; background:#c90035; color:#fff !important; text-decoration:none; font-weight:bold; border-radius:4px; font-size:14px; }
-        .read-more-btn:hover { background:#a8002c; }
+    
+    
+    </style>
+
+    <style>
+/* ===== Desktop two-column layout: news left, latest news right ===== */
+@media (min-width: 769px){
+  main.container{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+  main.container > #news-container{grid-column:1}
+  main.container > .sidebar{grid-column:2;grid-row:1}
+  main.container > .ad-slot{grid-column:1 / -1}
+  main.container + .section-title, main.container ~ .section-title{clear:both}
+}
+@media (max-width:768px){
+  main.container{display:block}
+  main.container > .sidebar{margin-top:16px}
+  #latest-news-container{max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
+
+/* ===== Custom Logo Slot (replace only logo.png) ===== */
+.logo{display:flex;align-items:center;min-width:0}
+.logo-image{width:min(92vw,420px);height:auto;max-height:140px;object-fit:contain;display:block;object-position:left center}
+.logo-fallback{display:none}
+@media (max-width:768px){.logo{justify-content:center}.logo-image{width:220px;height:66px;object-position:center}}
+
+/* Breaking News date styling */
+.breaking-news-date{font-size:14px;color:#777;margin:0 0 7px;line-height:1.4;}
+@media(max-width:768px){.breaking-news-date{font-size:13px;}}
+
+/* ===== Professional Breaking News Ticker ===== */
+.breaking{max-width:1200px;margin:14px auto;background:#d90429;border-radius:4px;overflow:hidden;border:0;display:block}
+.breaking-news-container{display:flex;align-items:center;background:#d90429;color:#fff;min-height:44px;padding:0!important}
+.breaking-title{background:#111827;color:#fff;padding:11px 16px!important;font-weight:800;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.breaking-title:before{content:'●';font-size:12px;color:#ff4d4d}
+.ticker-window{overflow:hidden;flex:1;white-space:nowrap;position:relative}
+.ticker-track{display:inline-block;white-space:nowrap;padding-left:100%;animation:tickerMove 22s linear infinite;font-size:15px;font-weight:700;line-height:44px}
+.ticker-window:hover .ticker-track{animation-play-state:paused}
+@keyframes tickerMove{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (max-width:768px){.breaking{margin:10px 8px}.breaking-title{padding:10px 12px!important;font-size:14px}.ticker-track{font-size:13px;line-height:40px}.breaking-news-container{min-height:40px}}
 </style>
 
 <style>.site-footer{background:#111827;color:#fff;text-align:center;padding:30px 15px;margin-top:40px}.site-footer h3{color:#fff;margin:0 0 6px}.site-footer p{color:#d1d5db;font-size:14px;margin:8px 0}.site-footer .links{margin:15px 0}.site-footer a{color:#fff;text-decoration:none;margin:0 9px;display:inline-block}.site-footer a:hover{text-decoration:underline}</style>
-<style>
-/* Final mobile/category fixes */
-.home-summary,.news-summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;line-height:1.65;}
-.category-tag{position:static!important;display:inline-block!important;background:#fff!important;color:#c1121f!important;padding:2px 0!important;border-radius:0!important;box-shadow:none!important;}
-.news-image{position:relative;}
-@media(max-width:768px){.category-tag{position:static!important;background:#fff!important;color:#c1121f!important;}.news-details,.news-card-content{background:#fff!important;position:relative;z-index:2;}}
-</style>
 
 <style>
 /* Professional ticker + ad slots + mobile polish */
@@ -66,6 +471,75 @@
 .news-ticker:hover .news-ticker-text{animation-play-state:paused}
 @keyframes tickerMove{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 @media(max-width:768px){.news-ticker{margin:8px 8px 14px}.news-ticker-label{padding:7px 9px;font-size:13px}.news-ticker-text{font-size:13px;animation-duration:18s}}
+</style>
+
+
+<style>
+/* ===== FINAL BREAKING NEWS: full-width red bar ===== */
+.breaking{
+  width:100%;
+  max-width:none !important;
+  margin:14px 0 !important;
+  border-radius:0 !important;
+  background:#d90429 !important;
+  border:0 !important;
+  overflow:hidden;
+}
+.breaking-news-container{
+  width:100%;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  background:#d90429 !important;
+}
+.breaking-title{
+  flex:0 0 auto;
+  background:#111827 !important;
+  color:#fff !important;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  padding:0 18px !important;
+}
+.ticker-window{flex:1;min-width:0;background:#d90429 !important;}
+.ticker-track{
+  color:#fff !important;
+  font-size:16px;
+  line-height:48px;
+  font-weight:700;
+}
+@media(max-width:768px){
+  .breaking{margin:10px 0 !important;}
+  .breaking-news-container{min-height:42px;}
+  .breaking-title{min-height:42px;padding:0 12px !important;font-size:14px;}
+  .ticker-track{font-size:13px;line-height:42px;}
+}
+</style>
+
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"WebSite","name":"বাংলা সংবাদ","description":"বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ","inLanguage":"bn","url":"https://abdurrazzak123.github.io/banglanews.2026/"},
+    {"@type":"Organization","name":"বাংলা সংবাদ","url":"https://abdurrazzak123.github.io/banglanews.2026/","logo":{"@type":"ImageObject","url":"https://abdurrazzak123.github.io/banglanews.2026/logo.png"}}
+  ]
+}
+</script>
+
+<style id="latest-mobile-final-fix">
+@media (max-width:768px){
+  main.container{display:flex!important;flex-direction:column!important;}
+  main.container > #news-container{order:1!important;}
+  main.container > .sidebar{order:2!important;width:100%!important;max-width:100%!important;margin:12px 0 0!important;}
+  main.container > .ad-slot{order:3!important;}
+  #latest-news-container{height:280px!important;max-height:280px!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:auto;}
+}
+@media (min-width:769px){
+  main.container > #news-container{grid-column:1;grid-row:1!important;}
+  main.container > .sidebar{grid-column:2;grid-row:1!important;}
+  main.container > .ad-slot{grid-column:1 / -1;grid-row:2!important;}
+}
 </style>
 
 <style id="unified-logo-system">
@@ -94,6 +568,13 @@
  .site-header .logo,.site-header .logo-image,.site-brand-logo,.brand-header .site-brand-logo{width:175px!important;max-width:72vw!important;}
  .site-header .logo-image,.site-brand-logo{max-height:54px!important;}
 }
+</style>
+
+<style id="index-card-image-fix">
+/* ===== Homepage category cards: fixed image frame ===== */
+.news-grid .news-card .news-image{height:170px!important;overflow:hidden!important;}
+.news-grid .news-card .news-image img{display:block!important;width:100%!important;height:170px!important;object-fit:cover!important;}
+@media(max-width:768px){.news-grid .news-card .news-image,.news-grid .news-card .news-image img{height:190px!important;}}
 </style>
 
 <style id="final-logo-and-home-image-fix">
@@ -243,7 +724,17 @@
 </style>
 
 
-<script type="application/ld+json" id="site-seo-schema">{"@context":"https://schema.org","@type":"WebPage","name":"প্রধান সংবাদ | বাংলা সংবাদ","description":"বাংলা সংবাদের প্রধান সংবাদ—বাংলাদেশ ও বিশ্বের সর্বশেষ গুরুত্বপূর্ণ খবর একসাথে পড়ুন।","inLanguage":"bn","url":"https://abdurrazzak123.github.io/Banglasangbad/home.html"}</script>
+<style id="FINAL-TWO-FIXES-ONLY">
+/* FINAL FIX 1: logo uses root-level logo.png for GitHub Pages reliability */
+.site-header .logo-image, .brand-header .site-brand-logo { display:block!important; object-fit:contain!important; }
+/* FINAL FIX 2: index main image stays above category/date/headline; metadata never overlays image */
+.vertical-news-block { display:flex!important; flex-direction:column!important; position:relative!important; }
+.vertical-news-block .news-image-top { order:1!important; position:relative!important; display:block!important; width:100%!important; height:280px!important; overflow:hidden!important; }
+.vertical-news-block .news-image-top img { display:block!important; width:100%!important; height:100%!important; object-fit:cover!important; position:static!important; }
+.vertical-news-block .news-text-bottom { order:2!important; position:static!important; width:100%!important; padding:15px!important; background:#fff!important; box-sizing:border-box!important; }
+.vertical-news-block .news-text-bottom .category-tag, .vertical-news-block .news-text-bottom .breaking-news-date, .vertical-news-block .news-text-bottom h3, .vertical-news-block .news-text-bottom p, .vertical-news-block .news-text-bottom .read-more-btn { position:static!important; }
+@media(max-width:768px){ .vertical-news-block .news-image-top { height:220px!important; } }
+</style>
 
 <style id="premium-news-theme-v2">
 /* ===== বাংলা সংবাদ — Premium Theme + Full Image Visibility ===== */
@@ -379,7 +870,67 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
   #news-container .news-image-wrap img{max-height:360px!important;}
 }
 </style>
+
+<style id="category-card-link-fix">
+.category-card-link{display:block!important;width:100%;height:100%;color:inherit!important;text-decoration:none!important;position:relative;z-index:5;pointer-events:auto!important;}
+.category-card-link .news-image img{display:block!important;pointer-events:none;}
+.nav{position:relative!important;z-index:1000!important;}
+.nav-inner,.nav a{position:relative!important;z-index:1001!important;pointer-events:auto!important;}
+</style>
 <style id="premium-final-fix">.news-card img,.news-item img,.card img,.headline-card img{width:100%;height:auto;max-height:420px;object-fit:contain;display:block}.site-header{background:linear-gradient(135deg,#063b2b,#075b43,#0b2638)!important;border-bottom:4px solid #e31b23!important}</style>
+
+<style id="six-category-cards-exact-size">
+/* FINAL: Keep the six requested category cards independent from main-container/card rules. */
+section.news-grid > article:nth-child(1) .news-image,
+section.news-grid > article:nth-child(2) .news-image,
+section.news-grid > article:nth-child(3) .news-image,
+section.news-grid > article:nth-child(4) .news-image,
+section.news-grid > article:nth-child(5) .news-image,
+section.news-grid > article:nth-child(6) .news-image {
+  width:100% !important;
+  height:170px !important;
+  min-height:170px !important;
+  max-height:170px !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:#fff !important;
+  box-sizing:border-box !important;
+}
+section.news-grid > article:nth-child(1) .news-image img,
+section.news-grid > article:nth-child(2) .news-image img,
+section.news-grid > article:nth-child(3) .news-image img,
+section.news-grid > article:nth-child(4) .news-image img,
+section.news-grid > article:nth-child(5) .news-image img,
+section.news-grid > article:nth-child(6) .news-image img {
+  width:100% !important;
+  height:170px !important;
+  min-height:170px !important;
+  max-height:170px !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  display:block !important;
+}
+@media (max-width:768px){
+  section.news-grid > article:nth-child(1) .news-image,
+  section.news-grid > article:nth-child(2) .news-image,
+  section.news-grid > article:nth-child(3) .news-image,
+  section.news-grid > article:nth-child(4) .news-image,
+  section.news-grid > article:nth-child(5) .news-image,
+  section.news-grid > article:nth-child(6) .news-image {
+    height:190px !important; min-height:190px !important; max-height:190px !important;
+  }
+  section.news-grid > article:nth-child(1) .news-image img,
+  section.news-grid > article:nth-child(2) .news-image img,
+  section.news-grid > article:nth-child(3) .news-image img,
+  section.news-grid > article:nth-child(4) .news-image img,
+  section.news-grid > article:nth-child(5) .news-image img,
+  section.news-grid > article:nth-child(6) .news-image img {
+    height:190px !important; min-height:190px !important; max-height:190px !important;
+  }
+}
+</style>
 
 <style id="logo-transparent-final-fix">
 /* Final logo-only adjustment: remove white panel and lift logo slightly. */
@@ -395,6 +946,74 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 }
 @media (max-width:768px){
   .site-header .logo{top:43%!important;}
+}
+</style>
+
+
+<style id="six-category-images-410x170-final">
+/* Final six-card image alignment: exact 410x170 on desktop, no distortion. */
+section.news-grid > article:nth-child(1) .news-image,
+section.news-grid > article:nth-child(2) .news-image,
+section.news-grid > article:nth-child(3) .news-image,
+section.news-grid > article:nth-child(4) .news-image,
+section.news-grid > article:nth-child(5) .news-image,
+section.news-grid > article:nth-child(6) .news-image {
+  width:410px !important;
+  height:170px !important;
+  min-width:410px !important;
+  max-width:410px !important;
+  min-height:170px !important;
+  max-height:170px !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+}
+section.news-grid > article:nth-child(1) .news-image img,
+section.news-grid > article:nth-child(2) .news-image img,
+section.news-grid > article:nth-child(3) .news-image img,
+section.news-grid > article:nth-child(4) .news-image img,
+section.news-grid > article:nth-child(5) .news-image img,
+section.news-grid > article:nth-child(6) .news-image img {
+  width:410px !important;
+  height:170px !important;
+  min-width:410px !important;
+  max-width:410px !important;
+  min-height:170px !important;
+  max-height:170px !important;
+  object-fit:cover !important;
+  object-position:center !important;
+  display:block !important;
+}
+@media (max-width:768px){
+  section.news-grid > article:nth-child(1) .news-image,
+  section.news-grid > article:nth-child(2) .news-image,
+  section.news-grid > article:nth-child(3) .news-image,
+  section.news-grid > article:nth-child(4) .news-image,
+  section.news-grid > article:nth-child(5) .news-image,
+  section.news-grid > article:nth-child(6) .news-image {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:170px !important;
+    min-height:170px !important;
+    max-height:170px !important;
+  }
+  section.news-grid > article:nth-child(1) .news-image img,
+  section.news-grid > article:nth-child(2) .news-image img,
+  section.news-grid > article:nth-child(3) .news-image img,
+  section.news-grid > article:nth-child(4) .news-image img,
+  section.news-grid > article:nth-child(5) .news-image img,
+  section.news-grid > article:nth-child(6) .news-image img {
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:170px !important;
+    min-height:170px !important;
+    max-height:170px !important;
+    object-fit:cover !important;
+  }
 }
 </style>
 
@@ -676,70 +1295,133 @@ body{background:var(--bn-bg)!important;color:var(--bn-ink)!important;}
 }
 </style>
 
-<style id="read-more-exact-3-lines">
-.home-summary,.news-summary{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;line-clamp:3!important;overflow:hidden!important;line-height:1.65!important;max-height:calc(1.65em * 3)!important;}
-.news-card .read-more-btn{display:inline-block!important;margin-top:8px!important;}
-</style>
-
 </style>
   <link rel="stylesheet" href="ads.css?v=20260907-ads-v26-sequential-final">
 </head>
+
 <body>
-<div class="news-ticker" aria-label="সর্বশেষ বার্তা"><div class="news-ticker-label">বিশেষ বার্তা</div><div class="news-ticker-track"><span class="news-ticker-text">সত্য ও নির্ভরযোগ্য সংবাদ জানতে চোখ রাখুন বাংলা সংবাদের সঙ্গে—তথ্য যাচাই করে, দায়িত্বশীলতার সঙ্গে প্রতিটি গুরুত্বপূর্ণ খবর পৌঁছে দিতে আমরা আছি আপনাদের পাশে।</span></div></div>
 
-<div class="ad-slot top" data-ad-slot="top"><span>বিজ্ঞাপনের স্থান • Google AdSense অনুমোদনের পর এখানে AdSense কোড বসবে</span></div>
-
-
-    <div class="header brand-header"><a href="index.html" class="logo-link" aria-label="বাংলা সংবাদ - হোম"><img src="logo.png" alt="বাংলা সংবাদ লোগো" class="site-brand-logo" loading="eager"></a><p>সর্বশেষ সংবাদ সবার আগে</p></div>
-
-    <!-- মেনু বার: ফাইলগুলোর নাম আপনার ফোল্ডার অনুযায়ী মিলিয়ে দেওয়া হয়েছে -->
-    <div class="navbar">
-        <a href="home.html">হোম</a>
-        <a href="national.html">জাতীয়</a>
-        <a href="politics.html">রাজনীতি</a>
-        <a href="international.html">আন্তর্জাতিক</a>
-        <a href="economy.html">অর্থনীতি</a>
-        <a href="sports.html">খেলাধুলা</a>
-        <a href="entertainment.html">বিনোদন</a>
-        <a href="technology.html">প্রযুক্তি</a>
-        <a href="more.html">আরও</a>
+<div class="ad-slot top sheet-ad-slot" data-ad-slot="top" aria-label="বিজ্ঞাপন"></div>
+<div class="top-bar">বাংলা সংবাদ — সত্য ও নির্ভরযোগ্য খবর</div>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <img src="logo.png" alt="বাংলা সংবাদ লোগো" class="logo-image">
+      <div class="logo-fallback"><h1>বাংলা সংবাদ</h1><p>সর্বশেষ সংবাদ সবার আগে</p></div>
     </div>
-
-    <div class="container">
-        <h2 class="page-title">প্রধান সংবাদ (সব খবর একসাথে)</h2>
-        <div id="news-grid" class="news-grid">
-            <p style="text-align:center; padding:20px; color:gray;">খবর লোড হচ্ছে...</p>
-        </div>
-    </div>
-
-    <script>
+    <div id="live-date">তারিখ</div>
+  </div>
+</header>
+<nav class="nav"><div class="nav-inner">
+  <a href="home.html" class="active">হোম</a><a href="national.html">জাতীয়</a><a href="politics.html">রাজনীতি</a><a href="international.html">আন্তর্জাতিক</a><a href="economy.html">অর্থনীতি</a><a href="sports.html">খেলাধুলা</a><a href="entertainment.html">বিনোদন</a><a href="technology.html">প্রযুক্তি</a><a href="more.html">আরও</a>
+</div></nav>
+<div class="breaking"><div class="breaking-news-container"><div class="breaking-title">ব্রেকিং নিউজ</div><div class="ticker-window"><div class="ticker-track" id="breaking-ticker">সর্বশেষ শিরোনাম লোড হচ্ছে...</div></div></div></div>
+<main class="container home-main-layout">
+  <section id="home-feature" aria-label="সর্বশেষ প্রধান সংবাদ"><div style="text-align:center;padding:40px;color:#888;">খবর লোড হচ্ছে...</div></section>
+  <aside class="sidebar home-sidebar"><h2>সর্বশেষ ১০ সংবাদ</h2><div class="latest-news-scroll" id="latest-news-container"><div style="text-align:center;padding:20px;color:#888;">খবর লোড হচ্ছে...</div></div></aside>
+  <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div>
+</main>
+<h2 class="section-title">সর্বশেষ ৬ ক্যাটাগরির খবর</h2>
+<section class="news-grid category-six-grid" id="category-six-grid"><div style="text-align:center;padding:30px;color:#888;grid-column:1/-1;">খবর লোড হচ্ছে...</div></section>
+<script>
 const DATA_URL='news-data.json';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').toLowerCase().trim();
-function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:v(0)||(i+1)+'',category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
+const normId=s=>{const x=String(s??'').trim();return /^\d+(?:\.0+)?$/.test(x)?String(parseInt(x,10)):x;};
+function parseSheet(text){const a=text.indexOf('{'),b=text.lastIndexOf('}')+1;const rows=JSON.parse(text.slice(a,b)).table.rows||[];return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:normId(v(0)||(i+1)+''),category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);}
 function load(){return fetch(DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parseSheet);}
-
+function cleanImagePath(path){return String(path||'').trim().replace(/^\.\//,'').replace(/^\/+/, '');}
+function repoInfo(){try{const host=location.hostname||'';if(!/^[^.]+\.github\.io$/i.test(host))return null;const owner=host.split('.')[0];const parts=location.pathname.split('/').filter(Boolean);const repo=parts[0]||'';return owner&&repo?{owner,repo}:null;}catch(e){return null;}}
+function githubImageCandidates(path){
+  const clean=cleanImagePath(path);
+  if(!/^(?:assets\/news|news-images|images\/news)\//i.test(clean))return [];
+  const enc=clean.split('/').map(encodeURIComponent).join('/');
+  const out=[];
+  // 1) Always try the GitHub repository where this page is currently hosted.
+  // This makes the same ZIP work after moving the website to a different repo.
+  const info=repoInfo();
+  if(info){
+    const owner=encodeURIComponent(info.owner),repo=encodeURIComponent(info.repo);
+    out.push(
+      'https://raw.githubusercontent.com/'+owner+'/'+repo+'/main/'+enc,
+      'https://raw.githubusercontent.com/'+owner+'/'+repo+'/master/'+enc,
+      'https://github.com/'+owner+'/'+repo+'/raw/refs/heads/main/'+enc,
+      'https://github.com/'+owner+'/'+repo+'/raw/refs/heads/master/'+enc,
+      'https://cdn.jsdelivr.net/gh/'+owner+'/'+repo+'@main/'+enc,
+      'https://cdn.jsdelivr.net/gh/'+owner+'/'+repo+'@master/'+enc,
+      'https://media.githubusercontent.com/media/'+owner+'/'+repo+'/main/'+enc
+    );
+  }
+  // 2) Optional shared media repository fallback. Keep this only as a fallback;
+  // a new site repo remains the primary source automatically.
+  const fallbackRepos=[['AbdurRazzak123','Banglasangbad']];
+  for(const [owner,repo] of fallbackRepos){
+    if(info && owner.toLowerCase()===info.owner.toLowerCase() && repo.toLowerCase()===info.repo.toLowerCase())continue;
+    out.push(
+      'https://raw.githubusercontent.com/'+encodeURIComponent(owner)+'/'+encodeURIComponent(repo)+'/main/'+enc,
+      'https://raw.githubusercontent.com/'+encodeURIComponent(owner)+'/'+encodeURIComponent(repo)+'/master/'+enc,
+      'https://cdn.jsdelivr.net/gh/'+encodeURIComponent(owner)+'/'+encodeURIComponent(repo)+'@main/'+enc,
+      'https://cdn.jsdelivr.net/gh/'+encodeURIComponent(owner)+'/'+encodeURIComponent(repo)+'@master/'+enc
+    );
+  }
+  return [...new Set(out)];
+}
+function driveImageCandidates(raw){const s=String(raw||'');const m=s.match(/drive\.google\.com\/(?:file\/d\/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=|thumbnail\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);if(!m)return [];const id=m[1];return [
+  'https://drive.google.com/thumbnail?id='+id+'&sz=w2000',
+  'https://drive.google.com/uc?export=view&id='+id,
+  'https://drive.google.com/uc?export=download&id='+id
+];}
 function imageUrl(url){
   const raw=String(url||'').trim();
-  if(!raw) return '';
-  const m=raw.match(/drive\.google\.com\/(?:file\/d\/|open\?(?:[^#]*&)?id=|uc\?(?:[^#]*&)?id=)([A-Za-z0-9_-]+)/i);
-  if(m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w2000`;
-  try { return new URL(raw, document.baseURI).href; } catch(e) { return raw; }
+  if(!raw)return '';
+  const dc=driveImageCandidates(raw);
+  if(dc.length)return dc[0];
+  if(/^https?:\/\//i.test(raw))return raw;
+  // For repository image paths, use the current GitHub repo first. If the
+  // website is moved to another repo, the same code automatically follows it.
+  const gh=githubImageCandidates(raw);
+  if(gh.length)return gh[0];
+  return cleanImagePath(raw);
 }
-
-function image1(n){return n.image?`<div class="news-image-wrap"><img loading="lazy" src="${esc(imageUrl(n.image))}" alt="${esc(n.title)}" onerror="this.closest('.news-image-wrap')?.remove()"></div>`:'';}
-function card(n,catLabel){return `<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-details"><span class="category-tag">${esc(catLabel||n.category)}</span><span class="news-date">${esc(n.date)}</span><h3>${esc(n.title)}</h3><p class="home-summary">${esc(n.summary)}</p><a class="read-more-btn" href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}">আরও পড়ুন</a></div></div>`;}
-function latest(list){return [...list].reverse();}
-
-load().then(list=>{const c=document.getElementById('news-grid');if(!c)return;c.innerHTML=latest(list).map(n=>`<div class="news-card" id="news-${esc(n.id)}">${image1(n)}<div class="news-card-content"><h2>${esc(n.title)}</h2><p class="home-summary">${esc(n.summary)}</p><a href="news/${encodeURIComponent(n.id)}.html" data-news-id="${esc(n.id)}" class="read-more-btn">আরও পড়ুন</a></div></div>`).join('')||'<p style="text-align:center;padding:20px;color:gray;">আপাতত কোনো খবর পাওয়া যায়নি।</p>'}).catch(e=>console.error(e));
+function imageCandidates(src){
+  const raw=String(src||'').trim();
+  const out=[];
+  const dc=driveImageCandidates(raw);
+  if(dc.length)out.push(...dc);
+  if(/^https?:\/\//i.test(raw)&&!dc.length)out.push(raw);
+  const gh=githubImageCandidates(raw);
+  out.push(...gh);
+  const rel=cleanImagePath(raw);
+  if(rel){try{out.push(new URL(rel,document.baseURI).href);}catch(e){}}
+  return [...new Set(out.filter(Boolean))];
+}
+function imageFallback(img){const candidates=imageCandidates(img.dataset.imageSource||'');let step=parseInt(img.dataset.fallbackStep||'0',10);if(!Number.isFinite(step))step=0;while(step<candidates.length&&candidates[step]===img.src)step++;if(step<candidates.length){img.dataset.fallbackStep=String(step+1);img.src=candidates[step];return;}img.dataset.fallbackStep='done';img.style.display='block';img.alt=img.alt||'সংবাদের ছবি';img.closest('.news-image-top,.news-image,.category-latest-thumb')?.classList.add('image-load-failed');}
+function initImageFallbacks(root=document){root.querySelectorAll('img[data-image-source]').forEach(img=>{img.addEventListener('error',()=>imageFallback(img),{once:false});if(!img.getAttribute('src'))imageFallback(img);});}
+function latest(list){return [...list].sort((a,b)=>{const ai=parseInt(normId(a.id),10),bi=parseInt(normId(b.id),10);return (Number.isFinite(bi)?bi:-Infinity)-(Number.isFinite(ai)?ai:-Infinity);});}
+function articleUrl(id){return 'news/'+encodeURIComponent(normId(id))+'.html';}
+function imgTag(n,cls='news-image-top',loading='eager'){return n.image?`<div class="${cls}"><img loading="${loading}" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)"></div>`:'';}
+function feature(n){if(!n)return '<div class="vertical-news-block"><div class="news-text-bottom"><h3>আপাতত কোনো সংবাদ পাওয়া যায়নি।</h3></div></div>';return `<article class="vertical-news-block" id="news-${esc(normId(n.id))}">${imgTag(n,'news-image-top','eager')}<div class="news-text-bottom"><span class="category-tag">${esc(n.category)}</span><div class="breaking-news-date">${esc(n.date)}</div><h1 class="home-feature-title">${esc(n.title)}</h1><div class="home-full-details">${esc(n.summary||'').replace(/\n/g,'<br>')}</div></div></article>`;}
+function sideItem(n){const img=n.image?`<img loading="lazy" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)">`:'';return `<article class="latest-item category-latest-item"><a href="${articleUrl(n.id)}" data-news-id="${esc(normId(n.id))}"><span class="category-latest-thumb">${img}</span><span class="category-latest-title">${esc(n.title)}</span></a></article>`;}
+const CATEGORY_MAP={national:['জাতীয়','জাতীয়','national'],politics:['রাজনীতি','politics'],international:['আন্তর্জাতিক','international'],sports:['খেলাধুলা','sports','sport'],entertainment:['বিনোদন','entertainment'],technology:['প্রযুক্তি','technology','tech'],economy:['অর্থনীতি','economy']};
+const LABELS={national:'জাতীয়',politics:'রাজনীতি',international:'আন্তর্জাতিক',sports:'খেলাধুলা',entertainment:'বিনোদন',technology:'প্রযুক্তি'};
+function sixCard(n,label){const img=n.image?`<div class="news-image"><img loading="lazy" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)"></div>`:'<div class="news-image"></div>';return `<article class="news-card"><a href="${articleUrl(n.id)}" class="category-card-link" data-news-id="${esc(normId(n.id))}">${img}<div class="news-card-content"><div class="category">${esc(label)}</div><h3>${esc(n.title)}</h3></div></a></article>`;}
+const liveDate=document.getElementById('live-date');if(liveDate)liveDate.textContent=new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+load().then(list=>{const ordered=latest(list);const newest=ordered[0];const f=document.getElementById('home-feature');if(f)f.innerHTML=feature(newest);const ticker=document.getElementById('breaking-ticker');if(ticker)ticker.textContent=newest?newest.title:'কোনো সংবাদ নেই';const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=ordered.slice(0,10).map(sideItem).join('')||'<div style="text-align:center;padding:20px;color:#888;">কোনো সংবাদ নেই।</div>';const grid=document.getElementById('category-six-grid');const six=[];for(const key of Object.keys(LABELS)){const n=ordered.find(x=>CATEGORY_MAP[key].some(v=>norm(v)===norm(x.category)));if(n)six.push([n,LABELS[key]]);}if(grid)grid.innerHTML=six.slice(0,6).map(([n,l])=>sixCard(n,l)).join('')||'<div style="text-align:center;padding:30px;color:#888;grid-column:1/-1;">কোনো সংবাদ নেই।</div>';initImageFallbacks(document);}).catch(e=>{console.error(e);document.getElementById('home-feature').innerHTML='<div style="text-align:center;padding:40px;color:#888;">খবর লোড করা যাচ্ছে না।</div>';});
 </script>
-
-
-<div class="ad-slot footer-ad" data-ad-slot="bottom"><span>বিজ্ঞাপনের স্থান • Google AdSense অনুমোদনের পর এখানে AdSense কোড বসবে</span></div>
-
+<style id="home-final-layout">
+.home-main-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;gap:22px!important;align-items:start!important;}
+.home-main-layout>#home-feature{grid-column:1;min-width:0}.home-main-layout>.home-sidebar{grid-column:2;grid-row:1}.home-main-layout>.ad-slot{grid-column:1/-1}
+.home-feature-title{font-size:28px!important;line-height:1.45!important;color:#111!important;margin:0 0 12px!important}
+.home-full-details{font-size:17px;line-height:1.9;color:#333;white-space:normal;word-break:break-word}
+.category-latest-item{padding:10px 0!important;border-bottom:1px solid #eee!important}.category-latest-item:last-child{border-bottom:0!important}
+.category-latest-item a{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:inherit!important}
+.category-latest-thumb{display:block!important;flex:0 0 92px!important;width:92px!important;height:68px!important;border-radius:6px!important;overflow:hidden!important;background:#d1d5db!important}.category-latest-thumb img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}
+.image-load-failed{background:#f1f1f1!important;min-height:68px!important}.image-load-failed::after{content:'ছবি লোড হচ্ছে না';display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:#777}.category-latest-title{display:block!important;flex:1!important;font-size:15px!important;line-height:1.45!important;font-weight:700!important;color:#1f2937!important}
+.category-six-grid .news-card{background:white!important;border:1px solid #ddd!important;border-radius:6px!important;overflow:hidden!important}.category-six-grid .news-card .news-image{height:170px!important;min-height:170px!important;max-height:170px!important;overflow:hidden!important}.category-six-grid .news-card .news-image img{display:block!important;width:100%!important;height:170px!important;object-fit:cover!important}
+@media(max-width:768px){.home-main-layout{display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;padding:0 12px!important;gap:20px!important}.home-main-layout>#home-feature,.home-main-layout>.home-sidebar{width:100%!important;max-width:100%!important}.home-feature-title{font-size:22px!important}.home-full-details{font-size:15px;line-height:1.75}.home-main-layout>.home-sidebar{order:2!important;margin-top:0!important}.category-latest-thumb{flex-basis:88px!important;width:88px!important;height:64px!important}.category-latest-title{font-size:14px!important}.category-six-grid .news-card .news-image,.category-six-grid .news-card .news-image img{height:190px!important;min-height:190px!important;max-height:190px!important}}
+</style>
+<div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
 <footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div class="links"><a href="about.html">আমাদের সম্পর্কে</a><a href="contact.html">যোগাযোগ</a><a href="privacy.html">গোপনীয়তা নীতি</a><a href="disclaimer.html">দাবিত্যাগ</a></div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="advertise.html">বিজ্ঞাপন দিন</a></footer>
-<script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script>
-<script src="news-media.js"></script>
-<script src="news-reader.js"></script>
+<script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script><script src="news-media.js"></script><script src="news-reader.js"></script>
 </body>
 </html>
