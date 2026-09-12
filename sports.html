@@ -1375,7 +1375,7 @@ function parseSheet(text){
   return rows.map((r,i)=>{const c=r.c||[],v=n=>c[n]&&c[n].v!=null?String(c[n].v):'';return{id:normId(v(0)||(i+1)+''),category:v(1),title:v(2),summary:v(3),image:v(4),date:v(5),image2:v(6),image3:v(7),video:v(8)}}).filter(n=>n.title||n.summary);
 }
 function load(){return fetch(DATA_URL+'?_='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Data HTTP '+r.status);return r.text()}).then(parseSheet);}
-const IMAGE_REPO='https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/';
+const IMAGE_REPO='https://raw.githubusercontent.com/abdurrazzak123/banglanews.2026/main/';
 function imageUrl(url){
   const raw=String(url||'').trim(); if(!raw)return '';
   // Google Drive share/file/open/download/thumbnail links -> direct thumbnail endpoint.
@@ -1386,7 +1386,7 @@ function imageUrl(url){
   // All synced repository images use GitHub RAW as the primary, page-independent path.
   // This prevents /repo-name/relative-path mistakes on GitHub Pages category pages.
   const path=raw.replace(/^\.\//,'').replace(/^\/+/, '');
-  if(/^(?:assets\/news|news-images|images\/news)\//i.test(path)){
+  if(/^(?:assets\/news|news-media|news-images|images\/news)\//i.test(path)){
     return IMAGE_REPO + path.split('/').map(encodeURIComponent).join('/');
   }
   // Other relative assets remain relative to the current page.
@@ -1400,7 +1400,7 @@ function imageFallback(img){
   try{
     const raw=String(original).trim();
     const clean=raw.replace(/^\.\//,'').replace(/^\/+/, '');
-    if(/^(?:assets\/news|news-images|images\/news)\//i.test(clean)){
+    if(/^(?:assets\/news|news-media|news-images|images\/news)\//i.test(clean)){
       img.src=IMAGE_REPO + clean.split('/').map(encodeURIComponent).join('/');
       return;
     }
@@ -1422,23 +1422,61 @@ function feature(n){
 }
 function sideItem(n){
   const img=n.image?`<img loading="eager" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)">`:'';
-  return `<article class="latest-item category-latest-item"><a href="${articleUrl(n.id)}" data-news-id="${esc(normId(n.id))}"><span class="category-latest-thumb">${img}</span><span class="category-latest-title">${esc(n.title)}</span></a></article>`;
+  return `<article class="latest-item category-latest-item"><a href="sports.html?news=${encodeURIComponent(normId(n.id))}" data-news-id="${esc(normId(n.id))}"><span class="category-latest-thumb">${img}</span><span class="category-latest-title">${esc(n.title)}</span></a></article>`;
+}
+
+const requestedNewsId = normId(new URLSearchParams(location.search).get('news') || '');
+async function openFullNewsInCategory(id){
+  if(!id)return false;
+  try{
+    const r=await fetch('news/'+encodeURIComponent(id)+'.html',{cache:'no-store'});
+    if(!r.ok)return false;
+    const html=await r.text();
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const source=doc.querySelector('#home-feature');
+    const target=document.getElementById('news-container');
+    if(!source||!target)return false;
+    source.querySelectorAll('[src]').forEach(el=>{
+      const src=el.getAttribute('src')||'';
+      if(src.startsWith('../'))el.setAttribute('src',src.slice(3));
+    });
+    source.querySelectorAll('[href]').forEach(el=>{
+      const href=el.getAttribute('href')||'';
+      if(href.startsWith('../'))el.setAttribute('href',href.slice(3));
+    });
+    target.innerHTML=source.outerHTML;
+    const heading=target.querySelector('h1,h3');
+    if(heading)document.title=heading.textContent.trim()+' | বাংলা সংবাদ';
+    return true;
+  }catch(e){console.error(e);return false;}
 }
 function sixCard(n,label){
   const img=n.image?`<div class="news-image"><img loading="eager" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)"></div>`:`<div class="news-image"></div>`;
-  return `<article class="news-card"><a href="${articleUrl(n.id)}" class="category-card-link" data-news-id="${esc(normId(n.id))}">${img}<div class="news-card-content"><div class="category">${esc(label)}</div><h3>${esc(n.title)}</h3></div></a></article>`;
+  return `<article class="news-card"><a href="sports.html?news=${encodeURIComponent(normId(n.id))}" class="category-card-link" data-news-id="${esc(normId(n.id))}">${img}<div class="news-card-content"><div class="category">${esc(label)}</div><h3>${esc(n.title)}</h3></div></a></article>`;
 }
 const CATEGORY_MAP={
   national:['জাতীয়','জাতীয়','national'], politics:['রাজনীতি','politics'], international:['আন্তর্জাতিক','international'], economy:['অর্থনীতি','economy'], sports:['খেলাধুলা','sports','sport'], entertainment:['বিনোদন','entertainment'], technology:['প্রযুক্তি','technology','tech']
 };
 const LABELS={national:'জাতীয়',politics:'রাজনীতি',international:'আন্তর্জাতিক',economy:'অর্থনীতি',sports:'খেলাধুলা',entertainment:'বিনোদন',technology:'প্রযুক্তি'};
-load().then(list=>{
+load().then(async list=>{
   const ordered=latest(list);
+  let requestedOpened=false;
+  if(requestedNewsId){
+    requestedOpened=await openFullNewsInCategory(requestedNewsId);
+    if(requestedOpened){
+      const ticker=document.querySelector('.breaking .ticker-track');
+      const h=document.querySelector('#news-container h1,#news-container h3');
+      if(ticker&&h)ticker.textContent=h.textContent;
+    }
+  }
   const categoryNews=ordered.filter(isCategory);
   const newest=categoryNews[0];
-  const c=document.getElementById('news-container'); if(c)c.innerHTML=feature(newest);
-  const ticker=document.querySelector('.breaking .ticker-track'); if(ticker)ticker.textContent=newest?newest.title:'এই ক্যাটাগরিতে কোনো সংবাদ নেই';
-  const lc=document.getElementById('latest-news-container'); if(lc)lc.innerHTML=categoryNews.slice(0,5).map(sideItem).join('')||'<div style="text-align:center;padding:20px;color:#888;">কোনো সংবাদ নেই।</div>';
+  const c=document.getElementById('news-container');
+  if(c&&!requestedOpened)c.innerHTML=feature(newest);
+  const ticker=document.querySelector('.breaking .ticker-track');
+  if(ticker&&!requestedOpened)ticker.textContent=newest?newest.title:'এই ক্যাটাগরিতে কোনো সংবাদ নেই';
+  const lc=document.getElementById('latest-news-container');
+  if(lc)lc.innerHTML=categoryNews.slice(0,5).map(sideItem).join('')||'<div style="text-align:center;padding:20px;color:#888;">কোনো সংবাদ নেই।</div>';
   const six=[];
   for(const key of Object.keys(LABELS)){
     if(key===CATEGORY_KEY)continue;
@@ -1447,7 +1485,9 @@ load().then(list=>{
   }
   const grid=document.getElementById('category-six-grid');
   if(grid)grid.innerHTML=six.slice(0,6).map(([n,l])=>sixCard(n,l)).join('')||'<div style="text-align:center;padding:30px;color:#888;grid-column:1/-1;">কোনো সংবাদ নেই।</div>';
+  if(typeof initImageFallbacks==='function')initImageFallbacks(document);
 }).catch(e=>{
+
   console.error(e);
   const c=document.getElementById('news-container'); if(c)c.innerHTML='<div style="text-align:center;padding:40px;color:#888;">খবর লোড করা যাচ্ছে না।</div>';
 });
@@ -1476,6 +1516,6 @@ load().then(list=>{
 
 <footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div class="links"><a href="about.html">আমাদের সম্পর্কে</a><a href="contact.html">যোগাযোগ</a><a href="privacy.html">গোপনীয়তা নীতি</a><a href="disclaimer.html">দাবিত্যাগ</a></div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="advertise.html">বিজ্ঞাপন দিন</a></footer>
 <script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script>
-<script src="news-media.js"></script>
+<script src="news-media.js?v=20260912-details-v1"></script>
 <script src="news-reader.js"></script>
 </body>

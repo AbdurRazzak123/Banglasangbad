@@ -1,24 +1,8 @@
-# Banglasangbad — Detail News Page Fix
+FINAL DETAILS FLOW
 
-এই build-এ Detail Page-এর আসল flow ঠিক করা হয়েছে।
-
-আরও পড়ুন → News/ID.html
-উদাহরণ: Sheet ID 29 → News/29.html
-উদাহরণ: Sheet ID 30 → details.html?id=30
-
-ID Google Sheet-এর মতোই থাকবে; ID পরিবর্তন/নতুন ID তৈরি হবে না।
-
-Detail page-এ:
-- Headline, category, date
-- Details/D column-এর সম্পূর্ণ লেখা; কোনো preview/truncation নেই
-- Image 1, Image 2, Image 3
-- Video থাকলে video
-- ঠিক ৪টি ad slot: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM
-- News data GitHub-এর news-data.json থেকে আসে
-- Ads data GitHub-এর ads-data.json থেকে আসে
-- Website runtime সরাসরি Google Sheet পড়ে না
-- Google Sheet → GitHub Actions → Website flow বজায় থাকে
-
-মূল design/header/menu/footer/SEO কাঠামো অযথা বদলানো হয়নি।
-
-গুরুত্বপূর্ণ: News/29.html বৈধ URL নয়। কারণ details.html একটি file। এই build-এর Detail URL হলো News/29.html।
+1. Index/category six cards and right-side latest headlines open news/details page.
+2. Details page is cloned from the Home layout and contains four ad slots: TOP, MIDDLE TOP (directly below headline), MIDDLE BOTTOM, BOTTOM.
+3. Every details-page six-card and right-side headline links to its own category page with ?news=ID.
+4. Category page reads ?news=ID and opens that complete article inside the main container; it is not overwritten by the category newest article.
+5. News images use local GitHub media first, with raw-GitHub/Drive fallback logic.
+6. Google Sheet data is synced to GitHub news-data.json by the existing GitHub Action; the browser does not depend on a direct Google Sheet request.

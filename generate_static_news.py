@@ -307,6 +307,23 @@ if BUILD.exists():
 BUILD.mkdir(parents=True)
 
 
+CATEGORY_PAGES = {
+    'জাতীয়': 'national.html', 'জাতীয়': 'national.html', 'national': 'national.html',
+    'রাজনীতি': 'politics.html', 'politics': 'politics.html',
+    'আন্তর্জাতিক': 'international.html', 'international': 'international.html',
+    'অর্থনীতি': 'economy.html', 'economy': 'economy.html',
+    'খেলাধুলা': 'sports.html', 'sports': 'sports.html', 'sport': 'sports.html',
+    'বিনোদন': 'entertainment.html', 'entertainment': 'entertainment.html',
+    'প্রযুক্তি': 'technology.html', 'technology': 'technology.html', 'tech': 'technology.html',
+}
+
+def category_page_for(article):
+    c = str(article.get('category', '')).strip().lower()
+    return CATEGORY_PAGES.get(c, 'national.html')
+
+def detail_to_category_link(article):
+    return '../' + category_page_for(article) + '?news=' + urllib.parse.quote(slug_id(article['id']))
+
 def static_link(aid):
     return urllib.parse.quote(slug_id(aid)) + '.html'
 
@@ -377,7 +394,7 @@ for a in articles:
     lst = s.new_tag('div', **{'class':'latest-news-scroll'})
     for x in latest:
         art = s.new_tag('article', **{'class':'latest-item category-latest-item'})
-        link = s.new_tag('a', href=static_link(x['id']), **{'data-news-id':x['id']})
+        link = s.new_tag('a', href=detail_to_category_link(x), **{'data-news-id':x['id'], 'data-category-news-id':x['id']})
         th = s.new_tag('span', **{'class':'category-latest-thumb'})
         xim = article_image(x, 0)
         if xim:
@@ -385,15 +402,13 @@ for a in articles:
         tt = s.new_tag('span', **{'class':'category-latest-title'}); tt.string = x['title']
         link.append(th); link.append(tt); art.append(link); lst.append(art)
     aside.append(lst); main.append(aside)
-    mid = s.new_tag('div', **{'class':'ad-slot in-article sheet-ad-slot middle'}, **{'data-ad-position':'middle-top','data-ad-slot':'middle-top','aria-label':'বিজ্ঞাপন'})
-    main.append(mid)
 
     grid = s.select_one('#category-six-grid')
     if grid:
         grid.clear()
         for x, label in six:
             card = s.new_tag('article', **{'class':'news-card'})
-            link = s.new_tag('a', href=static_link(x['id']), **{'class':'category-card-link','data-news-id':x['id']})
+            link = s.new_tag('a', href=detail_to_category_link(x), **{'class':'category-card-link','data-news-id':x['id'], 'data-category-news-id':x['id']})
             box = s.new_tag('div', **{'class':'news-image'})
             xim = article_image(x, 0)
             if xim:
