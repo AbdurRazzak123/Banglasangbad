@@ -1,0 +1,293 @@
+# tools/news_assets.py
+# ============================================================
+# Bangla Sangbad - News Media Asset Helper
+# ============================================================
+
+from __future__ import annotations
+
+import hashlib
+import mimetypes
+import re
+from pathlib import Path
+from urllib.parse import urlparse
+
+import requests
+
+
+USER_AGENT = (
+    "Mozilla/5.0 (compatible; BanglaSangbad-NewsBot/1.0; "
+    "+https://abdurrazzak123.github.io/Banglasangbad/)"
+)
+
+TIMEOUT = 30
+
+IMAGE_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+    ".gif",
+    ".avif",
+}
+
+
+def clean_text(value) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def safe_id(value) -> str:
+    value = clean_text(value)
+
+    if not value:
+        return ""
+
+    value = re.sub(r"[^A-Za-z0-9_-]+", "-", value)
+    value = re.sub(r"-+", "-", value)
+    return value.strip("-_") or "news"
+
+
+def image_extension(url: str, content_type: str = "") -> str:
+    parsed = urlparse(url)
+    suffix = Path(parsed.path).suffix.lower()
+
+    if suffix in IMAGE_EXTENSIONS:
+        if suffix == ".jpeg":
+            return ".jpg"
+        return suffix
+
+    content_type = content_type.lower().split(";")[0].strip()
+
+    mapping = {
+        "image/jpeg": ".jpg",
+        "image/jpg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+        "image/gif": ".gif",
+        "image/avif": ".avif",
+    }
+
+    return mapping.get(content_type, ".jpg")
+
+
+def make_asset_filename(news_id: str, image_number: int, extension: str) -> str:
+    news_id = safe_id(news_id) or "news"
+
+    extension = extension.lower()
+
+    if not extension.startswith("."):
+        extension = "." + extension
+
+    return f"{news_id}-{image_number}{extension}"
+
+
+def download_image(
+    url: str,
+    destination: Path,
+    session: requests.Session | None = None,
+) -> bool:
+    """
+    Downloads an image safely.
+
+    Returns:
+        True  -> downloaded successfully
+        False -> failed
+    """
+
+    url = clean_text(url)
+
+    if not url:
+        return False
+
+    # Ignore obvious non-http values.
+    if not url.startswith(("http://", "https://")):
+        return False
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    session = session or requests.Session()
+
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    }
+
+    temporary = destination.with_suffix(destination.suffix + ".tmp")
+
+    try:
+        response = session.get(
+            url,
+            headers=headers,
+            timeout=TIMEOUT,
+            stream=True,
+            allow_redirects=True,
+        )
+
+        response.raise_for_status()
+
+        content_type = response.headers.get("content-type", "").lower()
+
+        # Do not save HTML pages as images.
+        if content_type and not content_type.startswith("image/"):
+            return False
+
+        with open(temporary, "wb") as output:
+            for chunk in response.iter_content(chunk_size=1024 * 64):
+                if chunk:
+                    output.write(chunk)
+
+        if not temporary.exists() or temporary.stat().st_size == 0:
+            return False
+
+        temporary.replace(destination)
+        return True
+
+    except Exception:
+        try:
+            if temporary.exists():
+                temporary.unlink()
+        except Exception:
+            pass
+
+        return False
+
+
+def get_remote_image(
+    url: str,
+    news_id: str,
+    image_number: int,
+    assets_dir: Path,
+    session: requests.Session | None = None,
+) -> str:
+    """
+    Downloads an image and returns its website-relative path.
+
+    Example:
+        assets/news/25-1.jpg
+
+    Returns empty string when the image cannot be downloaded.
+    """
+
+    url = clean_text(url)
+
+    if not url:
+        return ""
+
+    session = session or requests.Session()
+
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    }
+
+    try:
+        response = session.get(
+            url,
+            headers=headers,
+            timeout=TIMEOUT,
+            stream=True,
+            allow_redirects=True,
+        )
+
+        response.raise_for_status()
+
+        content_type = response.headers.get("content-type", "")
+        extension = image_extension(url, content_type)
+
+        filename = make_asset_filename(
+            news_id,
+            image_number,
+            extension,
+        )
+
+        destination = assets_dir / filename
+
+        # If already downloaded, keep it.
+        if destination.exists() and destination.stat().st_size > 0:
+            response.close()
+            return f"assets/news/{filename}"
+
+        temporary = destination.with_suffix(destination.suffix + ".tmp")
+
+        with open(temporary, "wb") as output:
+            for chunk in response.iter_content(chunk_size=1024 * 64):
+                if chunk:
+                    output.write(chunk)
+
+        response.close()
+
+        if not temporary.exists() or temporary.stat().st_size == 0:
+            try:
+                temporary.unlink()
+            except Exception:
+                pass
+            return ""
+
+        temporary.replace(destination)
+
+        return f"assets/news/{filename}"
+
+    except Exception:
+        return ""
+
+
+def process_news_images(
+    news_id: str,
+    image_urls: list[str],
+    assets_dir: Path,
+    session: requests.Session | None = None,
+) -> list[str]:
+    """
+    Process Image-1, Image-2 and Image-3.
+
+    Returns:
+        [
+            "assets/news/ID-1.jpg",
+            "assets/news/ID-2.jpg",
+            "assets/news/ID-3.jpg"
+        ]
+
+    Missing/broken images are returned as empty strings.
+    """
+
+    assets_dir.mkdir(parents=True, exist_ok=True)
+
+    session = session or requests.Session()
+
+    result = []
+
+    for index in range(3):
+        url = ""
+
+        if index < len(image_urls):
+            url = clean_text(image_urls[index])
+
+        if not url:
+            result.append("")
+            continue
+
+        path = get_remote_image(
+            url=url,
+            news_id=news_id,
+            image_number=index + 1,
+            assets_dir=assets_dir,
+            session=session,
+        )
+
+        result.append(path)
+
+    return result
+
+
+def image_hash(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def is_image_url(value: str) -> bool:
+    value = clean_text(value)
+
+    if not value.startswith(("http://", "https://")):
+        return False
+
+    return True
