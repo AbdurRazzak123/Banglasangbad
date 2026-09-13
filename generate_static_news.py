@@ -56,6 +56,18 @@ def parse_date(v):
     return None
 
 
+def bangla_date(v, dt=None):
+    """Return a consistent Bengali display date for article pages."""
+    months = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর']
+    weekdays = ['সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার','রবিবার']
+    d = dt or parse_date(v)
+    if d:
+        bn = str.maketrans('0123456789','০১২৩৪৫৬৭৮৯')
+        return f'{weekdays[d.weekday()]}, {str(d.day).translate(bn)} {months[d.month-1]} {str(d.year).translate(bn)}'
+    raw = str(v or '').strip()
+    return raw.translate(str.maketrans('0123456789','০১২৩৪৫৬৭৮৯'))
+
+
 def slug_id(v):
     raw = str(v).strip()
     m = re.fullmatch(r'(\d+)\.0+', raw)
@@ -77,7 +89,7 @@ def download_drive_image(v, name_prefix):
     target = MEDIA / (name_prefix + '-' + hashlib.sha1(fid.encode()).hexdigest()[:16] + '.jpg')
     if not target.exists():
         last = None
-        for u in (f'https://drive.google.com/thumbnail?id={fid}&sz=w2000', f'https://drive.google.com/uc?export=view&id={fid}'):
+        for u in (f'https://drive.google.com/thumbnail?id={fid}&sz=w2000', f'https://lh3.googleusercontent.com/d/{fid}=w2000', f'https://drive.usercontent.google.com/download?id={fid}&export=view&confirm=t', f'https://drive.google.com/uc?export=view&id={fid}', f'https://drive.google.com/uc?export=download&id={fid}'):
             try:
                 req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=30) as r:
@@ -111,13 +123,26 @@ def fetch_sheet_rows(sheet_name):
 
 
 def load_rows():
-    if os.environ.get('USE_SNAPSHOT', '').lower() in ('1', 'true', 'yes'):
-        data = json.loads((ROOT / 'news-data.json').read_text(encoding='utf-8'))
-        news_rows = data.get('table', {}).get('rows', [])
+    snapshot_news = []
+    snapshot_ads = []
+    try:
+        snapshot_news = json.loads((ROOT / 'news-data.json').read_text(encoding='utf-8')).get('table', {}).get('rows', [])
+    except Exception:
+        pass
+    try:
         ads_file = ROOT / 'ads-data.json'
-        ads_rows = json.loads(ads_file.read_text(encoding='utf-8')).get('table', {}).get('rows', []) if ads_file.exists() else []
-        return news_rows, ads_rows
-    return fetch_sheet_rows(SHEET_NAME), fetch_sheet_rows('Ads')
+        snapshot_ads = json.loads(ads_file.read_text(encoding='utf-8')).get('table', {}).get('rows', []) if ads_file.exists() else []
+    except Exception:
+        pass
+    if os.environ.get('USE_SNAPSHOT', '').lower() in ('1', 'true', 'yes'):
+        return snapshot_news, snapshot_ads
+    try:
+        return fetch_sheet_rows(SHEET_NAME), fetch_sheet_rows('Ads')
+    except Exception as exc:
+        if snapshot_news:
+            print('WARNING: Google Sheet fetch failed; preserving last known news snapshot:', exc)
+            return snapshot_news, snapshot_ads
+        raise
 
 
 def normalize_rows(rows, is_ads=False):
@@ -130,6 +155,20 @@ def normalize_rows(rows, is_ads=False):
                 original = str(cells[col].get('v', '') or '').strip()
                 if original:
                     cells[col]['v'] = download_drive_image(original, f'{"ad" if is_ads else "news"}-{row_no}-img{col}')
+        # Preserve known local article images when the Sheet temporarily omits
+        # the image cell. This prevents the homepage from losing images while
+        # keeping the Sheet as the primary source whenever an image is supplied.
+        if not is_ads and cells and cells[0] is not None:
+            sid = slug_id(cells[0].get('v', ''))
+            if sid and sid != 'article':
+                while len(cells) <= 4: cells.append(None)
+                current = str(cells[4].get('v', '') if cells[4] else '').strip()
+                if not current:
+                    for ext in ('.jpeg', '.jpg', '.png', '.webp'):
+                        candidate = ROOT / 'assets' / 'news' / f'{sid}-1{ext}'
+                        if candidate.exists():
+                            cells[4] = {'v': f'assets/news/{candidate.name}'}
+                            break
     return rows
 
 
@@ -226,6 +265,17 @@ def load_existing_fallbacks():
 news_rows_raw, ads_rows_raw = load_rows()
 news_rows = normalize_rows(news_rows_raw, False)
 ads_rows = normalize_rows(ads_rows_raw, True)
+# Preserve existing rows that disappear from a transient Sheet response. Current Sheet values win on ID collisions.
+try:
+    old_rows = json.loads((ROOT / 'news-data.json').read_text(encoding='utf-8')).get('table', {}).get('rows', [])
+except Exception:
+    old_rows = []
+current_ids = {slug_id(cell(r, 0)) for r in news_rows if cell(r, 0)}
+for old_row in old_rows:
+    raw_old_id = cell(old_row, 0)
+    oid = slug_id(raw_old_id) if raw_old_id else ''
+    if oid and oid not in current_ids:
+        news_rows.append(old_row)
 (ROOT / 'news-data.json').write_text(json.dumps(snapshot(news_rows), ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 (ROOT / 'ads-data.json').write_text(json.dumps(snapshot(ads_rows), ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 
@@ -300,6 +350,54 @@ style = home_s.new_tag('style')
 style.string = '.sheet-video{margin:18px 0;background:#000;border-radius:8px;overflow:hidden}.sheet-video iframe{width:100%;aspect-ratio:16/9;border:0;display:block}.sheet-video video{width:100%;display:block}.article-extra-image{margin:18px 0}.article-extra-image img{width:100%;height:auto;display:block;border-radius:6px}'
 home_s.head.append(style)
 
+# Final responsive detail CSS is shared with generated News 1+ pages.
+FINAL_DETAIL_CSS = r'''
+<style id="final-responsive-detail-fix">
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+img{max-width:100%;height:auto}
+.logo-image{max-width:100%;object-fit:contain}
+@media(max-width:768px){
+  .top-bar{display:block;overflow:hidden}
+  .site-header{padding:10px 12px!important}
+  .header-inner{width:100%!important;max-width:100%!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:6px!important}
+  .logo{width:100%!important;text-align:center!important}
+  .logo-image{width:min(230px,72vw)!important;max-width:72vw!important;max-height:68px!important;margin:0 auto!important}
+  #live-date{font-size:12px!important;text-align:center!important}
+  .nav{width:100%!important;overflow:hidden!important}
+  .nav-inner{width:100%!important;max-width:100%!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
+  .nav-inner::-webkit-scrollbar{display:none}
+  .nav a{flex:0 0 auto!important;padding:10px 13px!important;font-size:14px!important}
+  .breaking{width:calc(100% - 16px)!important;max-width:none!important;margin:9px 8px 14px!important}
+  .breaking-news-container{width:100%!important;display:flex!important;min-height:42px!important}
+  .breaking-title{flex:0 0 auto!important;font-size:13px!important;padding:9px 10px!important}
+  .ticker-window{min-width:0!important;flex:1 1 auto!important}
+  .ticker-track{font-size:13px!important;line-height:42px!important}
+  .detail-breadcrumb{width:100%!important;max-width:none!important;padding:0 12px!important;margin:0 0 8px!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+  .home-main-layout{width:100%!important;max-width:none!important;padding:0 12px!important;margin:0!important;display:flex!important;flex-direction:column!important;gap:20px!important}
+  #home-feature,.home-sidebar{width:100%!important;max-width:none!important;min-width:0!important}
+  .article-full-block{width:100%!important;min-width:0!important}
+  .news-image-top,.article-full-image{width:100%!important;height:auto!important;max-height:none!important}
+  .news-image-top img,.article-full-image img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important}
+  .home-feature-title{font-size:25px!important;line-height:1.42!important;overflow-wrap:anywhere!important;word-break:normal!important}
+  .home-full-details{font-size:16px!important;line-height:1.9!important;overflow-wrap:anywhere!important}
+  .home-full-details p{overflow-wrap:anywhere!important}
+  .sidebar{width:100%!important;position:static!important;min-width:0!important}
+  .latest-news-scroll{max-height:none!important;overflow:visible!important}
+  .category-latest-item a{min-width:0!important}
+  .category-latest-thumb{flex:0 0 82px!important;width:82px!important;height:62px!important}
+  .category-latest-title{min-width:0!important;overflow-wrap:anywhere!important}
+  .category-six-grid{width:100%!important;max-width:none!important;margin:20px 0!important;padding:0 12px!important;grid-template-columns:1fr!important}
+  .category-six-grid .news-card{width:100%!important;min-width:0!important}
+  .category-six-grid .news-card .news-image img{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important}
+  .section-title{width:100%!important;padding:0 12px!important}
+  .ad-slot.top,.ad-slot.bottom{width:calc(100% - 24px)!important;max-width:none!important;margin-left:12px!important;margin-right:12px!important;overflow:hidden!important}
+  .ad-slot.middle{width:100%!important;max-width:100%!important;overflow:hidden!important}
+  .site-footer{width:100%!important;overflow:hidden!important}
+}
+</style>
+'''
+
+
 BUILD = ROOT / '.news-build'
 if BUILD.exists():
     import shutil
@@ -322,7 +420,7 @@ def category_page_for(article):
     return CATEGORY_PAGES.get(c, 'national.html')
 
 def detail_to_category_link(article):
-    return '../' + category_page_for(article) + '?news=' + urllib.parse.quote(slug_id(article['id']))
+    return static_link(article['id'])
 
 def static_link(aid):
     return urllib.parse.quote(slug_id(aid)) + '.html'
@@ -330,6 +428,9 @@ def static_link(aid):
 for a in articles:
     sid = slug_id(a['id'])
     s = BeautifulSoup(str(home_s), 'html.parser')
+    s.head.append(BeautifulSoup(FINAL_DETAIL_CSS, 'html.parser'))
+    for limg in s.select('.logo-image'):
+        limg['onerror'] = "this.style.display='none';var f=this.parentElement.querySelector('.logo-fallback');if(f)f.style.display='block'"
     canonical = (BASE + 'news/' + urllib.parse.quote(sid) + '.html') if BASE else ('news/' + urllib.parse.quote(sid) + '.html')
     desc = description(a.get('body', ''), a['title'])
     title = a['title'] + ' | বাংলা সংবাদ'
@@ -346,16 +447,48 @@ for a in articles:
         el = s.select_one(sel)
         if el:
             el[attr] = val
+    im = article_image(a, 0)
+    absolute_image = (BASE + im) if im and not im.startswith(('http://','https://')) and BASE else (im or (BASE + 'logo.png' if BASE else '../logo.png'))
     og = s.select_one('meta[property="og:image"]')
-    if og:
-        im = article_image(a, 0)
-        og['content'] = (BASE + im) if im and not im.startswith('http') and BASE else (im or (BASE + 'logo.png' if BASE else '../logo.png'))
+    if og: og['content'] = absolute_image
+    for sel, attr, val in [
+        ('meta[property="og:image:alt"]','content',a['title']),
+        ('meta[name="twitter:title"]','content',a['title']),
+        ('meta[name="twitter:description"]','content',desc),
+        ('meta[name="twitter:image"]','content',absolute_image),
+    ]:
+        el=s.select_one(sel)
+        if el: el[attr]=val
+        elif sel.startswith('meta[name="twitter:image"]'):
+            s.head.append(s.new_tag('meta', attrs={'name':'twitter:image','content':absolute_image}))
+    if not s.select_one('meta[property="article:published_time"]'):
+        m=s.new_tag('meta',property='article:published_time',content=(a.get('dt').isoformat() if a.get('dt') else ''))
+        s.head.append(m)
     tick = s.select_one('#breaking-ticker')
     if tick:
         tick.string = a['title']
     date_el = s.select_one('#live-date')
     if date_el:
-        date_el.string = a.get('date', '') or ''
+        date_el.string = 'তারিখ'
+        if not s.select_one('#detail-live-date-script'):
+            ds=s.new_tag('script', id='detail-live-date-script')
+            ds.string="(function(){const e=document.getElementById('live-date');if(e)e.textContent=new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());})();"
+            s.body.append(ds)
+    article_schema = {
+        '@context':'https://schema.org','@type':'NewsArticle','headline':a['title'],
+        'description':desc,'mainEntityOfPage':{'@type':'WebPage','@id':canonical},
+        'image':[absolute_image] if absolute_image else [],'datePublished':(a.get('dt').isoformat() if a.get('dt') else ''),
+        'dateModified':(a.get('dt').isoformat() if a.get('dt') else ''),
+        'author':{'@type':'Organization','name':'বাংলা সংবাদ'},
+        'publisher':{'@type':'Organization','name':'বাংলা সংবাদ'}
+    }
+    ld=s.new_tag('script',type='application/ld+json'); ld.string=json.dumps(article_schema,ensure_ascii=False,separators=(',',':')); s.head.append(ld)
+    breadcrumb={'@context':'https://schema.org','@type':'BreadcrumbList','itemListElement':[
+        {'@type':'ListItem','position':1,'name':'হোম','item':BASE+'home.html' if BASE else '../home.html'},
+        {'@type':'ListItem','position':2,'name':a.get('category','সংবাদ')},
+        {'@type':'ListItem','position':3,'name':a['title'],'item':canonical}
+    ]}
+    ld2=s.new_tag('script',type='application/ld+json'); ld2.string=json.dumps(breadcrumb,ensure_ascii=False,separators=(',',':')); s.head.append(ld2)
 
     main = s.select_one('main.home-main-layout')
     if not main:
@@ -367,11 +500,11 @@ for a in articles:
     im = article_image(a, 0)
     if im:
         wrap = s.new_tag('div', **{'class': 'news-image-top article-full-image'})
-        tag = s.new_tag('img', src=image_src_for_news_page(im), alt=a['title'], loading='eager')
+        tag = s.new_tag('img', src=image_src_for_news_page(im), alt=a['title'], loading='eager', **{'data-image-source':im, 'data-sheet-image-slot':'1'})
         wrap.append(tag); article.append(wrap)
     text = s.new_tag('div', **{'class': 'news-text-bottom'})
     cat = s.new_tag('span', **{'class': 'category-tag'}); cat.string = a.get('category', 'সংবাদ'); text.append(cat)
-    dt = s.new_tag('div', **{'class': 'breaking-news-date'}); dt.string = a.get('date', ''); text.append(dt)
+    dt = s.new_tag('div', **{'class': 'breaking-news-date'}); dt.string = a.get('display_date') or bangla_date(a.get('date',''), a.get('dt')); text.append(dt)
     h = s.new_tag('h1', **{'class': 'home-feature-title'}); h.string = a['title']; text.append(h)
     ad1 = s.new_tag('div', **{'class': 'ad-slot in-article sheet-ad-slot middle'}, **{'data-ad-slot':'middle-top','aria-label':'বিজ্ঞাপন'}); text.append(ad1)
     details = s.new_tag('div', **{'class': 'home-full-details article-full-details'})
@@ -380,7 +513,7 @@ for a in articles:
         ex = article_image(a, idx)
         if ex:
             fig = s.new_tag('figure', **{'class':'article-extra-image'})
-            eim = s.new_tag('img', src=image_src_for_news_page(ex), alt=a['title'] + ' - ছবি ' + str(idx + 1), loading='lazy')
+            eim = s.new_tag('img', src=image_src_for_news_page(ex), alt=a['title'] + ' - ছবি ' + str(idx + 1), loading='lazy', **{'data-image-source':ex})
             fig.append(eim); details.append(fig)
     vh = video_html(a.get('video', ''), a['title'])
     if vh:
@@ -398,7 +531,7 @@ for a in articles:
         th = s.new_tag('span', **{'class':'category-latest-thumb'})
         xim = article_image(x, 0)
         if xim:
-            xi = s.new_tag('img', src=image_src_for_news_page(xim), alt=x['title'], loading='lazy'); th.append(xi)
+            xi = s.new_tag('img', src=image_src_for_news_page(xim), alt=x['title'], loading='lazy', **{'data-image-source':xim}); th.append(xi)
         tt = s.new_tag('span', **{'class':'category-latest-title'}); tt.string = x['title']
         link.append(th); link.append(tt); art.append(link); lst.append(art)
     aside.append(lst); main.append(aside)
@@ -412,7 +545,7 @@ for a in articles:
             box = s.new_tag('div', **{'class':'news-image'})
             xim = article_image(x, 0)
             if xim:
-                xi = s.new_tag('img', src=image_src_for_news_page(xim), alt=x['title'], loading='lazy'); box.append(xi)
+                xi = s.new_tag('img', src=image_src_for_news_page(xim), alt=x['title'], loading='lazy', **{'data-image-source':xim}); box.append(xi)
             link.append(box)
             cc = s.new_tag('div', **{'class':'news-card-content'})
             lab = s.new_tag('div', **{'class':'category'}); lab.string = label
@@ -421,8 +554,33 @@ for a in articles:
 
     # Remove any remaining inline JS that could attempt a Sheet request.
     for sc in list(s.find_all('script')):
-        if not sc.get('src'):
+        if not sc.get('src') and sc.get('type') != 'application/ld+json' and sc.get('id') != 'detail-live-date-script':
             sc.decompose()
+    # Put the search bar directly in the HTML so it remains visible even if JS is delayed.
+    if s.body and not s.select_one('.bs-global-search-wrap'):
+        nav=s.select_one('nav.nav')
+        if nav:
+            nav.insert_after(BeautifulSoup('''<div class="bs-global-search-wrap static-search-bar"><div class="bs-global-search" role="search"><input id="bs-global-search-input" type="search" placeholder="নিউজ খুঁজুন..." aria-label="নিউজ খুঁজুন"><button id="bs-global-search-btn" type="button">সার্চ</button><div id="bs-global-search-results" class="bs-global-search-results"></div></div></div>''','html.parser'))
+
+    # Detail pages use the exact same global search script as category/home pages.
+    # The body base marker makes result links resolve to ../news/<id>.html.
+    if s.body:
+        s.body['data-site-base']='../'
+    for sc in list(s.find_all('script', src=True)):
+        if 'site-search.js' in str(sc.get('src')):
+            sc.decompose()
+    search_script = s.new_tag('script', src='../site-search.js?v=20260913-search-v5', defer=True)
+    s.body.append(search_script)
+
+    # Shared share tools are injected into every generated detail page.
+    if not s.find('script', src='../detail-tools.js?v=20260913-share-v4'):
+        tool_script = s.new_tag('script', src='../detail-tools.js?v=20260913-share-v4', defer=True)
+        s.body.append(tool_script)
+    # Media reliability layer also runs on detail pages so a repository move
+    # (for example Banglasangbad -> Mukta) cannot break article images.
+    if not s.find('script', src=re.compile(r'\.\./news-media\.js')):
+        media_script = s.new_tag('script', src='../news-media.js?v=20260913-media-universal-v6', defer=True)
+        s.body.append(media_script)
 
     out = BUILD / (sid + '.html')
     out.write_text('<!DOCTYPE html>\n' + str(s), encoding='utf-8')
@@ -463,5 +621,43 @@ for a in sorted(fresh, key=lambda x:x['dt'], reverse=True)[:1000]:
     SubElement(n, 'news:publication_date').text = a['dt'].isoformat(timespec='seconds'); SubElement(n, 'news:title').text = a['title']
 ElementTree(ns).write(ROOT / 'news-sitemap.xml', encoding='utf-8', xml_declaration=True)
 
+# Normalize category-page navigation so every news card opens the canonical static detail page directly.
+for cp in [ROOT / n for n in ('national.html','politics.html','international.html','economy.html','sports.html','entertainment.html','technology.html')]:
+    if not cp.exists(): continue
+    txt=cp.read_text(encoding='utf-8')
+    key=cp.stem
+    txt=txt.replace(f'href="{key}.html?news=${{encodeURIComponent(normId(n.id))}}"', 'href="news/${encodeURIComponent(normId(n.id))}.html"')
+    # If a requested-news query is used from an old bookmark, redirect it to the canonical detail URL.
+    marker="const requestedNewsId = normId(new URLSearchParams(location.search).get('news') || '');"
+    if marker in txt:
+        txt=txt.replace(marker, marker+"\nif(requestedNewsId){location.replace('news/'+encodeURIComponent(requestedNewsId)+'.html');}")
+    if 'class="bs-global-search-wrap' not in txt:
+        txt=txt.replace('</nav>', '''</nav><div class="bs-global-search-wrap static-search-bar"><div class="bs-global-search" role="search"><input id="bs-global-search-input" type="search" placeholder="নিউজ খুঁজুন..." aria-label="নিউজ খুঁজুন"><button id="bs-global-search-btn" type="button">সার্চ</button><div id="bs-global-search-results" class="bs-global-search-results"></div></div></div>''', 1)
+    txt=txt.replace('<body>', '<body data-site-base="./">', 1) if '<body data-site-base=' not in txt else txt
+    if 'site-search.js' not in txt:
+        txt=txt.replace('</body>', '<script src="site-search.js" defer></script></body>')
+    cp.write_text(txt,encoding='utf-8')
+# Add the same global search to main root pages.
+for name in ('home.html','index.html','more.html','about.html','contact.html','privacy.html','disclaimer.html','advertise.html'):
+    rp=ROOT/name
+    if not rp.exists(): continue
+    txt=rp.read_text(encoding='utf-8')
+    if 'site-search.js' not in txt:
+        txt=txt.replace('</body>', '<script src="site-search.js" defer></script></body>')
+    rp.write_text(txt,encoding='utf-8')
+
 print(f'Generated {len(articles)} static Home-style news pages.')
 print(f'Site base: {BASE or "relative URLs (GitHub Actions will set the repo URL)"}')
+
+# Ensure every generated HTML page loads the live Google Sheet image synchronizer.
+for _html in ROOT.rglob('*.html'):
+    try:
+        _txt=_html.read_text(encoding='utf-8')
+        if 'sheet-image-loader.js' in _txt:
+            continue
+        _rel='../sheet-image-loader.js' if _html.parent.name=='news' else 'sheet-image-loader.js'
+        if '</body>' in _txt:
+            _txt=_txt.replace('</body>', f'<script src="{_rel}?v=20260913-sheet-image-v1"></script>\n</body>')
+            _html.write_text(_txt, encoding='utf-8')
+    except Exception:
+        pass

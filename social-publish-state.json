@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "initialized_at": "2026-09-12T00:00:00Z",
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-09-12T00:00:00Z",
+  "articles": {
+    "2": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "3": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "4": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "5": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "6": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "7": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "8": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "9": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "10": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "11": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "12": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "13": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "14": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "15": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "16": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "17": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "18": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "19": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "20": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "21": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "22": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "23": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "24": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "25": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "26": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "27": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "28": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "29": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "30": {
+      "status": "skipped_existing",
+      "platforms": {}
+    },
+    "31": {
+      "status": "skipped_existing",
+      "platforms": {}
+    }
+  }
+}

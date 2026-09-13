@@ -1,0 +1,15 @@
+বাংলা সংবাদ — Search & Social Tools
+
+এই test package-এর Detail Page-এ এখন আছে:
+- নিউজ সার্চ বার (news-data.json থেকে)
+- Facebook share
+- Twitter/X share
+- WhatsApp share
+- Telegram share
+- Link Copy
+- YouTube button
+- Instagram button
+
+নোট: YouTube ও Instagram-এর জন্য সাধারণ ওয়েব share endpoint নেই। তাই এই দুই বোতাম লিংক কপি করে সংশ্লিষ্ট সাইট খুলে দেয়। ভবিষ্যতে নিজের YouTube/Instagram profile URL দিতে চাইলে detail-tools.js-এর openSocial() অংশে URL বদলানো যাবে।
+
+ভবিষ্যৎ News 32+ generate_static_news.py-এর মাধ্যমে তৈরি হলে detail-tools.js নিজে থেকেই যুক্ত হবে।

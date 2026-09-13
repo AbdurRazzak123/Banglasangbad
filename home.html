@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     
-<link rel="canonical" href="https://abdurrazzak123.github.io/banglanews.2026/home.html">
+<link rel="canonical" href="https://abdurrazzak123.github.io/Banglasangbad/home.html">
 <meta name="description" content="বাংলা সংবাদের সর্বশেষ গুরুত্বপূর্ণ সংবাদ, পূর্ণ বিস্তারিত এবং বিভিন্ন ক্যাটাগরির আপডেট একসাথে পড়ুন।">
 <meta name="keywords" content="বাংলা সংবাদ, প্রধান সংবাদ, সর্বশেষ খবর, বাংলাদেশ খবর, জাতীয় খবর">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -16,8 +16,8 @@
 <meta property="og:title" content="প্রধান সংবাদ | বাংলা সংবাদ">
 <meta property="og:description" content="বাংলা সংবাদের সর্বশেষ গুরুত্বপূর্ণ সংবাদ, পূর্ণ বিস্তারিত এবং বিভিন্ন ক্যাটাগরির আপডেট একসাথে পড়ুন।">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://abdurrazzak123.github.io/banglanews.2026/home.html">
-<meta property="og:image" content="https://abdurrazzak123.github.io/banglanews.2026/logo.png">
+<meta property="og:url" content="https://abdurrazzak123.github.io/Banglasangbad/home.html">
+<meta property="og:image" content="https://abdurrazzak123.github.io/Banglasangbad/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="প্রধান সংবাদ | বাংলা সংবাদ">
 <meta name="twitter:description" content="বাংলা সংবাদের সর্বশেষ গুরুত্বপূর্ণ সংবাদ, পূর্ণ বিস্তারিত এবং বিভিন্ন ক্যাটাগরির আপডেট একসাথে পড়ুন।">
@@ -521,8 +521,8 @@ main.container {
 {
   "@context":"https://schema.org",
   "@graph":[
-    {"@type":"WebSite","name":"বাংলা সংবাদ","description":"বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ","inLanguage":"bn","url":"https://abdurrazzak123.github.io/banglanews.2026/"},
-    {"@type":"Organization","name":"বাংলা সংবাদ","url":"https://abdurrazzak123.github.io/banglanews.2026/","logo":{"@type":"ImageObject","url":"https://abdurrazzak123.github.io/banglanews.2026/logo.png"}}
+    {"@type":"WebSite","name":"বাংলা সংবাদ","description":"বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ","inLanguage":"bn","url":"https://abdurrazzak123.github.io/Banglasangbad/"},
+    {"@type":"Organization","name":"বাংলা সংবাদ","url":"https://abdurrazzak123.github.io/Banglasangbad/","logo":{"@type":"ImageObject","url":"https://abdurrazzak123.github.io/Banglasangbad/logo.png"}}
   ]
 }
 </script>
@@ -1399,12 +1399,12 @@ function imageFallback(img){const candidates=imageCandidates(img.dataset.imageSo
 function initImageFallbacks(root=document){root.querySelectorAll('img[data-image-source]').forEach(img=>{img.addEventListener('error',()=>imageFallback(img),{once:false});if(!img.getAttribute('src'))imageFallback(img);});}
 function latest(list){return [...list].sort((a,b)=>{const ai=parseInt(normId(a.id),10),bi=parseInt(normId(b.id),10);return (Number.isFinite(bi)?bi:-Infinity)-(Number.isFinite(ai)?ai:-Infinity);});}
 function articleUrl(id){return 'news/'+encodeURIComponent(normId(id))+'.html';}
-function imgTag(n,cls='news-image-top',loading='eager'){return n.image?`<div class="${cls}"><img loading="${loading}" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)"></div>`:'';}
+function imgTag(n,cls='news-image-top',loading='eager'){return n.image?`<div class="${cls}"><img loading="${loading}" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)" data-sheet-image-slot="1"></div>`:'';}
 function feature(n){if(!n)return '<div class="vertical-news-block"><div class="news-text-bottom"><h3>আপাতত কোনো সংবাদ পাওয়া যায়নি।</h3></div></div>';return `<article class="vertical-news-block" id="news-${esc(normId(n.id))}">${imgTag(n,'news-image-top','eager')}<div class="news-text-bottom"><span class="category-tag">${esc(n.category)}</span><div class="breaking-news-date">${esc(n.date)}</div><h1 class="home-feature-title">${esc(n.title)}</h1><div class="home-full-details">${esc(n.summary||'').replace(/\n/g,'<br>')}</div></div></article>`;}
-function sideItem(n){const img=n.image?`<img loading="lazy" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)">`:'';return `<article class="latest-item category-latest-item"><a href="${articleUrl(n.id)}" data-news-id="${esc(normId(n.id))}"><span class="category-latest-thumb">${img}</span><span class="category-latest-title">${esc(n.title)}</span></a></article>`;}
+function sideItem(n){const img=n.image?`<img loading="lazy" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)" data-sheet-image-slot="1">`:'';return `<article class="latest-item category-latest-item"><a href="${articleUrl(n.id)}" data-news-id="${esc(normId(n.id))}"><span class="category-latest-thumb">${img}</span><span class="category-latest-title">${esc(n.title)}</span></a></article>`;}
 const CATEGORY_MAP={national:['জাতীয়','জাতীয়','national'],politics:['রাজনীতি','politics'],international:['আন্তর্জাতিক','international'],sports:['খেলাধুলা','sports','sport'],entertainment:['বিনোদন','entertainment'],technology:['প্রযুক্তি','technology','tech'],economy:['অর্থনীতি','economy']};
 const LABELS={national:'জাতীয়',politics:'রাজনীতি',international:'আন্তর্জাতিক',sports:'খেলাধুলা',entertainment:'বিনোদন',technology:'প্রযুক্তি'};
-function sixCard(n,label){const img=n.image?`<div class="news-image"><img loading="lazy" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)"></div>`:'<div class="news-image"></div>';return `<article class="news-card"><a href="${articleUrl(n.id)}" class="category-card-link" data-news-id="${esc(normId(n.id))}">${img}<div class="news-card-content"><div class="category">${esc(label)}</div><h3>${esc(n.title)}</h3></div></a></article>`;}
+function sixCard(n,label){const img=n.image?`<div class="news-image"><img loading="lazy" src="${esc(imageUrl(n.image))}" data-image-source="${esc(n.image)}" alt="${esc(n.title)}" onerror="imageFallback(this)" data-sheet-image-slot="1"></div>`:'<div class="news-image"></div>';return `<article class="news-card"><a href="${articleUrl(n.id)}" class="category-card-link" data-news-id="${esc(normId(n.id))}">${img}<div class="news-card-content"><div class="category">${esc(label)}</div><h3>${esc(n.title)}</h3></div></a></article>`;}
 const liveDate=document.getElementById('live-date');if(liveDate)liveDate.textContent=new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
 load().then(list=>{const ordered=latest(list);const newest=ordered[0];const f=document.getElementById('home-feature');if(f)f.innerHTML=feature(newest);const ticker=document.getElementById('breaking-ticker');if(ticker)ticker.textContent=newest?newest.title:'কোনো সংবাদ নেই';const lc=document.getElementById('latest-news-container');if(lc)lc.innerHTML=ordered.slice(0,10).map(sideItem).join('')||'<div style="text-align:center;padding:20px;color:#888;">কোনো সংবাদ নেই।</div>';const grid=document.getElementById('category-six-grid');const six=[];for(const key of Object.keys(LABELS)){const n=ordered.find(x=>CATEGORY_MAP[key].some(v=>norm(v)===norm(x.category)));if(n)six.push([n,LABELS[key]]);}if(grid)grid.innerHTML=six.slice(0,6).map(([n,l])=>sixCard(n,l)).join('')||'<div style="text-align:center;padding:30px;color:#888;grid-column:1/-1;">কোনো সংবাদ নেই।</div>';initImageFallbacks(document);}).catch(e=>{console.error(e);document.getElementById('home-feature').innerHTML='<div style="text-align:center;padding:40px;color:#888;">খবর লোড করা যাচ্ছে না।</div>';});
 </script>
@@ -1422,6 +1422,7 @@ load().then(list=>{const ordered=latest(list);const newest=ordered[0];const f=do
 </style>
 <div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
 <footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div class="links"><a href="about.html">আমাদের সম্পর্কে</a><a href="contact.html">যোগাযোগ</a><a href="privacy.html">গোপনীয়তা নীতি</a><a href="disclaimer.html">দাবিত্যাগ</a></div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="advertise.html">বিজ্ঞাপন দিন</a></footer>
-<script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script><script src="news-media.js?v=20260912-details-v1"></script><script src="news-reader.js"></script>
+<script src="ads-loader.js?v=20260907-ads-v26-sequential-final"></script><script src="news-media.js?v=20260913-media-universal-v5"></script><script src="news-reader.js"></script>
+<script src="site-search.js" defer></script><script src="sheet-image-loader.js?v=20260913-sheet-image-v1"></script>
 </body>
 </html>

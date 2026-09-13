@@ -1,0 +1,34 @@
+বাংলা সংবাদ — Auto Publish Final Setup
+
+১) GitHub-এ ZIP আপলোড করার পরে:
+Repository → Settings → Secrets and variables → Actions
+
+২) Facebook/Instagram-এর জন্য:
+META_PAGE_ID
+META_PAGE_ACCESS_TOKEN
+INSTAGRAM_BUSINESS_ACCOUNT_ID
+
+৩) X-এর জন্য:
+X_ACCESS_TOKEN
+
+৪) YouTube-এর জন্য:
+YOUTUBE_ACCESS_TOKEN
+
+৫) Variables:
+META_GRAPH_VERSION = আপনার Meta app-এর অনুমোদিত Graph API version
+YOUTUBE_PRIVACY_STATUS = প্রথমে private বা unlisted দিয়ে test করা নিরাপদ
+AUTO_YOUTUBE_VIDEO = true দিলে নতুন নিউজের জন্য simple 16:9 video বানানোর চেষ্টা করবে
+
+৬) প্রথম পরীক্ষা:
+Actions → Auto Publish - Facebook Instagram X YouTube → Run workflow → dry_run = true
+
+৭) গুরুত্বপূর্ণ:
+বর্তমান News 2–31 আগে থেকেই skipped_existing হিসেবে রাখা আছে। তাই প্রথমবার workflow চালালেই পুরোনো সব নিউজ একসাথে Facebook/Instagram/X/YouTube-এ যাবে না।
+
+৮) নতুন Google Sheet নিউজ → generator → news/32.html → GitHub Pages → Auto Publish workflow।
+যে platform সফল হবে সেটি state-এ posted হবে। কোনো platform ব্যর্থ হলে পরের run-এ সেটি retry করা যাবে।
+
+৯) YouTube:
+YouTube-এ শুধু নিউজের URL পাঠানো যায় না; video upload করতে হয়। তাই social-video/32.mp4 না থাকলে YouTube status waiting_for_video থাকবে। AUTO_YOUTUBE_VIDEO=true করলে workflow simple article video বানানোর চেষ্টা করবে।
+
+কোনো password/access token ChatGPT-তে পাঠাবেন না।

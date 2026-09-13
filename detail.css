@@ -94,3 +94,6 @@ img{max-width:100%}
   .detail-latest-card.no-thumb{display:block}
   .detail-latest-card.no-thumb .detail-latest-info{min-height:0}
 }
+
+.breaking-news-date{display:block!important;margin:8px 0 18px!important;font-size:14px!important;line-height:1.6!important;color:#64748b!important;text-align:left!important;}
+@media(max-width:768px){.breaking-news-date{font-size:13px!important;margin:7px 0 16px!important;}}

@@ -1,0 +1,20 @@
+FINAL IMAGE FIX — 2026-09-13
+
+Purpose:
+Make Google Sheet image fields work reliably when they contain Google Drive sharing links.
+
+Image resolution order for a Drive link:
+1) https://drive.google.com/thumbnail?id=FILE_ID&sz=w2000
+2) https://lh3.googleusercontent.com/d/FILE_ID=w2000
+3) https://drive.usercontent.google.com/download?id=FILE_ID&export=view&confirm=t
+4) https://drive.google.com/uc?export=view&id=FILE_ID
+5) https://drive.google.com/uc?export=download&id=FILE_ID
+
+The FILE_ID is extracted automatically from the URL stored in Image 1, Image 2 or Image 3.
+No fixed FILE_ID is stored in the website.
+
+Local repository images remain supported as the fallback.
+Optional Image 2 and Image 3 are not created when their Sheet cells are empty.
+
+Important:
+For a public GitHub Pages website, each Google Drive image must be accessible to viewers (for example, shared appropriately in Drive). The website cannot bypass a private Drive file's permissions.

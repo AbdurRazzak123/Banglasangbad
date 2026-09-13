@@ -1,0 +1,29 @@
+বাংলা সংবাদ — FINAL FULL SYSTEM
+
+BASE: BanglaSongbad_AUTO_PUBLISH_SOCIAL_SEARCH_FINAL_20260912.zip
+
+Implemented / corrected:
+- Google Sheet -> GitHub static generation with snapshot preservation
+- Home / Index / More / Category routing to /news/ID.html
+- Future news auto-generation using the same template
+- Full article text preservation
+- Image URL handling + non-cropped article images
+- Four detail-page ad slots: top, middle-top, middle-bottom, bottom
+- Per-news Facebook, X/Twitter, WhatsApp, Telegram, native mobile share, Copy Link
+- YouTube / Instagram link-copy/open actions (platforms do not provide a generic browser share URL)
+- Search on root/category pages and detail pages
+- Canonical / Open Graph / Twitter metadata
+- NewsArticle + BreadcrumbList JSON-LD
+- Main sitemap + Google News sitemap generation
+- details.html kept only as a noindex helper
+- Social auto-publish with per-platform failure isolation
+- Existing news are protected from mass re-publishing by state bootstrap
+- New future IDs are publish candidates automatically
+- Publish state + human-readable social-publish-log.json
+- YouTube OAuth refresh-token support in addition to direct access token
+- Sync workflow explicitly dispatches social auto-publish after GitHub-generated content is pushed, because ordinary GITHUB_TOKEN push events do not trigger a second workflow
+- GitHub Actions secrets are used for social credentials
+- Optional YouTube video generation remains supported
+
+Important live-test limitation:
+Actual Facebook, Instagram, X and YouTube posting requires the site's own account/app authorization and GitHub Actions Secrets. The package is prepared for those credentials but they are intentionally not included.

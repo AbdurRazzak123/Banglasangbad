@@ -1,0 +1,28 @@
+LIVE GOOGLE SHEET IMAGE SYSTEM
+================================
+The website now treats the Google Sheet as the primary source for article images.
+
+Sheet ID:
+1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
+
+Sheet name:
+Bangla News
+
+Column mapping:
+0 ID
+1 Category
+2 Headline
+3 Details
+4 Image 1
+5 Date
+6 Video
+7 Image 2
+8 Image 3
+9 Keyword
+
+Runtime:
+sheet-image-loader.js fetches the public Google Visualization (GViz) JSON endpoint,
+matches the article ID, and replaces/hides Image 1/2/3 according to the Sheet row.
+Google Drive links are converted through multiple image endpoints with fallbacks.
+
+Do not remove sheet-image-loader.js from the repository.
