@@ -1,10 +1,12 @@
-# Compatibility wrapper.
-# The main generator is located at the repository root.
-
 from pathlib import Path
 import runpy
+import os
 
-ROOT = Path(__file__).resolve().parents[1]
-GENERATOR = ROOT / "generate_static_news.py"
+ROOT = Path(__file__).resolve().parent.parent
 
-runpy.run_path(str(GENERATOR), run_name="__main__")
+os.chdir(ROOT)
+
+runpy.run_path(
+    str(ROOT / "generate_static_news.py"),
+    run_name="__main__"
+)
