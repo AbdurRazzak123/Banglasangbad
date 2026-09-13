@@ -1,0 +1,27 @@
+/* Unified image system: Home + Category + News Details */
+.news-image-top,
+.article-full-image,
+.news-image,
+.article-extra-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  position: relative;
+  background: #f1f1f1;
+}
+.news-image-top img,
+.article-full-image img,
+.news-image img,
+.article-extra-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+@media (max-width: 768px) {
+  .news-image-top,
+  .article-full-image,
+  .news-image,
+  .article-extra-image { aspect-ratio: 16 / 9; }
+}

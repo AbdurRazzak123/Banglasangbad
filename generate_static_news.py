@@ -89,7 +89,7 @@ def download_drive_image(v, name_prefix):
     target = MEDIA / (name_prefix + '-' + hashlib.sha1(fid.encode()).hexdigest()[:16] + '.jpg')
     if not target.exists():
         last = None
-        for u in (f'https://drive.google.com/thumbnail?id={fid}&sz=w2000', f'https://lh3.googleusercontent.com/d/{fid}=w2000', f'https://drive.usercontent.google.com/download?id={fid}&export=view&confirm=t', f'https://drive.google.com/uc?export=view&id={fid}', f'https://drive.google.com/uc?export=download&id={fid}'):
+        for u in (f'https://drive.google.com/thumbnail?id={fid}&sz=w2000', f'https://drive.google.com/uc?export=view&id={fid}'):
             try:
                 req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=30) as r:
@@ -146,30 +146,9 @@ def load_rows():
 
 
 def normalize_rows(rows, is_ads=False):
-    rows = json.loads(json.dumps(rows))
-    for row_no, row in enumerate(rows, 1):
-        cells = row.get('c', [])
-        cols = (2,) if is_ads else (4, 6, 7)
-        for col in cols:
-            if col < len(cells) and cells[col] is not None:
-                original = str(cells[col].get('v', '') or '').strip()
-                if original:
-                    cells[col]['v'] = download_drive_image(original, f'{"ad" if is_ads else "news"}-{row_no}-img{col}')
-        # Preserve known local article images when the Sheet temporarily omits
-        # the image cell. This prevents the homepage from losing images while
-        # keeping the Sheet as the primary source whenever an image is supplied.
-        if not is_ads and cells and cells[0] is not None:
-            sid = slug_id(cells[0].get('v', ''))
-            if sid and sid != 'article':
-                while len(cells) <= 4: cells.append(None)
-                current = str(cells[4].get('v', '') if cells[4] else '').strip()
-                if not current:
-                    for ext in ('.jpeg', '.jpg', '.png', '.webp'):
-                        candidate = ROOT / 'assets' / 'news' / f'{sid}-1{ext}'
-                        if candidate.exists():
-                            cells[4] = {'v': f'assets/news/{candidate.name}'}
-                            break
-    return rows
+    # Keep Google/Drive image URLs exactly as supplied by the Sheet.
+    # Browser-side JavaScript resolves Drive URLs to renderable thumbnails.
+    return json.loads(json.dumps(rows))
 
 
 def snapshot(rows):
@@ -500,7 +479,7 @@ for a in articles:
     im = article_image(a, 0)
     if im:
         wrap = s.new_tag('div', **{'class': 'news-image-top article-full-image'})
-        tag = s.new_tag('img', src=image_src_for_news_page(im), alt=a['title'], loading='eager', **{'data-image-source':im, 'data-sheet-image-slot':'1'})
+        tag = s.new_tag('img', src=image_src_for_news_page(im), alt=a['title'], loading='eager', **{'data-image-source':im})
         wrap.append(tag); article.append(wrap)
     text = s.new_tag('div', **{'class': 'news-text-bottom'})
     cat = s.new_tag('span', **{'class': 'category-tag'}); cat.string = a.get('category', 'সংবাদ'); text.append(cat)
@@ -556,30 +535,21 @@ for a in articles:
     for sc in list(s.find_all('script')):
         if not sc.get('src') and sc.get('type') != 'application/ld+json' and sc.get('id') != 'detail-live-date-script':
             sc.decompose()
-    # Put the search bar directly in the HTML so it remains visible even if JS is delayed.
-    if s.body and not s.select_one('.bs-global-search-wrap'):
-        nav=s.select_one('nav.nav')
-        if nav:
-            nav.insert_after(BeautifulSoup('''<div class="bs-global-search-wrap static-search-bar"><div class="bs-global-search" role="search"><input id="bs-global-search-input" type="search" placeholder="নিউজ খুঁজুন..." aria-label="নিউজ খুঁজুন"><button id="bs-global-search-btn" type="button">সার্চ</button><div id="bs-global-search-results" class="bs-global-search-results"></div></div></div>''','html.parser'))
-
-    # Detail pages use the exact same global search script as category/home pages.
-    # The body base marker makes result links resolve to ../news/<id>.html.
-    if s.body:
-        s.body['data-site-base']='../'
+    # Detail pages use detail-tools.js for their single working search.
+    # Never include the root-page global search script here, or two search bars
+    # will be injected and the relative result paths will conflict.
     for sc in list(s.find_all('script', src=True)):
         if 'site-search.js' in str(sc.get('src')):
             sc.decompose()
-    search_script = s.new_tag('script', src='../site-search.js?v=20260913-search-v5', defer=True)
-    s.body.append(search_script)
 
-    # Shared share tools are injected into every generated detail page.
-    if not s.find('script', src='../detail-tools.js?v=20260913-share-v4'):
-        tool_script = s.new_tag('script', src='../detail-tools.js?v=20260913-share-v4', defer=True)
+    # Shared search + social/share tools are injected into every generated detail page.
+    if not s.find('script', src='../detail-tools.js'):
+        tool_script = s.new_tag('script', src='../detail-tools.js', defer=True)
         s.body.append(tool_script)
     # Media reliability layer also runs on detail pages so a repository move
     # (for example Banglasangbad -> Mukta) cannot break article images.
     if not s.find('script', src=re.compile(r'\.\./news-media\.js')):
-        media_script = s.new_tag('script', src='../news-media.js?v=20260913-media-universal-v6', defer=True)
+        media_script = s.new_tag('script', src='../news-media.js?v=20260913-media-final', defer=True)
         s.body.append(media_script)
 
     out = BUILD / (sid + '.html')
@@ -631,9 +601,6 @@ for cp in [ROOT / n for n in ('national.html','politics.html','international.htm
     marker="const requestedNewsId = normId(new URLSearchParams(location.search).get('news') || '');"
     if marker in txt:
         txt=txt.replace(marker, marker+"\nif(requestedNewsId){location.replace('news/'+encodeURIComponent(requestedNewsId)+'.html');}")
-    if 'class="bs-global-search-wrap' not in txt:
-        txt=txt.replace('</nav>', '''</nav><div class="bs-global-search-wrap static-search-bar"><div class="bs-global-search" role="search"><input id="bs-global-search-input" type="search" placeholder="নিউজ খুঁজুন..." aria-label="নিউজ খুঁজুন"><button id="bs-global-search-btn" type="button">সার্চ</button><div id="bs-global-search-results" class="bs-global-search-results"></div></div></div>''', 1)
-    txt=txt.replace('<body>', '<body data-site-base="./">', 1) if '<body data-site-base=' not in txt else txt
     if 'site-search.js' not in txt:
         txt=txt.replace('</body>', '<script src="site-search.js" defer></script></body>')
     cp.write_text(txt,encoding='utf-8')
@@ -648,16 +615,3 @@ for name in ('home.html','index.html','more.html','about.html','contact.html','p
 
 print(f'Generated {len(articles)} static Home-style news pages.')
 print(f'Site base: {BASE or "relative URLs (GitHub Actions will set the repo URL)"}')
-
-# Ensure every generated HTML page loads the live Google Sheet image synchronizer.
-for _html in ROOT.rglob('*.html'):
-    try:
-        _txt=_html.read_text(encoding='utf-8')
-        if 'sheet-image-loader.js' in _txt:
-            continue
-        _rel='../sheet-image-loader.js' if _html.parent.name=='news' else 'sheet-image-loader.js'
-        if '</body>' in _txt:
-            _txt=_txt.replace('</body>', f'<script src="{_rel}?v=20260913-sheet-image-v1"></script>\n</body>')
-            _html.write_text(_txt, encoding='utf-8')
-    except Exception:
-        pass
