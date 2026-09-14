@@ -29,7 +29,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Install ALL Python libraries required by the generator
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -39,122 +38,60 @@ jobs:
         env:
           NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
           NEWS_SHEET_NAME: Bangla News
-        run: |
-          python tools/news_preflight.py
-
-      - name: Patch generator compatibility
-        run: |
-          python tools/patch_generator.py
+        run: python tools/news_preflight.py
 
       - name: Generate static news
         env:
           NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
           NEWS_SHEET_NAME: Bangla News
           SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
-        run: |
-          python tools/generate_static_news.py
+        run: python tools/generate_static_news.py
 
-      - name: Validate generated site
+      - name: Validate generated data and pages
         run: |
-          test -s news-data.json
-          test -s sitemap.xml
-          test -s news-sitemap.xml
-          test -d news
-
           python - <<'PY'
           import json
           from pathlib import Path
 
-          path = Path("news-data.json")
-          data = json.loads(path.read_text(encoding="utf-8"))
-
+          data = json.loads(Path("news-data.json").read_text(encoding="utf-8"))
           rows = data.get("table", {}).get("rows", [])
-
-          print("Google JSON rows:", len(rows))
 
           def value(cell):
               if not isinstance(cell, dict):
                   return ""
-
-              if cell.get("v") is not None:
-                  return str(cell["v"]).strip()
-
-              if cell.get("f") is not None:
-                  return str(cell["f"]).strip()
-
-              return ""
+              return str(cell.get("v", "")).strip()
 
           valid = []
-
           for row in rows:
-              cells = row.get("c", [])
-
-              if not isinstance(cells, list):
-                  continue
-
+              cells = row.get("c", []) if isinstance(row, dict) else []
               news_id = value(cells[0]) if len(cells) > 0 else ""
               headline = value(cells[2]) if len(cells) > 2 else ""
-
               if news_id and headline:
                   valid.append(news_id)
 
           if not valid:
-              print("ERROR: No ID + Headline rows were found.")
-              print("First raw row:")
-              print(rows[0] if rows else "NO ROWS")
+              print("ERROR: generated news-data.json is not in the required Google Visualization shape.")
+              print("First row:", rows[0] if rows else "NO ROWS")
               raise SystemExit(1)
 
-          pages = {
-              p.stem
-              for p in Path("news").glob("*.html")
-          }
-
-          missing = [
-              news_id
-              for news_id in valid
-              if news_id not in pages
-          ]
-
+          pages = {p.stem for p in Path("news").glob("*.html")}
+          missing = [x for x in valid if x not in pages]
           if missing:
-              raise SystemExit(
-                  "ERROR: missing detail pages: "
-                  + ", ".join(missing[:20])
-              )
+              raise SystemExit("ERROR: missing detail pages: " + ", ".join(missing[:20]))
 
-          print(
-              f"SUCCESS: {len(valid)} valid news rows "
-              f"and {len(pages)} detail pages."
-          )
+          for required in ("sitemap.xml", "news-sitemap.xml", "ads-data.json"):
+              if not Path(required).is_file() or Path(required).stat().st_size == 0:
+                  raise SystemExit(f"ERROR: missing/empty {required}")
+
+          print(f"SUCCESS: {len(valid)} valid news rows and {len(pages)} detail pages.")
+          print("First IDs:", ", ".join(valid[:10]))
           PY
 
       - name: Commit generated output
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add \
-            news \
-            assets/news \
-            news-data.json \
-            ads-data.json \
-            sitemap.xml \
-            news-sitemap.xml \
-            home.html \
-            index.html \
-            national.html \
-            politics.html \
-            international.html \
-            economy.html \
-            sports.html \
-            entertainment.html \
-            technology.html \
-            more.html \
-            about.html \
-            contact.html \
-            privacy.html \
-            disclaimer.html \
-            advertise.html
-
+          git add news assets/news news-data.json ads-data.json sitemap.xml news-sitemap.xml
           if git diff --cached --quiet; then
             echo "No generated changes."
           else
