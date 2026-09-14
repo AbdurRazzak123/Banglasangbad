@@ -1,41 +1,69 @@
 # tools/generate_static_news.py
 # ============================================================
 # Bangla Sangbad
-# Google Sheet -> GitHub -> Static News Pages
+# Google Sheet -> Static News Generator
 # ============================================================
 
 from __future__ import annotations
 
+import csv
 import html
 import json
 import re
-import shutil
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import quote
-
-import requests
+from urllib.parse import quote, urlencode
+from urllib.request import Request, urlopen
 
 from news_assets import process_news_images
 
 
 # ============================================================
-# CONFIGURATION
+# CONFIG
 # ============================================================
 
-SHEET_ID = "1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg"
+SHEET_ID = (
+    "1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg"
+)
+
 SHEET_NAME = "Bangla News"
 
-BASE_URL = "https://abdurrazzak123.github.io/Banglasangbad/"
+BASE_URL = (
+    "https://abdurrazzak123.github.io/"
+    "Banglasangbad/"
+)
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(
+    __file__
+).resolve().parents[1]
 
 NEWS_DIR = ROOT / "news"
-ASSETS_DIR = ROOT / "assets" / "news"
 
-NEWS_DATA_FILE = ROOT / "news-data.json"
-SITEMAP_FILE = ROOT / "sitemap.xml"
-NEWS_SITEMAP_FILE = ROOT / "news-sitemap.xml"
+ASSETS_DIR = (
+    ROOT
+    / "assets"
+    / "news"
+)
+
+NEWS_DATA_FILE = (
+    ROOT
+    / "news-data.json"
+)
+
+ADS_DATA_FILE = (
+    ROOT
+    / "ads-data.json"
+)
+
+SITEMAP_FILE = (
+    ROOT
+    / "sitemap.xml"
+)
+
+NEWS_SITEMAP_FILE = (
+    ROOT
+    / "news-sitemap.xml"
+)
 
 
 EXPECTED_COLUMNS = [
@@ -53,8 +81,9 @@ EXPECTED_COLUMNS = [
 
 
 USER_AGENT = (
-    "Mozilla/5.0 (compatible; BanglaSangbadGenerator/1.0; "
-    "+https://abdurrazzak123.github.io/Banglasangbad/)"
+    "Mozilla/5.0 "
+    "(compatible; "
+    "BanglaSangbadGenerator/1.0)"
 )
 
 
@@ -63,39 +92,80 @@ USER_AGENT = (
 # ============================================================
 
 def clean(value) -> str:
+
     if value is None:
         return ""
 
     return str(value).strip()
 
 
-def escape(value) -> str:
-    return html.escape(clean(value), quote=True)
+def esc(value) -> str:
+
+    return html.escape(
+        clean(value),
+        quote=True,
+    )
 
 
 def safe_id(value) -> str:
+
+    value = clean(value)
+
+    value = re.sub(
+        r"[^A-Za-z0-9_-]+",
+        "-",
+        value,
+    )
+
+    value = re.sub(
+        r"-+",
+        "-",
+        value,
+    )
+
+    value = value.strip("-_")
+
+    return value or "news"
+
+
+# ============================================================
+# DATE
+# ============================================================
+
+def normalize_date(
+    value: str,
+) -> str:
+
     value = clean(value)
 
     if not value:
-        return ""
 
-    value = re.sub(r"[^A-Za-z0-9_-]+", "-", value)
-    value = re.sub(r"-+", "-", value)
+        return datetime.now().strftime(
+            "%Y-%m-%d"
+        )
 
-    return value.strip("-_")
+    formats = [
+        "%Y-%m-%d",
+        "%d/%m/%Y",
+        "%d-%m-%Y",
+        "%Y/%m/%d",
+    ]
 
+    for fmt in formats:
 
-def normalize_column_name(value) -> str:
-    value = clean(value)
+        try:
 
-    value = value.replace("–", "-")
-    value = value.replace("—", "-")
+            return datetime.strptime(
+                value,
+                fmt,
+            ).strftime(
+                "%Y-%m-%d"
+            )
 
-    return re.sub(r"\s+", " ", value).strip().lower()
+        except ValueError:
+            continue
 
-
-def now_iso() -> str:
-    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    return value[:10]
 
 
 # ============================================================
@@ -103,718 +173,1439 @@ def now_iso() -> str:
 # ============================================================
 
 def sheet_url() -> str:
-    encoded_sheet = quote(SHEET_NAME)
 
     return (
-        f"https://docs.google.com/spreadsheets/d/"
-        f"{SHEET_ID}/gviz/tq"
-        f"?sheet={encoded_sheet}"
-        f"&tqx=out:json"
+        "https://docs.google.com/"
+        "spreadsheets/d/"
+        + SHEET_ID
+        + "/gviz/tq?"
+        "tqx=out:csv&sheet="
+        + quote(SHEET_NAME)
     )
 
 
-def load_google_sheet() -> list[dict]:
-    print("Reading Google Sheet...")
+def load_google_sheet() -> list[dict[str, str]]:
 
-    response = requests.get(
+    request = Request(
         sheet_url(),
-        headers={"User-Agent": USER_AGENT},
-        timeout=60,
+        headers={
+            "User-Agent": USER_AGENT
+        },
     )
 
-    response.raise_for_status()
+    with urlopen(
+        request,
+        timeout=30,
+    ) as response:
 
-    text = response.text.strip()
+        text = response.read().decode(
+            "utf-8-sig"
+        )
 
-    # Google gviz normally returns:
-    # google.visualization.Query.setResponse({...});
-    start = text.find("{")
-    end = text.rfind("}")
+    rows = list(
+        csv.reader(
+            text.splitlines()
+        )
+    )
 
-    if start == -1 or end == -1:
+    if not rows:
+        return []
+
+    header = [
+        clean(x)
+        for x in rows[0]
+    ]
+
+    positions = {
+        name.lower(): index
+        for index, name
+        in enumerate(header)
+    }
+
+    missing = []
+
+    for column in EXPECTED_COLUMNS:
+
+        if column.lower() not in positions:
+            missing.append(column)
+
+    if missing:
+
         raise RuntimeError(
-            "Google Sheet returned an unexpected response."
+            "Google Sheet columns missing: "
+            + ", ".join(missing)
         )
 
-    payload = json.loads(text[start:end + 1])
-
-    table = payload.get("table", {})
-
-    columns = table.get("cols", [])
-    rows = table.get("rows", [])
-
-    actual_columns = []
-
-    for column in columns:
-        actual_columns.append(
-            clean(column.get("label"))
-            or clean(column.get("id"))
-        )
-
-    normalized_actual = [
-        normalize_column_name(column)
-        for column in actual_columns
-    ]
-
-    normalized_expected = [
-        normalize_column_name(column)
-        for column in EXPECTED_COLUMNS
-    ]
-
-    # If Google does not return proper column labels,
-    # use the expected order.
-    if not all(
-        column in normalized_actual
-        for column in normalized_expected
-    ):
-        print("Google Sheet column labels were not complete.")
-        print("Using expected 10-column order.")
-
-        actual_columns = EXPECTED_COLUMNS[:]
-
-    records = []
-
-    for row in rows:
-        cells = row.get("c", [])
-
-        values = []
-
-        for index in range(len(EXPECTED_COLUMNS)):
-            if index < len(cells):
-                cell = cells[index]
-
-                if cell is None:
-                    values.append("")
-                else:
-                    value = cell.get("f")
-
-                    if value is None:
-                        value = cell.get("v")
-
-                    values.append(clean(value))
-            else:
-                values.append("")
-
-        record = dict(
-            zip(EXPECTED_COLUMNS, values)
-        )
-
-        # Skip completely empty rows.
-        if not any(record.values()):
-            continue
-
-        records.append(record)
-
-    return records
-
-
-# ============================================================
-# NEWS NORMALIZATION
-# ============================================================
-
-def normalize_news(rows: list[dict]) -> list[dict]:
     result = []
 
-    used_ids = set()
+    for raw in rows[1:]:
 
-    for row in rows:
-        news_id = safe_id(row.get("ID"))
+        item = {}
 
-        if not news_id:
-            continue
+        for column in EXPECTED_COLUMNS:
 
-        # Do not allow duplicate IDs.
-        if news_id in used_ids:
-            print(f"Skipping duplicate ID: {news_id}")
-            continue
+            index = positions[
+                column.lower()
+            ]
 
-        used_ids.add(news_id)
-
-        item = {
-            "ID": news_id,
-            "Category": clean(row.get("Category")),
-            "Headline": clean(row.get("Headline")),
-            "Details": clean(row.get("Details")),
-            "Image-1": clean(row.get("Image-1")),
-            "Date": clean(row.get("Date")),
-            "Video": clean(row.get("Video")),
-            "Image-2": clean(row.get("Image-2")),
-            "Image-3": clean(row.get("Image-3")),
-            "Keyword": clean(row.get("Keyword")),
-        }
-
-        # A row without headline is not a usable news article.
-        if not item["Headline"]:
-            print(
-                f"Skipping ID {news_id}: headline is empty."
+            item[column] = (
+                clean(raw[index])
+                if index < len(raw)
+                else ""
             )
-            continue
 
-        result.append(item)
+        if (
+            item["ID"]
+            and item["Headline"]
+        ):
+
+            result.append(item)
 
     return result
 
 
 # ============================================================
-# VIDEO HELPERS
+# NEWS DATA
 # ============================================================
 
-def youtube_id(url: str) -> str:
+def normalize_news(
+    rows: list[dict[str, str]]
+) -> list[dict]:
+
+    news = []
+
+    seen = set()
+
+    for row in rows:
+
+        news_id = safe_id(
+            row["ID"]
+        )
+
+        if not news_id:
+            continue
+
+        if news_id in seen:
+            continue
+
+        seen.add(news_id)
+
+        news.append(
+            {
+                "id": news_id,
+                "category": row["Category"],
+                "headline": row["Headline"],
+                "details": row["Details"],
+                "image1": row["Image-1"],
+                "date": normalize_date(
+                    row["Date"]
+                ),
+                "video": row["Video"],
+                "image2": row["Image-2"],
+                "image3": row["Image-3"],
+                "keyword": row["Keyword"],
+                "images": [],
+            }
+        )
+
+    def sort_key(item):
+
+        value = item["id"]
+
+        if value.isdigit():
+
+            return (
+                0,
+                int(value),
+            )
+
+        return (
+            1,
+            value.lower(),
+        )
+
+    news.sort(
+        key=sort_key,
+        reverse=True,
+    )
+
+    return news
+
+
+# ============================================================
+# URL
+# ============================================================
+
+def abs_url(
+    path: str,
+) -> str:
+
+    path = clean(path)
+
+    if not path:
+        return ""
+
+    return (
+        BASE_URL.rstrip("/")
+        + "/"
+        + path.lstrip("/")
+    )
+
+
+def page_url(
+    news_id: str,
+) -> str:
+
+    return abs_url(
+        "news/"
+        + safe_id(news_id)
+        + ".html"
+    )
+
+
+def first_image(
+    item: dict,
+) -> str:
+
+    for image in item.get(
+        "images",
+        [],
+    ):
+
+        if image:
+            return abs_url(image)
+
+    return ""
+
+
+# ============================================================
+# VIDEO
+# ============================================================
+
+def youtube_embed(
+    url: str,
+) -> str:
+
     url = clean(url)
 
     if not url:
         return ""
 
-    patterns = [
-        r"(?:youtube\.com/watch\?v=)([A-Za-z0-9_-]{6,})",
-        r"(?:youtu\.be/)([A-Za-z0-9_-]{6,})",
-        r"(?:youtube\.com/embed/)([A-Za-z0-9_-]{6,})",
-        r"(?:youtube\.com/shorts/)([A-Za-z0-9_-]{6,})",
-    ]
+    match = re.search(
+        r"(?:youtube\.com/watch\?v=|"
+        r"youtu\.be/|"
+        r"youtube\.com/embed/)"
+        r"([A-Za-z0-9_-]{6,})",
+        url,
+    )
 
-    for pattern in patterns:
-        match = re.search(pattern, url)
-
-        if match:
-            return match.group(1)
-
-    return ""
-
-
-def video_html(video: str) -> str:
-    video = clean(video)
-
-    if not video:
+    if not match:
         return ""
 
-    yt_id = youtube_id(video)
+    video_id = match.group(1)
 
-    if yt_id:
-        safe_yt_id = escape(yt_id)
-
-        return f"""
-<div class="news-video">
-  <div class="video-wrapper">
-    <iframe
-      src="https://www.youtube.com/embed/{safe_yt_id}"
-      title="News video"
-      loading="lazy"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen>
-    </iframe>
-  </div>
+    return f"""
+<div class="video-box">
+<iframe
+src="https://www.youtube.com/embed/{esc(video_id)}"
+title="YouTube video"
+loading="lazy"
+allowfullscreen>
+</iframe>
 </div>
 """
 
-    if video.startswith(("http://", "https://")):
-        safe_video = escape(video)
 
-        return f"""
-<div class="news-video">
-  <video controls preload="metadata">
-    <source src="{safe_video}">
-    আপনার ব্রাউজার ভিডিও চালাতে পারছে না।
-  </video>
-</div>
-"""
-
-    return ""
-
-
-# ============================================================
-# IMAGE HELPERS
-# ============================================================
-
-def image_url(relative_path: str) -> str:
-    relative_path = clean(relative_path)
-
-    if not relative_path:
-        return ""
-
-    return BASE_URL.rstrip("/") + "/" + relative_path.lstrip("/")
-
-
-def first_image(images: list[str]) -> str:
-    for image in images:
-        if image:
-            return image
-
-    return ""
-
-
-# ============================================================
-# HTML
-# ============================================================
-
-def render_news_html(
-    item: dict,
-    images: list[str],
+def video_block(
+    url: str,
 ) -> str:
-    news_id = escape(item["ID"])
-    category = escape(item["Category"])
-    headline = escape(item["Headline"])
-    details = escape(item["Details"])
-    date = escape(item["Date"])
-    keyword = escape(item["Keyword"])
 
-    main_image = first_image(images)
+    url = clean(url)
 
-    if main_image:
-        main_image_html = f"""
-<img
-  src="../{escape(main_image)}"
-  alt="{headline}"
-  loading="eager"
-  decoding="async"
->
-"""
-    else:
-        main_image_html = """
-<div class="no-image">
-  ছবি পাওয়া যায়নি
+    if not url:
+        return ""
+
+    youtube = youtube_embed(url)
+
+    if youtube:
+        return youtube
+
+    if re.match(
+        r"^https?://",
+        url,
+        re.I,
+    ):
+
+        return f"""
+<div class="video-box">
+<video
+controls
+preload="metadata"
+src="{esc(url)}">
+</video>
 </div>
 """
 
-    extra_images_html = ""
+    return ""
 
-    for index, image in enumerate(images[1:], start=2):
-        if not image:
+
+# ============================================================
+# SOCIAL SHARE
+# ============================================================
+
+def share_block(
+    item: dict,
+) -> str:
+
+    url = page_url(
+        item["id"]
+    )
+
+    title = item["headline"]
+
+    facebook = (
+        "https://www.facebook.com/sharer/"
+        "sharer.php?"
+        + urlencode(
+            {"u": url}
+        )
+    )
+
+    twitter = (
+        "https://twitter.com/intent/tweet?"
+        + urlencode(
+            {
+                "url": url,
+                "text": title,
+            }
+        )
+    )
+
+    whatsapp = (
+        "https://wa.me/?"
+        + urlencode(
+            {
+                "text":
+                    title
+                    + " "
+                    + url
+            }
+        )
+    )
+
+    return f"""
+<div class="share-box">
+
+<span class="share-label">
+শেয়ার করুন
+</span>
+
+<div class="share-buttons">
+
+<a
+class="share-btn facebook"
+target="_blank"
+rel="noopener"
+href="{esc(facebook)}">
+Facebook
+</a>
+
+<a
+class="share-btn youtube"
+target="_blank"
+rel="noopener"
+href="https://www.youtube.com/">
+YouTube
+</a>
+
+<a
+class="share-btn tiktok"
+target="_blank"
+rel="noopener"
+href="https://www.tiktok.com/">
+TikTok
+</a>
+
+<a
+class="share-btn twitter"
+target="_blank"
+rel="noopener"
+href="{esc(twitter)}">
+X / Twitter
+</a>
+
+<a
+class="share-btn whatsapp"
+target="_blank"
+rel="noopener"
+href="{esc(whatsapp)}">
+WhatsApp
+</a>
+
+<button
+class="share-btn native"
+type="button"
+data-share-url="{esc(url)}"
+data-share-title="{esc(title)}">
+Share
+</button>
+
+</div>
+</div>
+"""
+
+
+# ============================================================
+# FINAL DESIGN CSS
+# ============================================================
+
+DETAIL_CSS = r"""
+*{
+box-sizing:border-box;
+}
+
+html,
+body{
+margin:0;
+padding:0;
+}
+
+body{
+font-family:
+Arial,
+"Noto Sans Bengali",
+sans-serif;
+background:#f5f5f5;
+color:#222;
+line-height:1.7;
+}
+
+a{
+text-decoration:none;
+}
+
+.container{
+width:min(
+1180px,
+94%
+);
+margin:auto;
+}
+
+
+/* TOP BAR */
+
+.top-bar{
+background:#111;
+color:#fff;
+padding:7px 0;
+font-size:13px;
+}
+
+
+/* HEADER */
+
+.site-header{
+background:#fff;
+border-bottom:1px solid #ddd;
+}
+
+.header-inner{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+padding:14px 0;
+}
+
+.logo{
+font-size:28px;
+font-weight:800;
+color:#d40000;
+}
+
+.date-box{
+font-size:14px;
+color:#555;
+}
+
+
+/* NAV */
+
+.nav{
+background:#d40000;
+color:#fff;
+}
+
+.nav-inner{
+display:flex;
+gap:0;
+overflow-x:auto;
+}
+
+.nav-inner a{
+color:#fff;
+padding:11px 16px;
+white-space:nowrap;
+font-weight:700;
+}
+
+.nav-inner a:hover{
+background:#b00000;
+}
+
+
+/* BREAKING */
+
+.breaking{
+background:#fff;
+border-bottom:1px solid #ddd;
+display:flex;
+align-items:center;
+}
+
+.breaking-title{
+background:#d40000;
+color:#fff;
+padding:8px 14px;
+font-weight:800;
+white-space:nowrap;
+}
+
+.breaking-text{
+padding:8px 14px;
+overflow:hidden;
+white-space:nowrap;
+}
+
+
+/* MAIN */
+
+main.container{
+display:grid;
+grid-template-columns:
+2.2fr 1fr;
+gap:24px;
+margin-top:22px;
+}
+
+
+/* ARTICLE */
+
+.article{
+background:#fff;
+padding:22px;
+border:1px solid #ddd;
+}
+
+.article h1{
+font-size:32px;
+line-height:1.35;
+margin:8px 0 10px;
+}
+
+.category{
+display:inline-block;
+color:#d40000;
+font-weight:800;
+font-size:14px;
+margin-bottom:4px;
+}
+
+.meta{
+color:#777;
+font-size:13px;
+border-bottom:1px solid #eee;
+padding-bottom:12px;
+margin-bottom:18px;
+}
+
+.hero-image{
+width:100%;
+display:block;
+height:auto;
+border-radius:4px;
+}
+
+.article-body{
+font-size:18px;
+line-height:2;
+white-space:pre-line;
+margin-top:18px;
+}
+
+.article-body p{
+margin:0 0 16px;
+}
+
+.article-image{
+width:100%;
+display:block;
+margin:18px 0;
+border-radius:4px;
+}
+
+
+/* VIDEO */
+
+.video-box{
+position:relative;
+width:100%;
+aspect-ratio:16/9;
+margin:20px 0;
+background:#000;
+}
+
+.video-box iframe,
+.video-box video{
+width:100%;
+height:100%;
+border:0;
+}
+
+
+/* SHARE */
+
+.share-box{
+border-top:1px solid #eee;
+border-bottom:1px solid #eee;
+padding:15px 0;
+margin:22px 0;
+}
+
+.share-label{
+display:block;
+font-weight:800;
+margin-bottom:10px;
+}
+
+.share-buttons{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+}
+
+.share-btn{
+display:inline-block;
+border:0;
+cursor:pointer;
+padding:8px 12px;
+border-radius:4px;
+color:#fff;
+font-size:13px;
+font-weight:700;
+}
+
+.facebook{
+background:#1877f2;
+}
+
+.youtube{
+background:#ff0000;
+}
+
+.tiktok{
+background:#111;
+}
+
+.twitter{
+background:#000;
+}
+
+.whatsapp{
+background:#25d366;
+}
+
+.native{
+background:#555;
+}
+
+
+/* SIDEBAR */
+
+.side-news{
+background:#fff;
+border:1px solid #ddd;
+padding:16px;
+}
+
+.side-news h2{
+font-size:20px;
+margin:0 0 12px;
+border-bottom:2px solid #d40000;
+padding-bottom:8px;
+}
+
+.latest-link{
+display:block;
+color:#222;
+border-bottom:1px solid #eee;
+padding:10px 0;
+font-weight:700;
+}
+
+.latest-link:hover{
+color:#d40000;
+}
+
+
+/* RELATED */
+
+.related{
+margin-top:24px;
+}
+
+.related h2{
+font-size:22px;
+border-bottom:2px solid #d40000;
+padding-bottom:8px;
+}
+
+.news-grid{
+display:grid;
+grid-template-columns:
+repeat(2,1fr);
+gap:16px;
+}
+
+.news-card{
+background:#fff;
+border:1px solid #ddd;
+overflow:hidden;
+}
+
+.news-card a{
+color:#222;
+}
+
+.news-image{
+width:100%;
+aspect-ratio:16/9;
+object-fit:cover;
+display:block;
+}
+
+.news-card-content{
+padding:12px;
+}
+
+.news-card-content h3{
+font-size:17px;
+line-height:1.45;
+margin:4px 0 0;
+}
+
+
+/* FOOTER */
+
+.footer,
+.site-footer{
+background:#111;
+color:#ddd;
+text-align:center;
+padding:24px 10px;
+margin-top:30px;
+}
+
+
+/* MOBILE */
+
+@media(max-width:800px){
+
+main.container{
+grid-template-columns:1fr;
+}
+
+.article h1{
+font-size:25px;
+}
+
+.article-body{
+font-size:17px;
+}
+
+.news-grid{
+grid-template-columns:
+1fr 1fr;
+}
+
+}
+
+
+@media(max-width:520px){
+
+.header-inner{
+display:block;
+}
+
+.date-box{
+margin-top:5px;
+}
+
+.news-grid{
+grid-template-columns:1fr;
+}
+
+.article{
+padding:15px;
+}
+
+}
+"""
+
+
+# ============================================================
+# RELATED NEWS
+# ============================================================
+
+def related_items(
+    item: dict,
+    all_news: list[dict],
+    limit: int = 6,
+) -> list[dict]:
+
+    category = clean(
+        item["category"]
+    ).casefold()
+
+    result = []
+
+    for news in all_news:
+
+        if news["id"] == item["id"]:
             continue
 
-        extra_images_html += f"""
-<figure class="news-extra-image">
-  <img
-    src="../{escape(image)}"
-    alt="{headline} - ছবি {index}"
-    loading="lazy"
-    decoding="async"
-  >
-</figure>
+        if (
+            clean(
+                news["category"]
+            ).casefold()
+            == category
+        ):
+
+            result.append(news)
+
+        if len(result) >= limit:
+            break
+
+    return result
+
+
+# ============================================================
+# CARD
+# ============================================================
+
+def card_html(
+    item: dict,
+) -> str:
+
+    image = first_image(
+        item
+    )
+
+    if image:
+
+        image_html = f"""
+<img
+class="news-image"
+src="{esc('../' + image)}"
+alt="{esc(item['headline'])}"
+loading="lazy">
 """
 
-    video = video_html(item["Video"])
+    else:
 
-    canonical = (
-        BASE_URL.rstrip("/")
-        + "/news/"
-        + quote(item["ID"])
-        + ".html"
+        image_html = """
+<div
+class="news-image"
+style="background:#ddd">
+</div>
+"""
+
+    return f"""
+<article class="news-card">
+
+<a href="{esc(item['id'] + '.html')}">
+
+{image_html}
+
+<div class="news-card-content">
+
+<span class="category">
+{esc(item['category'])}
+</span>
+
+<h3>
+{esc(item['headline'])}
+</h3>
+
+</div>
+
+</a>
+
+</article>
+"""
+
+
+# ============================================================
+# DETAILS PAGE
+# ============================================================
+
+def render_page(
+    item: dict,
+    all_news: list[dict],
+) -> str:
+
+    images = [
+        image
+        for image
+        in item.get("images", [])
+        if image
+    ]
+
+    hero = (
+        images[0]
+        if images
+        else ""
     )
 
-    json_ld = {
-        "@context": "https://schema.org",
-        "@type": "NewsArticle",
-        "headline": item["Headline"],
-        "datePublished": item["Date"],
-        "dateModified": item["Date"],
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": canonical,
-        },
-        "url": canonical,
-        "articleSection": item["Category"],
-        "keywords": item["Keyword"],
-    }
+    if hero:
 
-    if main_image:
-        json_ld["image"] = [image_url(main_image)]
+        hero_html = f"""
+<img
+class="hero-image"
+src="{esc('../' + hero)}"
+alt="{esc(item['headline'])}"
+loading="eager">
+"""
 
-    json_ld_text = json.dumps(
-        json_ld,
-        ensure_ascii=False,
-        indent=2,
+    else:
+
+        hero_html = ""
+
+
+    extra_images = ""
+
+    for image in images[1:]:
+
+        extra_images += f"""
+<img
+class="article-image"
+src="{esc('../' + image)}"
+alt="{esc(item['headline'])}"
+loading="lazy">
+"""
+
+
+    details = clean(
+        item["details"]
     )
+
+    paragraphs = []
+
+    for part in re.split(
+        r"\n\s*\n|\r?\n",
+        details,
+    ):
+
+        part = part.strip()
+
+        if part:
+
+            paragraphs.append(
+                "<p>"
+                + esc(part)
+                + "</p>"
+            )
+
+    article_text = "\n".join(
+        paragraphs
+    )
+
+
+    related = related_items(
+        item,
+        all_news,
+        6,
+    )
+
+    cards = "\n".join(
+        card_html(x)
+        for x in related
+    )
+
+
+    latest_links = "\n".join(
+        f"""
+<a
+class="latest-link"
+href="{esc(x['id'] + '.html')}">
+{esc(x['headline'])}
+</a>
+"""
+        for x in related
+    )
+
+
+    video = video_block(
+        item["video"]
+    )
+
+    canonical = page_url(
+        item["id"]
+    )
+
+    og_image = first_image(
+        item
+    )
+
 
     return f"""<!DOCTYPE html>
+
 <html lang="bn">
+
 <head>
+
 <meta charset="UTF-8">
 
 <meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
+name="viewport"
+content="width=device-width,initial-scale=1">
 
-<title>{headline} | বাংলা সংবাদ</title>
-
-<meta
-  name="description"
-  content="{headline}"
->
+<title>
+{esc(item["headline"])}
+| বাংলা সংবাদ
+</title>
 
 <meta
-  name="keywords"
-  content="{keyword}"
->
+name="description"
+content="{esc(item["details"][:155])}">
+
+<meta
+name="keywords"
+content="{esc(item["keyword"])}">
 
 <link
-  rel="canonical"
-  href="{escape(canonical)}"
->
+rel="canonical"
+href="{esc(canonical)}">
+
 
 <meta
-  property="og:type"
-  content="article"
->
+property="og:type"
+content="article">
 
 <meta
-  property="og:title"
-  content="{headline}"
->
+property="og:title"
+content="{esc(item["headline"])}">
 
 <meta
-  property="og:description"
-  content="{headline}"
->
+property="og:description"
+content="{esc(item["details"][:155])}">
 
 <meta
-  property="og:url"
-  content="{escape(canonical)}"
->
+property="og:url"
+content="{esc(canonical)}">
 
 <meta
-  property="og:site_name"
-  content="বাংলা সংবাদ"
->
-{"<meta property=\"og:image\" content=\"" + escape(image_url(main_image)) + "\">" if main_image else ""}
+property="og:site_name"
+content="বাংলা সংবাদ">
+
+{
+f'<meta property="og:image" content="{esc(og_image)}">'
+if og_image
+else ""
+}
+
 
 <meta
-  name="twitter:card"
-  content="summary_large_image"
->
+name="twitter:card"
+content="summary_large_image">
 
 <meta
-  name="twitter:title"
-  content="{headline}"
->
+name="twitter:title"
+content="{esc(item["headline"])}">
 
 <meta
-  name="twitter:description"
-  content="{headline}"
->
-{"<meta name=\"twitter:image\" content=\"" + escape(image_url(main_image)) + "\">" if main_image else ""}
+name="twitter:description"
+content="{esc(item["details"][:155])}">
 
-<script type="application/ld+json">
-{json_ld_text}
-</script>
+{
+f'<meta name="twitter:image" content="{esc(og_image)}">'
+if og_image
+else ""
+}
+
 
 <style>
-* {{
-  box-sizing: border-box;
-}}
 
-body {{
-  margin: 0;
-  padding: 0;
-  background: #f5f5f5;
-  color: #222;
-  font-family:
-    Arial,
-    "Noto Sans Bengali",
-    "SolaimanLipi",
-    sans-serif;
-}}
+{DETAIL_CSS}
 
-.news-page {{
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 0 16px 50px;
-}}
-
-.news-card {{
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 22px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.08);
-}}
-
-.news-category {{
-  display: inline-block;
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #c62828;
-}}
-
-.news-title {{
-  margin: 0 0 12px;
-  font-size: 32px;
-  line-height: 1.35;
-}}
-
-.news-date {{
-  color: #777;
-  font-size: 14px;
-  margin-bottom: 20px;
-}}
-
-.news-main-image img,
-.news-extra-image img {{
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-}}
-
-.news-main-image {{
-  margin-bottom: 20px;
-}}
-
-.news-extra-image {{
-  margin: 25px 0;
-}}
-
-.news-details {{
-  font-size: 18px;
-  line-height: 1.9;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}}
-
-.news-video {{
-  margin: 25px 0;
-}}
-
-.video-wrapper {{
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%;
-  height: 0;
-  overflow: hidden;
-  border-radius: 10px;
-}}
-
-.video-wrapper iframe {{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}}
-
-.news-video video {{
-  width: 100%;
-  max-height: 600px;
-  border-radius: 10px;
-}}
-
-.no-image {{
-  background: #eeeeee;
-  min-height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  color: #777;
-}}
-
-.back-home {{
-  display: inline-block;
-  margin-top: 20px;
-  text-decoration: none;
-  font-weight: 700;
-  color: #c62828;
-}}
-
-@media (max-width: 650px) {{
-  .news-page {{
-    margin: 12px auto;
-  }}
-
-  .news-card {{
-    padding: 15px;
-  }}
-
-  .news-title {{
-    font-size: 25px;
-  }}
-
-  .news-details {{
-    font-size: 17px;
-  }}
-}}
 </style>
 
 </head>
 
+
 <body>
 
-<main class="news-page">
 
-  <article class="news-card">
+<div class="top-bar">
 
-    <div class="news-category">
-      {category}
-    </div>
+<div class="container">
 
-    <h1 class="news-title">
-      {headline}
-    </h1>
+বাংলা সংবাদ — সর্বশেষ খবর
 
-    <div class="news-date">
-      {date}
-    </div>
+</div>
 
-    <div class="news-main-image">
-      {main_image_html}
-    </div>
+</div>
 
-    {video}
 
-    <div class="news-details">
-      {details}
-    </div>
+<header class="site-header">
 
-    {extra_images_html}
+<div class="container header-inner">
 
-    <a
-      class="back-home"
-      href="../index.html"
-    >
-      ← মূল পাতায় ফিরে যান
-    </a>
+<a
+class="logo"
+href="../index.html">
 
-  </article>
+বাংলা সংবাদ
+
+</a>
+
+<div class="date-box">
+
+{esc(item["date"])}
+
+</div>
+
+</div>
+
+</header>
+
+
+<nav class="nav">
+
+<div class="container nav-inner">
+
+<a href="../index.html">
+হোম
+</a>
+
+<a href="../index.html">
+জাতীয়
+</a>
+
+<a href="../index.html">
+রাজনীতি
+</a>
+
+<a href="../index.html">
+আন্তর্জাতিক
+</a>
+
+<a href="../index.html">
+খেলা
+</a>
+
+<a href="../index.html">
+বিনোদন
+</a>
+
+</div>
+
+</nav>
+
+
+<div class="breaking">
+
+<div class="breaking-title">
+
+ব্রেকিং নিউজ
+
+</div>
+
+<div class="breaking-text">
+
+{esc(item["headline"])}
+
+</div>
+
+</div>
+
+
+<main class="container">
+
+
+<section>
+
+
+<article class="article">
+
+
+<span class="category">
+
+{esc(item["category"])}
+
+</span>
+
+
+<h1>
+
+{esc(item["headline"])}
+
+</h1>
+
+
+<div class="meta">
+
+প্রকাশিত:
+{esc(item["date"])}
+
+</div>
+
+
+{hero_html}
+
+
+<div class="article-body">
+
+{article_text}
+
+</div>
+
+
+{extra_images}
+
+
+{video}
+
+
+{share_block(item)}
+
+
+</article>
+
+
+<section class="related">
+
+<h2>
+
+{esc(item["category"])}
+—
+আরও খবর
+
+</h2>
+
+
+<div class="news-grid">
+
+{cards}
+
+</div>
+
+</section>
+
+
+</section>
+
+
+<aside class="side-news">
+
+<h2>
+
+সর্বশেষ সংবাদ
+
+</h2>
+
+{latest_links}
+
+</aside>
+
 
 </main>
 
+
+<footer class="footer site-footer">
+
+© বাংলা সংবাদ —
+সর্বস্বত্ব সংরক্ষিত
+
+</footer>
+
+
+<script>
+
+document
+.querySelectorAll(".native")
+.forEach(function(button){
+
+button.addEventListener(
+"click",
+async function(event){
+
+event.preventDefault();
+
+const url =
+button.dataset.shareUrl;
+
+const title =
+button.dataset.shareTitle
+|| document.title;
+
+
+try{
+
+if(navigator.share){
+
+await navigator.share({
+
+title:title,
+
+text:title,
+
+url:url
+
+});
+
+}
+
+else if(
+navigator.clipboard
+){
+
+await navigator.clipboard
+.writeText(url);
+
+button.textContent =
+"লিংক কপি হয়েছে";
+
+}
+
+else{
+
+window.prompt(
+"এই লিংকটি কপি করুন:",
+url
+);
+
+}
+
+}
+catch(error){
+
+}
+
+});
+
+});
+
+</script>
+
+
 </body>
+
 </html>
 """
 
 
 # ============================================================
-# NEWS DATA JSON
+# JSON
 # ============================================================
 
-def build_news_data(
-    items: list[dict],
-    processed_images: dict[str, list[str]],
-) -> dict:
+def write_json(
+    news: list[dict],
+) -> None:
+
     rows = []
 
-    for item in items:
-        news_id = item["ID"]
+    for item in news:
 
-        images = processed_images.get(
-            news_id,
-            ["", "", ""],
+        rows.append(
+            [
+                item["id"],
+                item["category"],
+                item["headline"],
+                item["details"],
+                item["image1"],
+                item["date"],
+                item["video"],
+                item["image2"],
+                item["image3"],
+                item["keyword"],
+            ]
         )
 
-        row = dict(item)
 
-        # Keep the original Sheet values.
-        # Add local image paths separately.
-        row["images"] = images
+    payload = {
 
-        # Useful direct detail URL.
-        row["url"] = (
-            BASE_URL.rstrip("/")
-            + "/news/"
-            + quote(news_id)
-            + ".html"
-        )
+        "generated_at":
+            datetime.utcnow()
+            .isoformat()
+            + "Z",
 
-        rows.append(row)
+        "columns":
+            EXPECTED_COLUMNS,
 
-    return {
-        "generatedAt": now_iso(),
-        "sheetId": SHEET_ID,
-        "sheetName": SHEET_NAME,
-        "columns": EXPECTED_COLUMNS,
-        "table": {
-            "cols": [
-                {"id": column, "label": column}
-                for column in EXPECTED_COLUMNS
-            ],
-            "rows": [
-                {
-                    "c": [
-                        {"v": row.get(column, "")}
-                        for column in EXPECTED_COLUMNS
-                    ]
-                }
-                for row in rows
-            ],
-        },
-        "news": rows,
+        "news":
+            news,
+
+        "table":
+            {
+                "columns":
+                    EXPECTED_COLUMNS,
+
+                "rows":
+                    rows,
+            },
+
     }
 
 
-def write_news_data(
-    items: list[dict],
-    processed_images: dict[str, list[str]],
-):
-    payload = build_news_data(
-        items,
-        processed_images,
-    )
-
     NEWS_DATA_FILE.write_text(
+
         json.dumps(
             payload,
             ensure_ascii=False,
             indent=2,
         ),
+
         encoding="utf-8",
-    )
 
-    print(
-        f"Created {NEWS_DATA_FILE.name} "
-        f"with {len(items)} news items."
     )
 
 
-# ============================================================
-# STATIC NEWS PAGES
-# ============================================================
+    # --------------------------------------------------------
+    # ads-data.json
+    # --------------------------------------------------------
+    # Workflow validation expects this file.
+    # Ads can be added later without breaking news sync.
 
-def generate_news_pages(
-    items: list[dict],
-    processed_images: dict[str, list[str]],
-):
-    NEWS_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    ads_payload = {
 
-    generated_ids = set()
+        "generated_at":
+            datetime.utcnow()
+            .isoformat()
+            + "Z",
 
-    for item in items:
-        news_id = item["ID"]
+        "ads": [],
 
-        images = processed_images.get(
-            news_id,
-            ["", "", ""],
-        )
+        "table":
+            {
+                "columns": [],
+                "rows": [],
+            },
 
-        content = render_news_html(
-            item,
-            images,
-        )
+    }
 
-        target = NEWS_DIR / f"{news_id}.html"
 
-        target.write_text(
-            content,
-            encoding="utf-8",
-        )
+    ADS_DATA_FILE.write_text(
 
-        generated_ids.add(news_id)
+        json.dumps(
+            ads_payload,
+            ensure_ascii=False,
+            indent=2,
+        ),
 
-    # Remove old generated numeric/slug pages
-    # that no longer exist in Google Sheet.
-    for existing in NEWS_DIR.glob("*.html"):
-        existing_id = existing.stem
+        encoding="utf-8",
 
-        if existing_id not in generated_ids:
-            try:
-                existing.unlink()
-            except Exception:
-                pass
-
-    print(
-        f"Generated {len(generated_ids)} static news pages."
     )
 
 
@@ -822,114 +1613,169 @@ def generate_news_pages(
 # SITEMAP
 # ============================================================
 
-def xml_escape(value: str) -> str:
-    return (
-        clean(value)
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-        .replace("'", "&apos;")
-    )
+def write_sitemap(
+    news: list[dict],
+) -> None:
 
-
-def write_sitemap(items: list[dict]):
     urls = [
-        f"""  <url>
-    <loc>{xml_escape(BASE_URL)}</loc>
-  </url>"""
+        BASE_URL
     ]
 
-    for item in items:
-        news_id = item["ID"]
+    urls.extend(
+        page_url(x["id"])
+        for x in news
+    )
 
-        url = (
-            BASE_URL.rstrip("/")
-            + "/news/"
-            + quote(news_id)
-            + ".html"
+
+    output = [
+
+        '<?xml version="1.0" encoding="UTF-8"?>',
+
+        '<urlset '
+        'xmlns="http://www.sitemaps.org/'
+        'schemas/sitemap/0.9">',
+
+    ]
+
+
+    for url in urls:
+
+        output.append(
+
+            "<url>"
+            "<loc>"
+            + html.escape(url)
+            + "</loc>"
+            "</url>"
+
         )
 
-        urls.append(
-            f"""  <url>
-    <loc>{xml_escape(url)}</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>"""
-        )
 
-    sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
->
-""" + "\n".join(urls) + """
-</urlset>
-"""
+    output.append(
+        "</urlset>"
+    )
+
 
     SITEMAP_FILE.write_text(
-        sitemap,
+
+        "\n".join(output)
+        + "\n",
+
         encoding="utf-8",
+
     )
 
-    print("Created sitemap.xml")
+
+# ============================================================
+# NEWS SITEMAP
+# ============================================================
+
+def write_news_sitemap(
+    news: list[dict],
+) -> None:
+
+    output = [
+
+        '<?xml version="1.0" encoding="UTF-8"?>',
+
+        '<urlset '
+        'xmlns="http://www.sitemaps.org/'
+        'schemas/sitemap/0.9" '
+        'xmlns:news="http://www.google.com/'
+        'schemas/sitemap-news/0.9">',
+
+    ]
 
 
-def write_news_sitemap(items: list[dict]):
-    urls = []
+    for item in news:
 
-    for item in items:
-        news_id = item["ID"]
+        output.extend(
 
-        url = (
-            BASE_URL.rstrip("/")
-            + "/news/"
-            + quote(news_id)
-            + ".html"
+            [
+
+                "<url>",
+
+                "<loc>"
+                + html.escape(
+                    page_url(
+                        item["id"]
+                    )
+                )
+                + "</loc>",
+
+                "<news:news>",
+
+                "<news:publication>",
+
+                "<news:name>"
+                "বাংলা সংবাদ"
+                "</news:name>",
+
+                "<news:language>"
+                "bn"
+                "</news:language>",
+
+                "</news:publication>",
+
+                "<news:publication_date>"
+                + esc(item["date"])
+                + "</news:publication_date>",
+
+                "<news:title>"
+                + esc(item["headline"])
+                + "</news:title>",
+
+                "</news:news>",
+
+                "</url>",
+
+            ]
+
         )
 
-        headline = xml_escape(item["Headline"])
 
-        publication_date = clean(item["Date"])
+    output.append(
+        "</urlset>"
+    )
 
-        urls.append(
-            f"""  <url>
-    <loc>{xml_escape(url)}</loc>
-    <news:news>
-      <news:publication>
-        <news:name>বাংলা সংবাদ</news:name>
-        <news:language>bn</news:language>
-      </news:publication>
-      <news:publication_date>{xml_escape(publication_date)}</news:publication_date>
-      <news:title>{headline}</news:title>
-    </news:news>
-  </url>"""
-        )
-
-    sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
->
-""" + "\n".join(urls) + """
-</urlset>
-"""
 
     NEWS_SITEMAP_FILE.write_text(
-        sitemap,
+
+        "\n".join(output)
+        + "\n",
+
         encoding="utf-8",
+
     )
 
-    print("Created news-sitemap.xml")
+
+# ============================================================
+# REMOVE OLD PAGES
+# ============================================================
+
+def remove_old_pages(
+    active_ids: set[str],
+) -> None:
+
+    NEWS_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    for file in NEWS_DIR.glob(
+        "*.html"
+    ):
+
+        if file.stem not in active_ids:
+
+            file.unlink()
 
 
 # ============================================================
 # MAIN
 # ============================================================
 
-def main():
-    print("=" * 60)
-    print("Bangla Sangbad - Google Sheet News Generator")
-    print("=" * 60)
+def main() -> None:
 
     NEWS_DIR.mkdir(
         parents=True,
@@ -941,67 +1787,153 @@ def main():
         exist_ok=True,
     )
 
-    # 1. Read Google Sheet.
-    raw_rows = load_google_sheet()
 
     print(
-        f"Google Sheet rows received: {len(raw_rows)}"
+        "Reading Google Sheet..."
     )
 
-    # 2. Normalize.
-    items = normalize_news(raw_rows)
+    rows = load_google_sheet()
+
+
+    news = normalize_news(
+        rows
+    )
+
+
+    if not news:
+
+        raise RuntimeError(
+            "No valid news rows found "
+            "in Google Sheet."
+        )
+
 
     print(
-        f"Usable news items: {len(items)}"
+        f"Found {len(news)} news items."
     )
 
-    # 3. Download media.
-    processed_images = {}
+
+    import requests
 
     session = requests.Session()
 
-    for item in items:
-        news_id = item["ID"]
+
+    # --------------------------------------------------------
+    # Download Image-1 / Image-2 / Image-3
+    # --------------------------------------------------------
+
+    for item in news:
 
         print(
-            f"Processing images for news ID: {news_id}"
+            "Processing images for ID:",
+            item["id"],
         )
 
-        images = process_news_images(
-            news_id=news_id,
-            image_urls=[
-                item["Image-1"],
-                item["Image-2"],
-                item["Image-3"],
-            ],
-            assets_dir=ASSETS_DIR,
-            session=session,
+        item["images"] = (
+            process_news_images(
+
+                news_id=item["id"],
+
+                image_urls=[
+                    item["image1"],
+                    item["image2"],
+                    item["image3"],
+                ],
+
+                assets_dir=ASSETS_DIR,
+
+                session=session,
+
+            )
         )
 
-        processed_images[news_id] = images
 
-    # 4. Generate static detail pages.
-    generate_news_pages(
-        items,
-        processed_images,
+    # --------------------------------------------------------
+    # Remove deleted news pages
+    # --------------------------------------------------------
+
+    active_ids = {
+        item["id"]
+        for item in news
+    }
+
+    remove_old_pages(
+        active_ids
     )
 
-    # 5. Generate news-data.json.
-    write_news_data(
-        items,
-        processed_images,
+
+    # --------------------------------------------------------
+    # Generate Details Pages
+    # --------------------------------------------------------
+
+    for item in news:
+
+        target = (
+            NEWS_DIR
+            / f"{item['id']}.html"
+        )
+
+        target.write_text(
+
+            render_page(
+                item,
+                news,
+            ),
+
+            encoding="utf-8",
+
+        )
+
+
+    # --------------------------------------------------------
+    # JSON + Sitemap
+    # --------------------------------------------------------
+
+    write_json(
+        news
     )
 
-    # 6. Generate sitemap.
-    write_sitemap(items)
+    write_sitemap(
+        news
+    )
 
-    # 7. Generate Google News sitemap.
-    write_news_sitemap(items)
+    write_news_sitemap(
+        news
+    )
 
-    print("=" * 60)
-    print("SYNC COMPLETED SUCCESSFULLY")
-    print("=" * 60)
+
+    print("")
+    print(
+        "================================"
+    )
+    print(
+        "Bangla Sangbad generation complete"
+    )
+    print(
+        "================================"
+    )
+
+    print(
+        f"News pages: {len(news)}"
+    )
+
+    print(
+        "news-data.json: OK"
+    )
+
+    print(
+        "ads-data.json: OK"
+    )
+
+    print(
+        "sitemap.xml: OK"
+    )
+
+    print(
+        "news-sitemap.xml: OK"
+    )
 
 
 if __name__ == "__main__":
+
     main()
