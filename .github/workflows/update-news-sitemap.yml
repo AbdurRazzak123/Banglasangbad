@@ -29,26 +29,30 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install generator dependency
+      # Install ALL Python libraries required by the generator
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install beautifulsoup4
+          python -m pip install -r requirements.txt
 
       - name: Preflight Google Sheet
         env:
           NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
           NEWS_SHEET_NAME: Bangla News
-        run: python tools/news_preflight.py
+        run: |
+          python tools/news_preflight.py
 
       - name: Patch generator compatibility
-        run: python tools/patch_generator.py
+        run: |
+          python tools/patch_generator.py
 
       - name: Generate static news
         env:
           NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
           NEWS_SHEET_NAME: Bangla News
           SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
-        run: python tools/generate_static_news.py
+        run: |
+          python tools/generate_static_news.py
 
       - name: Validate generated site
         run: |
@@ -61,25 +65,54 @@ jobs:
           import json
           from pathlib import Path
 
-          data = json.loads(Path("news-data.json").read_text(encoding="utf-8"))
+          data = json.loads(
+              Path("news-data.json").read_text(encoding="utf-8")
+          )
+
           rows = data.get("table", {}).get("rows", [])
+
           valid = []
+
           for row in rows:
               c = row.get("c", [])
+
               def v(i):
-                  return str(c[i].get("v", "") if i < len(c) and c[i] else "").strip()
-              if v(0) and v(2):
-                  valid.append(v(0))
+                  if i < len(c) and c[i]:
+                      return str(c[i].get("v", "")).strip()
+                  return ""
+
+              news_id = v(0)
+              headline = v(2)
+
+              if news_id and headline:
+                  valid.append(news_id)
 
           if not valid:
-              raise SystemExit("ERROR: news-data.json contains no valid ID + Headline rows.")
+              raise SystemExit(
+                  "ERROR: news-data.json contains no valid ID + Headline rows."
+              )
 
-          pages = {p.stem for p in Path("news").glob("*.html")}
-          missing = [x for x in valid if x not in pages]
+          pages = {
+              p.stem
+              for p in Path("news").glob("*.html")
+          }
+
+          missing = [
+              news_id
+              for news_id in valid
+              if news_id not in pages
+          ]
+
           if missing:
-              raise SystemExit("ERROR: missing detail pages: " + ", ".join(missing[:20]))
+              raise SystemExit(
+                  "ERROR: missing detail pages: "
+                  + ", ".join(missing[:20])
+              )
 
-          print(f"VALID: {len(valid)} news rows and {len(pages)} detail pages.")
+          print(
+              f"VALID: {len(valid)} news rows "
+              f"and {len(pages)} detail pages."
+          )
           PY
 
       - name: Commit generated output
@@ -89,9 +122,9 @@ jobs:
 
           git add \
             news \
+            assets/news \
             news-data.json \
             ads-data.json \
-            news-media \
             sitemap.xml \
             news-sitemap.xml \
             home.html \
