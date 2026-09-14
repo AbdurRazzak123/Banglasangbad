@@ -728,12 +728,42 @@ def render_sidebar(
 
     for item in related:
 
+        image = ""
+
+        for value in item.get(
+            "images",
+            []
+        ):
+
+            if value:
+                image = value
+                break
+
+        if image:
+
+            image_html = f"""
+<img
+    src="{escape(relative_image_url(image))}"
+    alt="{escape(item["headline"])}"
+    loading="lazy">
+"""
+
+        else:
+
+            image_html = ""
+
         links.append(
             f"""
 <a
     class="latest-link"
     href="{escape(safe_id(item["id"]))}.html">
-    {escape(item["headline"])}
+
+    {image_html}
+
+    <span class="latest-link-title">
+        {escape(item["headline"])}
+    </span>
+
 </a>
 """
         )
@@ -994,18 +1024,42 @@ main.container{
     border-bottom:2px solid #b40000;
     padding-bottom:8px;
 }
-
 .latest-link{
-    display:block;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
     color:#222;
     border-bottom:1px solid #ddd;
-    padding:10px 0;
+    padding:11px 0;
     font-weight:600;
+    line-height:1.45;
+    transition:all .2s ease;
+}
+
+.latest-link img{
+    width:92px;
+    height:58px;
+    flex:0 0 92px;
+    object-fit:cover;
+    display:block;
+    border-radius:5px;
+    background:#eee;
+}
+
+.latest-link-title{
+    display:block;
+    flex:1;
+    font-size:15px;
 }
 
 .latest-link:hover{
-    color:#d00000;
+    color:#c1121f;
 }
+
+.latest-link:hover img{
+    opacity:.9;
+}
+
 
 .news-grid{
     display:grid;
@@ -1104,6 +1158,15 @@ main.container{
     .news-title{
         padding:15px;
     }
+    .latest-link img{
+    width:82px;
+    height:54px;
+    flex-basis:82px;
+}
+
+.latest-link-title{
+    font-size:14px;
+}
 
     .news-text-bottom{
         font-size:17px;
