@@ -12,3 +12,4 @@ IMPORTANT:
 - Details pages use four ad slots: Top, Middle top, Middle bottom, Bottom.
 - Home page keeps its existing three ad slots.
 - Middle top is placed directly below the Details headline.
+
