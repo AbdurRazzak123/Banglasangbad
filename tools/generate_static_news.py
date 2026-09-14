@@ -1612,9 +1612,9 @@ def render_news_page(item, all_news):
 <div class="breaking"><div class="breaking-news-container"><div class="breaking-title">ব্রেকিং নিউজ</div><div class="ticker-window"><div class="ticker-track" id="breaking-ticker">{escape(item["headline"])}</div></div></div></div>
 <main class="container home-main-layout">
 <section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">
-<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1>
+{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1>
 <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div>
-{image_html}<div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}
+<div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}
 <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-bottom" data-ad-slot="middle-bottom" aria-label="বিজ্ঞাপন"></div>
 </div></article></section>
 <aside class="sidebar home-sidebar"><h2>ক্যাটাগরি অনুযায়ী সর্বশেষ ১৪ সংবাদ</h2><div class="latest-news-scroll" id="latest-news-container">{sidebar}</div></aside>
