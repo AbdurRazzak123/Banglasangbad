@@ -1318,8 +1318,45 @@ section.news-grid > article:nth-child(6) .news-image img {
 .details-share-box a,.details-share-box button{border:1px solid #ddd;background:#fff;padding:7px 12px;border-radius:6px;text-decoration:none;cursor:pointer;font:inherit}
 .category-latest-copy{display:block!important;flex:1!important;min-width:0!important}
 .category-latest-category{display:block!important;font-size:12px!important;line-height:1.25!important;font-weight:800!important;color:#b91c1c!important;margin-bottom:2px!important}
-.category-latest-title{display:block!important}
+.category-latest-title{display:block!important;font-size:15px!important;line-height:1.45!important;font-weight:700!important;word-break:break-word!important;overflow-wrap:anywhere!important;min-width:0!important}
 .home-sidebar h2{font-size:20px!important;font-weight:800!important}
+
+/* ===== EXACT HOME PAGE SIDEBAR + MOBILE SCROLL MATCH ===== */
+.category-latest-item{padding:10px 0!important;border-bottom:1px solid #eee!important}
+.category-latest-item:last-child{border-bottom:0!important}
+.category-latest-item a{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:inherit!important}
+.category-latest-thumb{display:block!important;flex:0 0 92px!important;width:92px!important;height:68px!important;border-radius:6px!important;overflow:hidden!important;background:#d1d5db!important}
+.category-latest-thumb img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}
+.image-load-failed{background:#f1f1f1!important;min-height:68px!important}
+.category-latest-title{display:block!important;flex:1!important;font-size:15px!important;line-height:1.45!important;font-weight:700!important;color:#1f2937!important;min-width:0!important;word-break:break-word!important;overflow-wrap:anywhere!important}
+
+@media(max-width:768px){
+  /* Home's mobile main layout */
+  .home-main-layout{display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;padding:0 12px!important;gap:20px!important}
+  .home-main-layout>#home-feature,.home-main-layout>.home-sidebar{width:100%!important;max-width:100%!important}
+  .home-main-layout>.home-sidebar{order:2!important;margin-top:0!important}
+
+  /* Home's actual sidebar scrolling behavior: max-height, not a forced height. */
+  .latest-news-scroll,#latest-news-container{max-height:280px!important;overflow-y:auto!important;padding-right:5px!important;display:block!important;-webkit-overflow-scrolling:touch!important}
+  .latest-item{padding:12px 0!important;border-bottom:1px solid #eee!important;width:100%!important}
+  .latest-item a{color:#cc0000!important;font-size:15px!important;line-height:1.5!important;text-decoration:none!important;font-weight:bold!important;display:block!important;word-wrap:break-word!important}
+
+  /* Home's thumbnail sizing on phones, plus category label used by Details. */
+  .category-latest-item a{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:inherit!important}
+  .category-latest-thumb{flex-basis:88px!important;width:88px!important;height:64px!important}
+  .category-latest-title{font-size:14px!important;line-height:1.45!important;white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important}
+  .category-latest-copy{min-width:0!important;flex:1!important;max-width:calc(100% - 98px)!important}
+  .category-latest-category{font-size:11px!important;line-height:1.25!important;margin-bottom:2px!important}
+}
+
+@media(min-width:769px){
+  /* Home's desktop two-column container */
+  .home-main-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;gap:22px!important;align-items:start!important}
+  .home-main-layout>#home-feature{grid-column:1;min-width:0}
+  .home-main-layout>.home-sidebar{grid-column:2;grid-row:1;min-width:0}
+  .latest-news-scroll,#latest-news-container{overflow-y:visible!important;overflow-x:hidden!important}
+  .category-latest-copy{min-width:0!important;flex:1!important;max-width:calc(100% - 102px)!important}
+}
 </style></head>
 <body>
 <div class="ad-slot top sheet-ad-slot" data-ad-position="top" data-ad-slot="top" aria-label="বিজ্ঞাপন"></div>
@@ -1516,6 +1553,12 @@ function shareNews() {
 <a href="29.html" data-news-id="29">
 <span class="category-latest-thumb"><img loading="lazy" src="../assets/news/29-1.jpg" alt="দুর্নীতির অভিযোগ ভিত্তিহীন, যে কোনো তদন্তে পূর্ণ সহযোগিতার আশ্বাস আসিফ মাহমুদের" onerror="imageFallback(this)"></span>
 <span class="category-latest-copy"><span class="category-latest-category">জাতীয়</span><span class="category-latest-title">দুর্নীতির অভিযোগ ভিত্তিহীন, যে কোনো তদন্তে পূর্ণ সহযোগিতার আশ্বাস আসিফ মাহমুদের</span></span>
+</a>
+</article>
+<article class="latest-item category-latest-item">
+<a href="11.html" data-news-id="11">
+<span class="category-latest-thumb"><img loading="lazy" src="../assets/news/11-1.png" alt="বাংলাদেশের রাজনীতিতে নতুন বাস্তবতা: সরকার, বিরোধী দল ও জনগণের প্রত্যাশা" onerror="imageFallback(this)"></span>
+<span class="category-latest-copy"><span class="category-latest-category">রাজনীতি</span><span class="category-latest-title">বাংলাদেশের রাজনীতিতে নতুন বাস্তবতা: সরকার, বিরোধী দল ও জনগণের প্রত্যাশা</span></span>
 </a>
 </article>
 <article class="latest-item category-latest-item">
