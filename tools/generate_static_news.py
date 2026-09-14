@@ -1100,26 +1100,25 @@ main.container{
 /* =========================
    SIDEBAR IMAGE + HEADLINE
 ========================= */
-
 .latest-link{
     display:flex;
     align-items:flex-start;
-    gap:11px;
+    gap:10px;
     color:#222;
-    border-bottom:1px solid #e2e2e2;
-    padding:12px 0;
-    font-weight:700;
+    border-bottom:1px solid #ddd;
+    padding:11px 0;
+    font-weight:600;
     line-height:1.45;
-    transition:.2s;
+    transition:all .2s ease;
 }
 
 .latest-link img{
-    width:95px;
-    height:62px;
-    flex:0 0 95px;
+    width:92px;
+    height:58px;
+    flex:0 0 92px;
     object-fit:cover;
     display:block;
-    border-radius:3px;
+    border-radius:5px;
     background:#eee;
 }
 
@@ -1130,12 +1129,13 @@ main.container{
 }
 
 .latest-link:hover{
-    color:#c40000;
+    color:#c1121f;
 }
 
 .latest-link:hover img{
     opacity:.9;
 }
+
 
 /* =========================
    RELATED NEWS
@@ -1291,14 +1291,14 @@ main.container{
     }
 
     .latest-link img{
-        width:82px;
-        height:55px;
-        flex-basis:82px;
-    }
+    width:82px;
+    height:54px;
+    flex-basis:82px;
+}
 
-    .latest-link-title{
-        font-size:14px;
-    }
+.latest-link-title{
+    font-size:14px;
+}
 
 }
 
