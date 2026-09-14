@@ -1338,56 +1338,77 @@ main.container{
 # COMPLETE DETAILS PAGE
 # ============================================================
 
-def render_news_page(
-    item,
-    all_news
-):
+def _home_template_parts():
+    candidates = [ROOT / "home.html", Path(__file__).resolve().parent / "home.html"]
+    home = next((x for x in candidates if x.exists()), None)
+    if home is None:
+        raise FileNotFoundError("home.html not found beside the generator/project root")
+    text = home.read_text(encoding="utf-8")
+    m = re.search(r"<head>(.*?)</head>", text, flags=re.I | re.S)
+    if not m:
+        raise ValueError("Could not read <head> from home.html")
+    head = m.group(1)
+    for asset in ("ads.css?v=20260907-ads-v26-sequential-final", "image-pattern.css"):
+        head = head.replace(f'href="{asset}"', f'href="../{asset}"')
+    return head
 
-    canonical = page_url(
-        item["id"]
-    )
 
-    images = item.get(
-        "images",
-        []
-    )
-
-    first_image = ""
-
-    for image in images:
-
+def _home_latest_sidebar(current, all_news):
+    ordered = sorted(
+        [n for n in all_news if safe_id(n["id"]) != safe_id(current["id"])],
+        key=lambda n: int(n["id"]) if str(n["id"]).isdigit() else -1,
+        reverse=True,
+    )[:10]
+    out = []
+    for n in ordered:
+        image = next((x for x in n.get("images", []) if x), "")
+        img = ""
         if image:
-            first_image = image
-            break
-
-    og_image = absolute_image_url(
-        first_image
-    )
-
-    related = same_category_news(
-        item,
-        all_news
-    )
-
-    related_cards = []
-
-    for news in related:
-
-        related_cards.append(
-            render_card(news)
+            img = f"""<img loading="lazy" src="{escape(relative_image_url(image))}" alt="{escape(n["headline"])}">"""
+        out.append(
+            f"""<article class="latest-item category-latest-item">
+<a href="{escape(safe_id(n["id"]))}.html">
+<span class="category-latest-thumb">{img}</span>
+<span class="category-latest-title">{escape(n["headline"])}</span>
+</a>
+</article>"""
         )
+    return "\n".join(out) or '<div style="text-align:center;padding:20px;color:#888;">কোনো সংবাদ নেই।</div>'
 
-    related_html = ""
 
-    if related_cards:
-
-        related_html = (
-            '<div class="news-grid">'
-            + "\n".join(
-                related_cards
+def _home_category_cards(current, all_news):
+    labels = {
+        "জাতীয়": "জাতীয়", "জাতীয়": "জাতীয়", "national": "জাতীয়",
+        "রাজনীতি": "রাজনীতি", "politics": "রাজনীতি",
+        "আন্তর্জাতিক": "আন্তর্জাতিক", "international": "আন্তর্জাতিক",
+        "খেলাধুলা": "খেলাধুলা", "sports": "খেলাধুলা", "sport": "খেলাধুলা",
+        "বিনোদন": "বিনোদন", "entertainment": "বিনোদন",
+        "প্রযুক্তি": "প্রযুক্তি", "technology": "প্রযুক্তি", "tech": "প্রযুক্তি",
+        "অর্থনীতি": "অর্থনীতি", "economy": "অর্থনীতি",
+    }
+    chosen, seen = [], set()
+    ordered = sorted(all_news, key=lambda n: int(n["id"]) if str(n["id"]).isdigit() else -1, reverse=True)
+    for n in ordered:
+        label = labels.get(clean(n.get("category")).lower())
+        if label and label not in seen:
+            seen.add(label)
+            image = next((x for x in n.get("images", []) if x), "")
+            img = (f'<div class="news-image"><img loading="lazy" src="{escape(relative_image_url(image))}" alt="{escape(n["headline"])}"></div>'
+                   if image else '<div class="news-image"></div>')
+            chosen.append(
+                f"""<article class="news-card"><a href="{escape(safe_id(n["id"]))}.html" class="category-card-link">
+{img}<div class="news-card-content"><div class="category">{escape(label)}</div><h3>{escape(n["headline"])}</h3></div>
+</a></article>"""
             )
-            + "</div>"
-        )
+            if len(chosen) == 6:
+                break
+    return "\n".join(chosen) or '<div style="text-align:center;padding:30px;color:#888;grid-column:1/-1;">কোনো সংবাদ নেই।</div>'
+
+
+def render_news_page(item, all_news):
+    canonical = page_url(item["id"])
+    first_image = next((x for x in item.get("images", []) if x), "")
+    og_image = absolute_image_url(first_image)
 
     jsonld = {
         "@context": "https://schema.org",
@@ -1397,273 +1418,71 @@ def render_news_page(
         "datePublished": item["date"],
         "mainEntityOfPage": canonical,
     }
-
     if og_image:
-        jsonld["image"] = [
-            og_image
-        ]
+        jsonld["image"] = [og_image]
 
-    og_image_tag = ""
-
+    head = _home_template_parts()
+    head = re.sub(r'<title>.*?</title>', f'<title>{escape(item["headline"])} | বাংলা সংবাদ</title>', head, flags=re.I | re.S)
+    head = re.sub(r'<link\s+rel="canonical"[^>]*>', f'<link rel="canonical" href="{escape(canonical)}">', head, flags=re.I)
+    head = re.sub(r'<meta\s+name="description"[^>]*>', f'<meta name="description" content="{escape(item["headline"])}">', head, flags=re.I)
+    head = re.sub(r'<meta\s+name="keywords"[^>]*>', f'<meta name="keywords" content="{escape(item.get("keyword", ""))}">', head, flags=re.I)
+    head = re.sub(r'<meta\s+property="og:title"[^>]*>', f'<meta property="og:title" content="{escape(item["headline"])}">', head, flags=re.I)
+    head = re.sub(r'<meta\s+property="og:description"[^>]*>', f'<meta property="og:description" content="{escape(item["headline"])}">', head, flags=re.I)
+    head = re.sub(r'<meta\s+property="og:url"[^>]*>', f'<meta property="og:url" content="{escape(canonical)}">', head, flags=re.I)
     if og_image:
+        head = re.sub(r'<meta\s+property="og:image"[^>]*>', f'<meta property="og:image" content="{escape(og_image)}">', head, flags=re.I)
+        head = re.sub(r'<meta\s+name="twitter:image"[^>]*>', f'<meta name="twitter:image" content="{escape(og_image)}">', head, flags=re.I)
+    head += f"""
+<meta property="og:type" content="article">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<script type="application/ld+json">{json.dumps(jsonld, ensure_ascii=False, indent=2)}</script>
+<style>
+.details-social-links{{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px}}
+.details-social-links a{{color:#fff!important;padding:7px 13px;border:1px solid #555;border-radius:3px;text-decoration:none!important}}
+.details-social-links a:hover{{background:#c40000;border-color:#c40000}}
+.details-share-box{{margin-top:22px;padding:14px;border-top:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;align-items:center}}
+.details-share-box a,.details-share-box button{{border:1px solid #ddd;background:#fff;padding:7px 12px;border-radius:6px;text-decoration:none;cursor:pointer;font:inherit}}
+</style>"""
 
-        og_image_tag = f"""
-<meta
-    property="og:image"
-    content="{escape(og_image)}">
+    image_html = render_main_image(item)
+    body_html = render_details(item["details"])
+    gallery_html = render_gallery(item)
+    video_html = render_video(item["video"])
+    share_html = render_share_buttons(item).replace('class="share-box"', 'class="details-share-box"')
 
-<meta
-    name="twitter:image"
-    content="{escape(og_image)}">
-"""
+    nav = """<nav class="nav"><div class="nav-inner">
+<a href="../home.html" class="active">হোম</a><a href="../national.html">জাতীয়</a><a href="../politics.html">রাজনীতি</a><a href="../international.html">আন্তর্জাতিক</a><a href="../economy.html">অর্থনীতি</a><a href="../sports.html">খেলাধুলা</a><a href="../entertainment.html">বিনোদন</a><a href="../technology.html">প্রযুক্তি</a><a href="../more.html">আরও</a>
+</div></nav>"""
+    sidebar = _home_latest_sidebar(item, all_news)
+    cards = _home_category_cards(item, all_news)
+    footer = """<footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div class="links"><a href="../about.html">আমাদের সম্পর্কে</a><a href="../contact.html">যোগাযোগ</a><a href="../privacy.html">গোপনীয়তা নীতি</a><a href="../disclaimer.html">দাবিত্যাগ</a></div><div class="details-social-links">
+<a href="https://www.facebook.com/" target="_blank" rel="noopener">Facebook</a>
+<a href="https://www.youtube.com/" target="_blank" rel="noopener">YouTube</a>
+<a href="https://www.tiktok.com/" target="_blank" rel="noopener">TikTok</a>
+<a href="https://twitter.com/" target="_blank" rel="noopener">X / Twitter</a>
+</div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="../advertise.html">বিজ্ঞাপন দিন</a></footer>"""
+    scripts = """<script src="../ads-loader.js?v=20260907-ads-v26-sequential-final"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
 
     return f"""<!DOCTYPE html>
 <html lang="bn">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
-<title>
-{escape(item["headline"])} | বাংলা সংবাদ
-</title>
-
-<meta
-    name="description"
-    content="{escape(item["headline"])}">
-
-<meta
-    name="keywords"
-    content="{escape(item["keyword"])}">
-
-<link
-    rel="canonical"
-    href="{escape(canonical)}">
-
-<meta
-    property="og:type"
-    content="article">
-
-<meta
-    property="og:title"
-    content="{escape(item["headline"])}">
-
-<meta
-    property="og:description"
-    content="{escape(item["headline"])}">
-
-<meta
-    property="og:url"
-    content="{escape(canonical)}">
-
-<meta
-    property="og:site_name"
-    content="বাংলা সংবাদ">
-
-{og_image_tag}
-
-<meta
-    name="twitter:card"
-    content="summary_large_image">
-
-<meta
-    name="twitter:title"
-    content="{escape(item["headline"])}">
-
-<script type="application/ld+json">
-{json.dumps(jsonld, ensure_ascii=False, indent=2)}
-</script>
-
-<style>
-{STYLE}
-</style>
-
-</head>
-
+<head>{head}</head>
 <body>
-
-<div class="top-bar">
-
-    <div class="header-inner">
-        বাংলা সংবাদ
-    </div>
-
-</div>
-
-<header class="site-header">
-
-    <div class="header-inner">
-
-        <div class="logo">
-            বাংলা সংবাদ
-        </div>
-
-        <div class="date-box">
-            {escape(item["date"])}
-        </div>
-
-    </div>
-
-</header>
-
-<nav class="nav">
-
-    <div class="nav-inner">
-
-        <a href="../index.html">
-            হোম
-        </a>
-
-        <a href="../index.html">
-            জাতীয়
-        </a>
-
-        <a href="../index.html">
-            রাজনীতি
-        </a>
-
-        <a href="../index.html">
-            আন্তর্জাতিক
-        </a>
-
-        <a href="../index.html">
-            খেলা
-        </a>
-
-        <a href="../index.html">
-            বিনোদন
-        </a>
-
-        <a href="../index.html">
-            প্রযুক্তি
-        </a>
-
-    </div>
-
-</nav>
-
-<div class="breaking">
-
-    <div class="breaking-title">
-        ব্রেকিং নিউজ
-    </div>
-
-    <div class="breaking-text">
-        {escape(item["headline"])}
-    </div>
-
-</div>
-
-<main class="container">
-
-<section class="main-content">
-
-    <article>
-
-        <div class="news-title">
-
-            <div class="category">
-                {escape(item["category"])}
-            </div>
-
-            <h1>
-                {escape(item["headline"])}
-            </h1>
-
-            <div class="news-meta">
-                {escape(item["date"])}
-            </div>
-
-        </div>
-
-        <div class="news-body">
-
-            {render_main_image(item)}
-
-            <div class="news-text-bottom">
-
-                {render_details(item["details"])}
-
-            </div>
-
-            {render_gallery(item)}
-
-            {render_video(item["video"])}
-
-            {render_share_buttons(item)}
-
-        </div>
-
-    </article>
-
-    <div>
-
-        {related_html}
-
-    </div>
-
-</section>
-
-<aside class="side-news">
-
-    <h2>
-        সর্বশেষ সংবাদ
-    </h2>
-
-    {render_sidebar(item, all_news)}
-
-</aside>
-
+<div class="ad-slot top sheet-ad-slot" data-ad-slot="top" aria-label="বিজ্ঞাপন"></div>
+<div class="top-bar">বাংলা সংবাদ — সত্য ও নির্ভরযোগ্য খবর</div>
+<header class="site-header"><div class="header-inner"><div class="logo"><img src="../logo.png" alt="বাংলা সংবাদ লোগো" class="logo-image"><div class="logo-fallback"><h1>বাংলা সংবাদ</h1><p>সর্বশেষ সংবাদ সবার আগে</p></div></div><div id="live-date">{escape(item["date"] or "তারিখ")}</div></div></header>
+{nav}
+<div class="breaking"><div class="breaking-news-container"><div class="breaking-title">ব্রেকিং নিউজ</div><div class="ticker-window"><div class="ticker-track" id="breaking-ticker">{escape(item["headline"])}</div></div></div></div>
+<main class="container home-main-layout">
+<section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1><div class="ad-slot in-article sheet-ad-slot middle-top" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div><div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}</div></article></section>
+<div class="ad-slot in-article sheet-ad-slot middle-bottom" data-ad-position="middle-bottom" data-ad-slot="middle-bottom" aria-label="বিজ্ঞাপন"></div>
+<aside class="sidebar home-sidebar"><h2>সর্বশেষ ১০ সংবাদ</h2><div class="latest-news-scroll" id="latest-news-container">{sidebar}</div></aside>
 </main>
-
-<footer class="site-footer">
-
-    <div>
-        © বাংলা সংবাদ
-    </div>
-
-    <div class="social-links">
-
-        <a
-            href="https://www.facebook.com/"
-            target="_blank"
-            rel="noopener">
-            Facebook
-        </a>
-
-        <a
-            href="https://www.youtube.com/"
-            target="_blank"
-            rel="noopener">
-            YouTube
-        </a>
-
-        <a
-            href="https://www.tiktok.com/"
-            target="_blank"
-            rel="noopener">
-            TikTok
-        </a>
-
-        <a
-            href="https://twitter.com/"
-            target="_blank"
-            rel="noopener">
-            X / Twitter
-        </a>
-
-    </div>
-
-</footer>
-
-</body>
-
-</html>
-"""
+<h2 class="section-title">সর্বশেষ ৬ ক্যাটাগরির খবর</h2>
+<section class="news-grid category-six-grid" id="category-six-grid">{cards}</section>
+<div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
+{footer}
+{scripts}
+</body></html>"""
 
 
 # ============================================================
