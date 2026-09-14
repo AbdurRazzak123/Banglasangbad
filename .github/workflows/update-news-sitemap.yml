@@ -47,6 +47,114 @@ jobs:
           SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
         run: python tools/generate_static_news.py
 
+      - name: Convert news-data.json to website format
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("news-data.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+
+          # The generator keeps the reliable source records in data["news"].
+          # Rebuild table.rows in the Google Visualization format expected by
+          # the existing website JavaScript.
+          source_news = data.get("news", [])
+          converted = []
+
+          if source_news:
+              for item in source_news:
+                  if not isinstance(item, dict):
+                      continue
+
+                  news_id = str(item.get("id", "")).strip()
+                  headline = str(item.get("headline", "")).strip()
+                  if not news_id or not headline:
+                      continue
+
+                  image_urls = item.get("image_urls", []) or []
+                  if not isinstance(image_urls, list):
+                      image_urls = []
+
+                  image1 = str(image_urls[0]).strip() if len(image_urls) > 0 else ""
+                  image2 = str(image_urls[1]).strip() if len(image_urls) > 1 else ""
+                  image3 = str(image_urls[2]).strip() if len(image_urls) > 2 else ""
+
+                  values = [
+                      news_id,
+                      str(item.get("category", "")),
+                      headline,
+                      str(item.get("details", "")),
+                      image1,
+                      str(item.get("date", "")),
+                      image2,
+                      image3,
+                      str(item.get("video", "")),
+                      str(item.get("keyword", "")),
+                  ]
+
+                  converted.append({"c": [{"v": v} for v in values]})
+          else:
+              # Backward-compatible fallback if a future generator only writes
+              # table.rows as ordinary dictionaries.
+              rows = data.get("table", {}).get("rows", [])
+              for row in rows:
+                  if not isinstance(row, dict):
+                      continue
+
+                  if "c" in row:
+                      cells = row.get("c", [])
+                      def cell_value(index):
+                          if index >= len(cells) or not cells[index]:
+                              return ""
+                          return str(cells[index].get("v", "")).strip()
+
+                      if cell_value(0) and cell_value(2):
+                          converted.append(row)
+                      continue
+
+                  values = [
+                      row.get("ID", ""),
+                      row.get("Category", ""),
+                      row.get("Headline", ""),
+                      row.get("Details", ""),
+                      row.get("Image-1", ""),
+                      row.get("Date", ""),
+                      row.get("Image-2", ""),
+                      row.get("Image-3", ""),
+                      row.get("Video", ""),
+                      row.get("Keyword", ""),
+                  ]
+
+                  if str(values[0]).strip() and str(values[2]).strip():
+                      converted.append({"c": [{"v": str(v)} for v in values]})
+
+          if not converted:
+              raise SystemExit(
+                  "ERROR: No valid news rows were produced. "
+                  "Each row must contain both ID and Headline."
+              )
+
+          data.setdefault("table", {})
+          data["table"]["rows"] = converted
+
+          # Keep column metadata compatible with the current frontend.
+          data["table"]["columns"] = [
+              "ID", "Category", "Headline", "Details", "Image-1",
+              "Date", "Image-2", "Image-3", "Video", "Keyword"
+          ]
+
+          path.write_text(
+              json.dumps(data, ensure_ascii=False, indent=2),
+              encoding="utf-8"
+          )
+
+          print(f"SUCCESS: converted {len(converted)} valid news rows.")
+          print("First IDs:", ", ".join(
+              str(r["c"][0].get("v", "")) for r in converted[:10]
+          ))
+          PY
+
       - name: Validate generated data and pages
         run: |
           python - <<'PY'
@@ -70,17 +178,20 @@ jobs:
                   valid.append(news_id)
 
           if not valid:
-              print("ERROR: generated news-data.json is not in the required Google Visualization shape.")
+              print("ERROR: news-data.json contains no valid ID + Headline rows.")
               print("First row:", rows[0] if rows else "NO ROWS")
               raise SystemExit(1)
 
           pages = {p.stem for p in Path("news").glob("*.html")}
           missing = [x for x in valid if x not in pages]
           if missing:
-              raise SystemExit("ERROR: missing detail pages: " + ", ".join(missing[:20]))
+              raise SystemExit(
+                  "ERROR: missing detail pages: " + ", ".join(missing[:20])
+              )
 
           for required in ("sitemap.xml", "news-sitemap.xml", "ads-data.json"):
-              if not Path(required).is_file() or Path(required).stat().st_size == 0:
+              target = Path(required)
+              if not target.is_file() or target.stat().st_size == 0:
                   raise SystemExit(f"ERROR: missing/empty {required}")
 
           print(f"SUCCESS: {len(valid)} valid news rows and {len(pages)} detail pages.")
@@ -91,7 +202,30 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add news assets/news news-data.json ads-data.json sitemap.xml news-sitemap.xml
+
+          git add \
+            news \
+            assets/news \
+            news-data.json \
+            ads-data.json \
+            sitemap.xml \
+            news-sitemap.xml \
+            index.html \
+            home.html \
+            national.html \
+            politics.html \
+            international.html \
+            economy.html \
+            sports.html \
+            entertainment.html \
+            technology.html \
+            more.html \
+            about.html \
+            contact.html \
+            privacy.html \
+            disclaimer.html \
+            advertise.html
+
           if git diff --cached --quiet; then
             echo "No generated changes."
           else
