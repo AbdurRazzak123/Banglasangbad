@@ -1,13 +1,11 @@
 name: Sync Google Sheet to GitHub
 
 on:
-  repository_dispatch:
-    types: [news_updated]
-
+  workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
-
-  workflow_dispatch:
+  repository_dispatch:
+    types: [news_updated]
 
 permissions:
   contents: write
@@ -23,49 +21,98 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Sync News and Ads from Google Sheet
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install generator dependency
         run: |
-          for i in 1 2 3; do
-            python3 tools/generate_static_news.py && break
+          python -m pip install --upgrade pip
+          python -m pip install beautifulsoup4
 
-            if [ "$i" -eq 3 ]; then
-              echo "Sync failed after 3 attempts."
-              exit 1
-            fi
+      - name: Preflight Google Sheet
+        env:
+          NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
+          NEWS_SHEET_NAME: Bangla News
+        run: python tools/news_preflight.py
 
-            echo "Sync attempt $i failed; retrying in 10 seconds..."
-            sleep 10
-          done
+      - name: Patch generator compatibility
+        run: python tools/patch_generator.py
 
-      - name: Validate synced data
+      - name: Generate static news
+        env:
+          NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
+          NEWS_SHEET_NAME: Bangla News
+          SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
+        run: python tools/generate_static_news.py
+
+      - name: Validate generated site
         run: |
           test -s news-data.json
-          test -s ads-data.json
           test -s sitemap.xml
           test -s news-sitemap.xml
-          python3 - <<'PY'
+          test -d news
+
+          python - <<'PY'
           import json
-          for name in ("news-data.json", "ads-data.json"):
-              with open(name, encoding="utf-8") as f:
-                  data = json.load(f)
-              assert isinstance(data, dict)
-              assert isinstance(data.get("table", {}).get("rows", []), list)
-          print("GitHub data files are valid.")
+          from pathlib import Path
+
+          data = json.loads(Path("news-data.json").read_text(encoding="utf-8"))
+          rows = data.get("table", {}).get("rows", [])
+          valid = []
+          for row in rows:
+              c = row.get("c", [])
+              def v(i):
+                  return str(c[i].get("v", "") if i < len(c) and c[i] else "").strip()
+              if v(0) and v(2):
+                  valid.append(v(0))
+
+          if not valid:
+              raise SystemExit("ERROR: news-data.json contains no valid ID + Headline rows.")
+
+          pages = {p.stem for p in Path("news").glob("*.html")}
+          missing = [x for x in valid if x not in pages]
+          if missing:
+              raise SystemExit("ERROR: missing detail pages: " + ", ".join(missing[:20]))
+
+          print(f"VALID: {len(valid)} news rows and {len(pages)} detail pages.")
           PY
 
-      - name: Commit generated data and SEO output
+      - name: Commit generated output
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add news sitemap.xml news-sitemap.xml news-data.json ads-data.json
-          if [ -d assets/news ]; then git add assets/news; fi
-          if [ -d assets/ads ]; then git add assets/ads; fi
+          git add \
+            news \
+            news-data.json \
+            ads-data.json \
+            news-media \
+            sitemap.xml \
+            news-sitemap.xml \
+            home.html \
+            index.html \
+            national.html \
+            politics.html \
+            international.html \
+            economy.html \
+            sports.html \
+            entertainment.html \
+            technology.html \
+            more.html \
+            about.html \
+            contact.html \
+            privacy.html \
+            disclaimer.html \
+            advertise.html
 
           if git diff --cached --quiet; then
             echo "No generated changes."
           else
-            git commit -m "Sync Google Sheet news and ads"
+            git commit -m "Sync Google Sheet news"
             git push
           fi
