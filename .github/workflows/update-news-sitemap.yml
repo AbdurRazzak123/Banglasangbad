@@ -65,32 +65,44 @@ jobs:
           import json
           from pathlib import Path
 
-          data = json.loads(
-              Path("news-data.json").read_text(encoding="utf-8")
-          )
+          path = Path("news-data.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
 
           rows = data.get("table", {}).get("rows", [])
+
+          print("Google JSON rows:", len(rows))
+
+          def value(cell):
+              if not isinstance(cell, dict):
+                  return ""
+
+              if cell.get("v") is not None:
+                  return str(cell["v"]).strip()
+
+              if cell.get("f") is not None:
+                  return str(cell["f"]).strip()
+
+              return ""
 
           valid = []
 
           for row in rows:
-              c = row.get("c", [])
+              cells = row.get("c", [])
 
-              def v(i):
-                  if i < len(c) and c[i]:
-                      return str(c[i].get("v", "")).strip()
-                  return ""
+              if not isinstance(cells, list):
+                  continue
 
-              news_id = v(0)
-              headline = v(2)
+              news_id = value(cells[0]) if len(cells) > 0 else ""
+              headline = value(cells[2]) if len(cells) > 2 else ""
 
               if news_id and headline:
                   valid.append(news_id)
 
           if not valid:
-              raise SystemExit(
-                  "ERROR: news-data.json contains no valid ID + Headline rows."
-              )
+              print("ERROR: No ID + Headline rows were found.")
+              print("First raw row:")
+              print(rows[0] if rows else "NO ROWS")
+              raise SystemExit(1)
 
           pages = {
               p.stem
@@ -110,7 +122,7 @@ jobs:
               )
 
           print(
-              f"VALID: {len(valid)} news rows "
+              f"SUCCESS: {len(valid)} valid news rows "
               f"and {len(pages)} detail pages."
           )
           PY
