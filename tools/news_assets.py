@@ -6,6 +6,7 @@ from urllib.parse import urlparse, parse_qs
 
 import requests
 
+
 USER_AGENT = (
     "Mozilla/5.0 (compatible; BanglaSangbad-NewsBot/1.0; "
     "+https://abdurrazzak123.github.io/Banglasangbad/)"
@@ -14,7 +15,12 @@ USER_AGENT = (
 TIMEOUT = 30
 
 IMAGE_EXTENSIONS = {
-    ".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+    ".gif",
+    ".avif",
 }
 
 
@@ -26,43 +32,82 @@ def clean_text(value) -> str:
 
 def safe_id(value) -> str:
     value = clean_text(value)
-    value = re.sub(r"[^A-Za-z0-9_-]+", "-", value)
-    value = re.sub(r"-+", "-", value)
+
+    value = re.sub(
+        r"[^A-Za-z0-9_-]+",
+        "-",
+        value
+    )
+
+    value = re.sub(
+        r"-+",
+        "-",
+        value
+    )
+
     return value.strip("-_") or "news"
 
 
-def google_drive_direct_url(url: str) -> str:
-    """
-    Google Drive share URL হলে direct download URL বানায়।
-    """
+def convert_google_drive_url(url: str) -> str:
+
     url = clean_text(url)
 
     if "drive.google.com" not in url:
         return url
 
-    match = re.search(r"/file/d/([^/]+)", url)
+    match = re.search(
+        r"/file/d/([^/]+)",
+        url
+    )
+
     if match:
         file_id = match.group(1)
-        return f"https://drive.google.com/uc?export=download&id={file_id}"
+
+        return (
+            "https://drive.google.com/uc"
+            "?export=download&id="
+            + file_id
+        )
 
     parsed = urlparse(url)
-    query = parse_qs(parsed.query)
+
+    query = parse_qs(
+        parsed.query
+    )
 
     if "id" in query and query["id"]:
-        return f"https://drive.google.com/uc?export=download&id={query['id'][0]}"
+
+        return (
+            "https://drive.google.com/uc"
+            "?export=download&id="
+            + query["id"][0]
+        )
 
     return url
 
 
-def image_extension(url: str, content_type: str = "") -> str:
-    suffix = Path(urlparse(url).path).suffix.lower()
+def detect_extension(
+    url: str,
+    content_type: str = ""
+) -> str:
+
+    suffix = Path(
+        urlparse(url).path
+    ).suffix.lower()
 
     if suffix in IMAGE_EXTENSIONS:
+
         if suffix == ".jpeg":
             return ".jpg"
+
         return suffix
 
-    content_type = content_type.lower().split(";")[0].strip()
+    content_type = (
+        content_type
+        .lower()
+        .split(";")[0]
+        .strip()
+    )
 
     mapping = {
         "image/jpeg": ".jpg",
@@ -73,14 +118,18 @@ def image_extension(url: str, content_type: str = "") -> str:
         "image/avif": ".avif",
     }
 
-    return mapping.get(content_type, ".jpg")
+    return mapping.get(
+        content_type,
+        ".jpg"
+    )
 
 
-def make_asset_filename(
+def make_filename(
     news_id: str,
     image_number: int,
     extension: str
 ) -> str:
+
     news_id = safe_id(news_id)
 
     extension = extension.lower()
@@ -88,15 +137,18 @@ def make_asset_filename(
     if not extension.startswith("."):
         extension = "." + extension
 
-    return f"{news_id}-{image_number}{extension}"
+    return (
+        f"{news_id}-{image_number}"
+        f"{extension}"
+    )
 
 
-def get_remote_image(
+def download_image(
     url: str,
     news_id: str,
     image_number: int,
     assets_dir: Path,
-    session: requests.Session | None = None,
+    session=None,
 ) -> str:
 
     url = clean_text(url)
@@ -104,21 +156,35 @@ def get_remote_image(
     if not url:
         return ""
 
-    if not url.startswith(("http://", "https://")):
+    if not url.startswith(
+        ("http://", "https://")
+    ):
         return ""
 
-    url = google_drive_direct_url(url)
+    url = convert_google_drive_url(url)
 
-    assets_dir.mkdir(parents=True, exist_ok=True)
+    assets_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-    session = session or requests.Session()
+    if session is None:
+        session = requests.Session()
 
     headers = {
         "User-Agent": USER_AGENT,
-        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "Accept": (
+            "image/avif,image/webp,"
+            "image/apng,image/svg+xml,"
+            "image/*,*/*;q=0.8"
+        ),
     }
 
+    response = None
+    temporary = None
+
     try:
+
         response = session.get(
             url,
             headers=headers,
@@ -129,61 +195,92 @@ def get_remote_image(
 
         response.raise_for_status()
 
-        content_type = response.headers.get("content-type", "").lower()
+        content_type = (
+            response.headers
+            .get("content-type", "")
+            .lower()
+        )
 
-        # কিছু Google Drive response-এ content-type ঠিকমতো image আসে না।
-        # তাই HTML হলে বাদ, image হলে গ্রহণ।
-        if content_type and (
-            not content_type.startswith("image/")
-            and "octet-stream" not in content_type
-        ):
-            response.close()
-            return ""
+        extension = detect_extension(
+            url,
+            content_type
+        )
 
-        extension = image_extension(url, content_type)
-
-        filename = make_asset_filename(
+        filename = make_filename(
             news_id,
             image_number,
             extension
         )
 
-        destination = assets_dir / filename
+        destination = (
+            assets_dir / filename
+        )
 
-        if destination.exists() and destination.stat().st_size > 0:
+        if (
+            destination.exists()
+            and destination.stat().st_size > 0
+        ):
+
             response.close()
-            return f"assets/news/{filename}"
+
+            return (
+                f"assets/news/{filename}"
+            )
 
         temporary = destination.with_suffix(
             destination.suffix + ".tmp"
         )
 
-        with open(temporary, "wb") as output:
+        with open(
+            temporary,
+            "wb"
+        ) as output:
+
             for chunk in response.iter_content(
-                chunk_size=1024 * 64
+                chunk_size=65536
             ):
+
                 if chunk:
                     output.write(chunk)
 
         response.close()
 
-        if not temporary.exists() or temporary.stat().st_size == 0:
+        if (
+            not temporary.exists()
+            or temporary.stat().st_size == 0
+        ):
+
+            if temporary.exists():
+                temporary.unlink()
+
+            return ""
+
+        temporary.replace(
+            destination
+        )
+
+        return (
+            f"assets/news/{filename}"
+        )
+
+    except Exception:
+
+        if response is not None:
+
+            try:
+                response.close()
+            except Exception:
+                pass
+
+        if (
+            temporary is not None
+            and temporary.exists()
+        ):
+
             try:
                 temporary.unlink()
             except Exception:
                 pass
-
-            return ""
-
-        temporary.replace(destination)
-
-        return f"assets/news/{filename}"
-
-    except Exception:
-        try:
-            response.close()
-        except Exception:
-            pass
 
         return ""
 
@@ -192,27 +289,35 @@ def process_news_images(
     news_id: str,
     image_urls: list[str],
     assets_dir: Path,
-    session: requests.Session | None = None,
+    session=None,
 ) -> list[str]:
 
-    assets_dir.mkdir(parents=True, exist_ok=True)
+    assets_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-    session = session or requests.Session()
+    if session is None:
+        session = requests.Session()
 
-    results = []
+    result = []
 
     for index in range(3):
 
         url = ""
 
         if index < len(image_urls):
-            url = clean_text(image_urls[index])
+            url = clean_text(
+                image_urls[index]
+            )
 
         if not url:
-            results.append("")
+
+            result.append("")
+
             continue
 
-        image_path = get_remote_image(
+        path = download_image(
             url=url,
             news_id=news_id,
             image_number=index + 1,
@@ -220,6 +325,6 @@ def process_news_images(
             session=session,
         )
 
-        results.append(image_path)
+        result.append(path)
 
-    return results
+    return result
