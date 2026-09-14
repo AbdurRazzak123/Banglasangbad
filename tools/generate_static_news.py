@@ -1396,12 +1396,9 @@ def _category_key(value: str) -> str:
 def _home_latest_sidebar(current, all_news):
     """Home-style right rail: two newest stories per category, seven categories."""
     category_order = ["জাতীয়", "রাজনীতি", "আন্তর্জাতিক", "অর্থনীতি", "খেলাধুলা", "বিনোদন", "প্রযুক্তি"]
-    current_id = safe_id(current.get("id"))
     buckets = {key: [] for key in category_order}
     ordered = sorted(all_news, key=lambda n: int(n["id"]) if str(n["id"]).isdigit() else -1, reverse=True)
     for n in ordered:
-        if safe_id(n.get("id")) == current_id:
-            continue
         key = _category_key(n.get("category"))
         if key in buckets and len(buckets[key]) < 2:
             buckets[key].append(n)
@@ -1535,8 +1532,45 @@ def render_news_page(item, all_news):
 .details-share-box a,.details-share-box button{{border:1px solid #ddd;background:#fff;padding:7px 12px;border-radius:6px;text-decoration:none;cursor:pointer;font:inherit}}
 .category-latest-copy{{display:block!important;flex:1!important;min-width:0!important}}
 .category-latest-category{{display:block!important;font-size:12px!important;line-height:1.25!important;font-weight:800!important;color:#b91c1c!important;margin-bottom:2px!important}}
-.category-latest-title{{display:block!important}}
+.category-latest-title{{display:block!important;font-size:15px!important;line-height:1.45!important;font-weight:700!important;word-break:break-word!important;overflow-wrap:anywhere!important;min-width:0!important}}
 .home-sidebar h2{{font-size:20px!important;font-weight:800!important}}
+
+/* ===== EXACT HOME PAGE SIDEBAR + MOBILE SCROLL MATCH ===== */
+.category-latest-item{{padding:10px 0!important;border-bottom:1px solid #eee!important}}
+.category-latest-item:last-child{{border-bottom:0!important}}
+.category-latest-item a{{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:inherit!important}}
+.category-latest-thumb{{display:block!important;flex:0 0 92px!important;width:92px!important;height:68px!important;border-radius:6px!important;overflow:hidden!important;background:#d1d5db!important}}
+.category-latest-thumb img{{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}}
+.image-load-failed{{background:#f1f1f1!important;min-height:68px!important}}
+.category-latest-title{{display:block!important;flex:1!important;font-size:15px!important;line-height:1.45!important;font-weight:700!important;color:#1f2937!important;min-width:0!important;word-break:break-word!important;overflow-wrap:anywhere!important}}
+
+@media(max-width:768px){{
+  /* Home's mobile main layout */
+  .home-main-layout{{display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;padding:0 12px!important;gap:20px!important}}
+  .home-main-layout>#home-feature,.home-main-layout>.home-sidebar{{width:100%!important;max-width:100%!important}}
+  .home-main-layout>.home-sidebar{{order:2!important;margin-top:0!important}}
+
+  /* Home's actual sidebar scrolling behavior: max-height, not a forced height. */
+  .latest-news-scroll,#latest-news-container{{max-height:280px!important;overflow-y:auto!important;padding-right:5px!important;display:block!important;-webkit-overflow-scrolling:touch!important}}
+  .latest-item{{padding:12px 0!important;border-bottom:1px solid #eee!important;width:100%!important}}
+  .latest-item a{{color:#cc0000!important;font-size:15px!important;line-height:1.5!important;text-decoration:none!important;font-weight:bold!important;display:block!important;word-wrap:break-word!important}}
+
+  /* Home's thumbnail sizing on phones, plus category label used by Details. */
+  .category-latest-item a{{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:inherit!important}}
+  .category-latest-thumb{{flex-basis:88px!important;width:88px!important;height:64px!important}}
+  .category-latest-title{{font-size:14px!important;line-height:1.45!important;white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important}}
+  .category-latest-copy{{min-width:0!important;flex:1!important;max-width:calc(100% - 98px)!important}}
+  .category-latest-category{{font-size:11px!important;line-height:1.25!important;margin-bottom:2px!important}}
+}}
+
+@media(min-width:769px){{
+  /* Home's desktop two-column container */
+  .home-main-layout{{display:grid!important;grid-template-columns:minmax(0,1fr) 320px!important;gap:22px!important;align-items:start!important}}
+  .home-main-layout>#home-feature{{grid-column:1;min-width:0}}
+  .home-main-layout>.home-sidebar{{grid-column:2;grid-row:1;min-width:0}}
+  .latest-news-scroll,#latest-news-container{{overflow-y:visible!important;overflow-x:hidden!important}}
+  .category-latest-copy{{min-width:0!important;flex:1!important;max-width:calc(100% - 102px)!important}}
+}}
 </style>"""
 
     image_html = render_main_image(item)
