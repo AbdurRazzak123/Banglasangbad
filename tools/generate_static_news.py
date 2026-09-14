@@ -12,7 +12,10 @@ from pathlib import Path
 
 import requests
 
-from news_assets import process_news_images
+try:
+    from news_assets import process_news_images
+except ImportError:
+    from News_assets import process_news_images
 
 
 # ============================================================
@@ -32,11 +35,18 @@ BASE_URL = (
 
 ROOT = Path(__file__).resolve().parents[1]
 
-NEWS_DIR = ROOT / "news"
-
-ASSETS_DIR = (
-    ROOT / "assets" / "news"
+# The existing repository uses capitalized folders (News / Asset).
+# Keep compatibility with lowercase folders if a copy of the site uses them.
+NEWS_DIR = (
+    ROOT / "News"
+    if (ROOT / "News").exists()
+    else ROOT / "news"
 )
+
+if (ROOT / "Asset" / "news").exists() or (ROOT / "Asset").exists():
+    ASSETS_DIR = ROOT / "Asset" / "news"
+else:
+    ASSETS_DIR = ROOT / "assets" / "news"
 
 NEWS_DATA_FILE = (
     ROOT / "news-data.json"
@@ -160,77 +170,93 @@ def relative_image_url(path: str) -> str:
     )
 
 
+def normalize_generated_image_paths(paths) -> list[str]:
+    """Normalize helper-returned image paths to the actual repo asset folder."""
+    try:
+        asset_prefix = ASSETS_DIR.relative_to(ROOT).as_posix().rstrip("/")
+    except ValueError:
+        asset_prefix = "assets/news"
+
+    out = []
+    for value in paths or []:
+        value = clean(value)
+        if not value:
+            continue
+        if value.startswith(("http://", "https://")):
+            out.append(value)
+            continue
+        # The helper historically returned Asset/news/... even when the
+        # actual folder was lowercase assets/news. Normalize both cases.
+        m = re.match(r"^(?:Asset|assets)/news/(.+)$", value, re.I)
+        if m:
+            out.append(asset_prefix + "/" + m.group(1))
+        else:
+            out.append(value.lstrip("./"))
+    return out
+
+
 # ============================================================
 # GOOGLE SHEET
 # ============================================================
 
-def load_google_sheet() -> list[dict]:
-
-    sheet = urllib.parse.quote(
-        SHEET_NAME
-    )
-
+def load_sheet_csv(sheet_name: str) -> list[list[str]]:
+    """Read one tab from the single Google Sheet as CSV."""
+    sheet = urllib.parse.quote(clean(sheet_name))
     url = (
-        "https://docs.google.com/"
-        "spreadsheets/d/"
+        "https://docs.google.com/spreadsheets/d/"
         + SHEET_ID
-        + "/gviz/tq"
-        "?sheet="
+        + "/gviz/tq?sheet="
         + sheet
         + "&tqx=out:csv"
     )
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        content = response.read().decode("utf-8-sig")
+    return list(csv.reader(io.StringIO(content)))
 
-    request = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": "Mozilla/5.0"
-        },
-    )
 
-    with urllib.request.urlopen(
-        request,
-        timeout=30
-    ) as response:
-
-        content = (
-            response.read()
-            .decode("utf-8-sig")
-        )
-
-    reader = csv.reader(
-        io.StringIO(content)
-    )
-
-    rows = list(reader)
-
+def load_google_sheet() -> list[dict]:
+    rows = load_sheet_csv(SHEET_NAME)
     if not rows:
         return []
-
     result = []
-
     for row in rows[1:]:
-
         row = list(row)
-
-        while len(row) < 10:
+        while len(row) < len(EXPECTED_COLUMNS):
             row.append("")
-
         item = {}
-
-        for index, column in enumerate(
-            EXPECTED_COLUMNS
-        ):
-
-            item[column] = clean(
-                row[index]
-            )
-
+        for index, column in enumerate(EXPECTED_COLUMNS):
+            item[column] = clean(row[index])
         if not item["ID"]:
             continue
-
         result.append(item)
-
     return result
+
+
+def load_ads_sheet() -> dict | None:
+    """Read the Ads tab from the same Google Sheet and preserve its table shape."""
+    try:
+        rows = load_sheet_csv("Ads")
+    except Exception as exc:
+        print("Ads sheet could not be read:", exc)
+        return None
+    if not rows:
+        return None
+    columns = [clean(x) for x in rows[0]]
+    while columns and not columns[-1]:
+        columns.pop()
+    if not columns:
+        return None
+    data_rows = []
+    for raw in rows[1:]:
+        raw = list(raw)
+        while len(raw) < len(columns):
+            raw.append("")
+        values = [clean(raw[i]) for i in range(len(columns))]
+        if any(values):
+            data_rows.append(values)
+    return {"table": {"columns": columns, "rows": data_rows},
+            "updated_at": datetime.utcnow().isoformat() + "Z"}
 
 
 # ============================================================
@@ -714,6 +740,65 @@ def same_category_news(
 # SIDEBAR
 # ============================================================
 
+def render_sidebar(
+    current,
+    all_news
+):
+
+    related = same_category_news(
+        current,
+        all_news
+    )
+
+    links = []
+
+    for item in related:
+
+        image = ""
+
+        for value in item.get(
+            "images",
+            []
+        ):
+
+            if value:
+                image = value
+                break
+
+        if image:
+
+            image_html = f"""
+<img
+    src="{escape(relative_image_url(image))}"
+    alt="{escape(item["headline"])}"
+    loading="lazy">
+"""
+
+        else:
+
+            image_html = ""
+
+        links.append(
+            f"""
+<a
+    class="latest-link"
+    href="{escape(safe_id(item["id"]))}.html">
+
+    {image_html}
+
+    <span class="latest-link-title">
+        {escape(item["headline"])}
+    </span>
+
+</a>
+"""
+        )
+
+    return "\n".join(
+        links
+    )
+
+
 # ============================================================
 # FINAL PAGE CSS
 # ============================================================
@@ -1039,45 +1124,43 @@ main.container{
 }
 
 /* =========================
-   SIDEBAR — HOMEPAGE MATCH
-   Keep Details Page sidebar visually identical to Home Page.
+   SIDEBAR IMAGE + HEADLINE
 ========================= */
-.category-latest-item{
-    padding:10px 0!important;
-    border-bottom:1px solid #eee!important;
+
+.latest-link{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    color:#222;
+    border-bottom:1px solid #e2e2e2;
+    padding:12px 0;
+    font-weight:700;
+    line-height:1.45;
+    transition:.2s;
 }
-.category-latest-item:last-child{
-    border-bottom:0!important;
+
+.latest-link img{
+    width:95px;
+    height:62px;
+    flex:0 0 95px;
+    object-fit:cover;
+    display:block;
+    border-radius:3px;
+    background:#eee;
 }
-.category-latest-item a{
-    display:flex!important;
-    align-items:center!important;
-    gap:10px!important;
-    text-decoration:none!important;
-    color:inherit!important;
+
+.latest-link-title{
+    display:block;
+    flex:1;
+    font-size:15px;
 }
-.category-latest-thumb{
-    display:block!important;
-    flex:0 0 92px!important;
-    width:92px!important;
-    height:68px!important;
-    border-radius:6px!important;
-    overflow:hidden!important;
-    background:#d1d5db!important;
+
+.latest-link:hover{
+    color:#c40000;
 }
-.category-latest-thumb img{
-    display:block!important;
-    width:100%!important;
-    height:100%!important;
-    object-fit:cover!important;
-}
-.category-latest-title{
-    display:block!important;
-    flex:1!important;
-    font-size:15px!important;
-    line-height:1.45!important;
-    font-weight:700!important;
-    color:#1f2937!important;
+
+.latest-link:hover img{
+    opacity:.9;
 }
 
 /* =========================
@@ -1233,14 +1316,14 @@ main.container{
         gap:15px;
     }
 
-    .category-latest-thumb{
-        flex-basis:88px!important;
-        width:88px!important;
-        height:64px!important;
+    .latest-link img{
+        width:82px;
+        height:55px;
+        flex-basis:82px;
     }
 
-    .category-latest-title{
-        font-size:14px!important;
+    .latest-link-title{
+        font-size:14px;
     }
 
 }
@@ -1267,10 +1350,10 @@ main.container{
         padding:7px 10px;
     }
 
-    .category-latest-thumb{
-        flex-basis:88px!important;
-        width:88px!important;
-        height:64px!important;
+    .latest-link img{
+        width:76px;
+        height:52px;
+        flex-basis:76px;
     }
 
 }
@@ -1296,52 +1379,70 @@ def _home_template_parts():
     return head
 
 
+def _category_key(value: str) -> str:
+    value = clean(value).lower()
+    aliases = {
+        "জাতীয়": "জাতীয়", "জাতীয়": "জাতীয়", "national": "জাতীয়",
+        "রাজনীতি": "রাজনীতি", "politics": "রাজনীতি",
+        "আন্তর্জাতিক": "আন্তর্জাতিক", "international": "আন্তর্জাতিক",
+        "অর্থনীতি": "অর্থনীতি", "economy": "অর্থনীতি",
+        "খেলাধুলা": "খেলাধুলা", "sports": "খেলাধুলা", "sport": "খেলাধুলা",
+        "বিনোদন": "বিনোদন", "entertainment": "বিনোদন",
+        "প্রযুক্তি": "প্রযুক্তি", "technology": "প্রযুক্তি", "tech": "প্রযুক্তি",
+    }
+    return aliases.get(value, clean(value))
+
+
 def _home_latest_sidebar(current, all_news):
-    ordered = sorted(
-        [n for n in all_news if safe_id(n["id"]) != safe_id(current["id"])],
-        key=lambda n: int(n["id"]) if str(n["id"]).isdigit() else -1,
-        reverse=True,
-    )[:10]
-    out = []
+    """Home-style right rail: two newest stories per category, seven categories."""
+    category_order = ["জাতীয়", "রাজনীতি", "আন্তর্জাতিক", "অর্থনীতি", "খেলাধুলা", "বিনোদন", "প্রযুক্তি"]
+    current_id = safe_id(current.get("id"))
+    buckets = {key: [] for key in category_order}
+    ordered = sorted(all_news, key=lambda n: int(n["id"]) if str(n["id"]).isdigit() else -1, reverse=True)
     for n in ordered:
-        image = next((x for x in n.get("images", []) if x), "")
-        img = ""
-        if image:
-            img = f"""<img loading="lazy" src="{escape(relative_image_url(image))}" alt="{escape(n["headline"])}">"""
-        out.append(
-            f"""<article class="latest-item category-latest-item">
-<a href="{escape(safe_id(n["id"]))}.html">
+        if safe_id(n.get("id")) == current_id:
+            continue
+        key = _category_key(n.get("category"))
+        if key in buckets and len(buckets[key]) < 2:
+            buckets[key].append(n)
+
+    out = []
+    for category in category_order:
+        for n in buckets[category]:
+            image = next((x for x in n.get("images", []) if x), "")
+            img = (
+                f'<img loading="lazy" src="{escape(relative_image_url(image))}" alt="{escape(n["headline"])}" onerror="imageFallback(this)">'
+                if image else ""
+            )
+            out.append(
+                f'''<article class="latest-item category-latest-item">
+<a href="{escape(safe_id(n["id"]))}.html" data-news-id="{escape(safe_id(n["id"]))}">
 <span class="category-latest-thumb">{img}</span>
-<span class="category-latest-title">{escape(n["headline"])}</span>
+<span class="category-latest-copy"><span class="category-latest-category">{escape(category)}</span><span class="category-latest-title">{escape(n["headline"])}</span></span>
 </a>
-</article>"""
-        )
+</article>'''
+            )
     return "\n".join(out) or '<div style="text-align:center;padding:20px;color:#888;">কোনো সংবাদ নেই।</div>'
 
 
 def _home_category_cards(current, all_news):
-    labels = {
-        "জাতীয়": "জাতীয়", "জাতীয়": "জাতীয়", "national": "জাতীয়",
-        "রাজনীতি": "রাজনীতি", "politics": "রাজনীতি",
-        "আন্তর্জাতিক": "আন্তর্জাতিক", "international": "আন্তর্জাতিক",
-        "খেলাধুলা": "খেলাধুলা", "sports": "খেলাধুলা", "sport": "খেলাধুলা",
-        "বিনোদন": "বিনোদন", "entertainment": "বিনোদন",
-        "প্রযুক্তি": "প্রযুক্তি", "technology": "প্রযুক্তি", "tech": "প্রযুক্তি",
-        "অর্থনীতি": "অর্থনীতি", "economy": "অর্থনীতি",
-    }
-    chosen, seen = [], set()
+    category_order = ["জাতীয়", "রাজনীতি", "আন্তর্জাতিক", "অর্থনীতি", "খেলাধুলা", "বিনোদন", "প্রযুক্তি"]
+    current_id = safe_id(current.get("id"))
     ordered = sorted(all_news, key=lambda n: int(n["id"]) if str(n["id"]).isdigit() else -1, reverse=True)
+    chosen, seen = [], set()
     for n in ordered:
-        label = labels.get(clean(n.get("category")).lower())
-        if label and label not in seen:
-            seen.add(label)
+        if safe_id(n.get("id")) == current_id:
+            continue
+        category = _category_key(n.get("category"))
+        if category in category_order and category not in seen:
+            seen.add(category)
             image = next((x for x in n.get("images", []) if x), "")
-            img = (f'<div class="news-image"><img loading="lazy" src="{escape(relative_image_url(image))}" alt="{escape(n["headline"])}"></div>'
+            img = (f'<div class="news-image"><img loading="lazy" src="{escape(relative_image_url(image))}" alt="{escape(n["headline"])}" onerror="imageFallback(this)"></div>'
                    if image else '<div class="news-image"></div>')
             chosen.append(
-                f"""<article class="news-card"><a href="{escape(safe_id(n["id"]))}.html" class="category-card-link">
-{img}<div class="news-card-content"><div class="category">{escape(label)}</div><h3>{escape(n["headline"])}</h3></div>
-</a></article>"""
+                f'''<article class="news-card"><a href="{escape(safe_id(n["id"]))}.html" class="category-card-link" data-news-id="{escape(safe_id(n["id"]))}">
+{img}<div class="news-card-content"><div class="category">{escape(category)}</div><h3>{escape(n["headline"])}</h3></div>
+</a></article>'''
             )
             if len(chosen) == 6:
                 break
@@ -1365,16 +1466,63 @@ def render_news_page(item, all_news):
         jsonld["image"] = [og_image]
 
     head = _home_template_parts()
-    head = re.sub(r'<title>.*?</title>', f'<title>{escape(item["headline"])} | বাংলা সংবাদ</title>', head, flags=re.I | re.S)
-    head = re.sub(r'<link\s+rel="canonical"[^>]*>', f'<link rel="canonical" href="{escape(canonical)}">', head, flags=re.I)
-    head = re.sub(r'<meta\s+name="description"[^>]*>', f'<meta name="description" content="{escape(item["headline"])}">', head, flags=re.I)
-    head = re.sub(r'<meta\s+name="keywords"[^>]*>', f'<meta name="keywords" content="{escape(item.get("keyword", ""))}">', head, flags=re.I)
-    head = re.sub(r'<meta\s+property="og:title"[^>]*>', f'<meta property="og:title" content="{escape(item["headline"])}">', head, flags=re.I)
-    head = re.sub(r'<meta\s+property="og:description"[^>]*>', f'<meta property="og:description" content="{escape(item["headline"])}">', head, flags=re.I)
-    head = re.sub(r'<meta\s+property="og:url"[^>]*>', f'<meta property="og:url" content="{escape(canonical)}">', head, flags=re.I)
+    head = re.sub(
+        r'<title>.*?</title>',
+        f'<title>{escape(item["headline"])} | বাংলা সংবাদ</title>',
+        head,
+        flags=re.I | re.S,
+    )
+    head = re.sub(
+        r'<link\s+rel="canonical"[^>]*>',
+        f'<link rel="canonical" href="{escape(canonical)}">',
+        head,
+        flags=re.I,
+    )
+    head = re.sub(
+        r'<meta\s+name="description"[^>]*>',
+        f'<meta name="description" content="{escape(item["headline"])}">',
+        head,
+        flags=re.I,
+    )
+    head = re.sub(
+        r'<meta\s+name="keywords"[^>]*>',
+        f'<meta name="keywords" content="{escape(item.get("keyword", ""))}">',
+        head,
+        flags=re.I,
+    )
+    head = re.sub(
+        r'<meta\s+property="og:title"[^>]*>',
+        f'<meta property="og:title" content="{escape(item["headline"])}">',
+        head,
+        flags=re.I,
+    )
+    head = re.sub(
+        r'<meta\s+property="og:description"[^>]*>',
+        f'<meta property="og:description" content="{escape(item["headline"])}">',
+        head,
+        flags=re.I,
+    )
+    head = re.sub(
+        r'<meta\s+property="og:url"[^>]*>',
+        f'<meta property="og:url" content="{escape(canonical)}">',
+        head,
+        flags=re.I,
+    )
     if og_image:
-        head = re.sub(r'<meta\s+property="og:image"[^>]*>', f'<meta property="og:image" content="{escape(og_image)}">', head, flags=re.I)
-        head = re.sub(r'<meta\s+name="twitter:image"[^>]*>', f'<meta name="twitter:image" content="{escape(og_image)}">', head, flags=re.I)
+        head = re.sub(
+            r'<meta\s+property="og:image"[^>]*>',
+            f'<meta property="og:image" content="{escape(og_image)}">',
+            head,
+            flags=re.I,
+        )
+        head = re.sub(
+            r'<meta\s+name="twitter:image"[^>]*>',
+            f'<meta name="twitter:image" content="{escape(og_image)}">',
+            head,
+            flags=re.I,
+        )
+
+    # Keep the existing social/share controls and add only page-specific SEO data.
     head += f"""
 <meta property="og:type" content="article">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -1385,45 +1533,61 @@ def render_news_page(item, all_news):
 .details-social-links a:hover{{background:#c40000;border-color:#c40000}}
 .details-share-box{{margin-top:22px;padding:14px;border-top:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;align-items:center}}
 .details-share-box a,.details-share-box button{{border:1px solid #ddd;background:#fff;padding:7px 12px;border-radius:6px;text-decoration:none;cursor:pointer;font:inherit}}
+.category-latest-copy{{display:block!important;flex:1!important;min-width:0!important}}
+.category-latest-category{{display:block!important;font-size:12px!important;line-height:1.25!important;font-weight:800!important;color:#b91c1c!important;margin-bottom:2px!important}}
+.category-latest-title{{display:block!important}}
+.home-sidebar h2{{font-size:20px!important;font-weight:800!important}}
 </style>"""
 
     image_html = render_main_image(item)
     body_html = render_details(item["details"])
     gallery_html = render_gallery(item)
     video_html = render_video(item["video"])
-    share_html = render_share_buttons(item).replace('class="share-box"', 'class="details-share-box"')
+    share_html = render_share_buttons(item).replace(
+        'class="share-box"',
+        'class="details-share-box"',
+    )
 
     nav = """<nav class="nav"><div class="nav-inner">
 <a href="../home.html" class="active">হোম</a><a href="../national.html">জাতীয়</a><a href="../politics.html">রাজনীতি</a><a href="../international.html">আন্তর্জাতিক</a><a href="../economy.html">অর্থনীতি</a><a href="../sports.html">খেলাধুলা</a><a href="../entertainment.html">বিনোদন</a><a href="../technology.html">প্রযুক্তি</a><a href="../more.html">আরও</a>
 </div></nav>"""
+
     sidebar = _home_latest_sidebar(item, all_news)
     cards = _home_category_cards(item, all_news)
+
     footer = """<footer class="site-footer"><h3>বাংলা সংবাদ</h3><p>সর্বশেষ সংবাদ সবার আগে</p><div class="links"><a href="../about.html">আমাদের সম্পর্কে</a><a href="../contact.html">যোগাযোগ</a><a href="../privacy.html">গোপনীয়তা নীতি</a><a href="../disclaimer.html">দাবিত্যাগ</a></div><div class="details-social-links">
 <a href="https://www.facebook.com/" target="_blank" rel="noopener">Facebook</a>
 <a href="https://www.youtube.com/" target="_blank" rel="noopener">YouTube</a>
 <a href="https://www.tiktok.com/" target="_blank" rel="noopener">TikTok</a>
 <a href="https://twitter.com/" target="_blank" rel="noopener">X / Twitter</a>
 </div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="../advertise.html">বিজ্ঞাপন দিন</a></footer>"""
+
     scripts = """<script src="../ads-loader.js?v=20260907-ads-v26-sequential-final"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
 
+    # Exact requested Details ad order:
+    # Top -> headline -> Middle top -> article content -> Middle bottom ->
+    # Home-style sidebar/category content -> Bottom.
     return f"""<!DOCTYPE html>
 <html lang="bn">
 <head>{head}</head>
 <body>
-<div class="ad-slot top sheet-ad-slot" data-ad-slot="top" aria-label="বিজ্ঞাপন"></div>
+<div class="ad-slot top sheet-ad-slot" data-ad-position="top" data-ad-slot="top" aria-label="বিজ্ঞাপন"></div>
 <div class="top-bar">বাংলা সংবাদ — সত্য ও নির্ভরযোগ্য খবর</div>
 <header class="site-header"><div class="header-inner"><div class="logo"><img src="../logo.png" alt="বাংলা সংবাদ লোগো" class="logo-image"><div class="logo-fallback"><h1>বাংলা সংবাদ</h1><p>সর্বশেষ সংবাদ সবার আগে</p></div></div><div id="live-date">{escape(item["date"] or "তারিখ")}</div></div></header>
 {nav}
 <div class="breaking"><div class="breaking-news-container"><div class="breaking-title">ব্রেকিং নিউজ</div><div class="ticker-window"><div class="ticker-track" id="breaking-ticker">{escape(item["headline"])}</div></div></div></div>
 <main class="container home-main-layout">
-<section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1><div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}</div></article></section>
-<aside class="sidebar home-sidebar"><h2>সর্বশেষ ১০ সংবাদ</h2><div class="latest-news-scroll" id="latest-news-container">{sidebar}</div></aside>
+<section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">
+<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1>
 <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div>
-</main>
+{image_html}<div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}
 <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-bottom" data-ad-slot="middle-bottom" aria-label="বিজ্ঞাপন"></div>
+</div></article></section>
+<aside class="sidebar home-sidebar"><h2>ক্যাটাগরি অনুযায়ী সর্বশেষ ১৪ সংবাদ</h2><div class="latest-news-scroll" id="latest-news-container">{sidebar}</div></aside>
+</main>
 <h2 class="section-title">সর্বশেষ ৬ ক্যাটাগরির খবর</h2>
 <section class="news-grid category-six-grid" id="category-six-grid">{cards}</section>
-<div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
+<div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-position="bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
 {footer}
 {scripts}
 </body></html>"""
@@ -1533,22 +1697,16 @@ def generate_news_data(
 # ============================================================
 
 def generate_ads_data():
-
-    data = {
-        "table": {
-            "columns": [],
-            "rows": [],
-        }
-    }
-
-    ADS_DATA_FILE.write_text(
-        json.dumps(
-            data,
-            ensure_ascii=False,
-            indent=2
-        ),
-        encoding="utf-8"
-    )
+    """Generate ads-data.json from the Ads tab of the same Google Sheet."""
+    data = load_ads_sheet()
+    if data is None:
+        if ADS_DATA_FILE.exists():
+            print("Ads Sheet unavailable; keeping existing ads-data.json")
+            return False
+        data = {"table": {"columns": [], "rows": []}}
+    ADS_DATA_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("Ads data generated from Google Sheet tab: Ads")
+    return True
 
 
 # ============================================================
@@ -1695,7 +1853,7 @@ def main():
             item["id"]
         )
 
-        item["images"] = (
+        item["images"] = normalize_generated_image_paths(
             process_news_images(
                 news_id=item["id"],
                 image_urls=item["image_urls"],
@@ -1734,7 +1892,7 @@ def main():
     )
 
     print(
-        "Generating ads-data.json..."
+        "Reading Ads tab from the same Google Sheet..."
     )
 
     generate_ads_data()
