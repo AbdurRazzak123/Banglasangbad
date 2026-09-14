@@ -325,18 +325,42 @@ main.container{
     border-bottom:2px solid #b40000;
     padding-bottom:8px;
 }
-
 .latest-link{
-    display:block;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
     color:#222;
     border-bottom:1px solid #ddd;
-    padding:10px 0;
+    padding:11px 0;
     font-weight:600;
+    line-height:1.45;
+    transition:all .2s ease;
+}
+
+.latest-link img{
+    width:92px;
+    height:58px;
+    flex:0 0 92px;
+    object-fit:cover;
+    display:block;
+    border-radius:5px;
+    background:#eee;
+}
+
+.latest-link-title{
+    display:block;
+    flex:1;
+    font-size:15px;
 }
 
 .latest-link:hover{
-    color:#d00000;
+    color:#c1121f;
 }
+
+.latest-link:hover img{
+    opacity:.9;
+}
+
 
 .news-grid{
     display:grid;
@@ -435,6 +459,15 @@ main.container{
     .news-title{
         padding:15px;
     }
+    .latest-link img{
+    width:82px;
+    height:54px;
+    flex-basis:82px;
+}
+
+.latest-link-title{
+    font-size:14px;
+}
 
     .news-text-bottom{
         font-size:17px;
@@ -719,7 +752,18 @@ function shareNews() {
 <a
     class="latest-link"
     href="24.html">
-    অবশেষে CPL-এ মিরাজ, অপেক্ষার অবসান—ক্যারিবীয় মঞ্চে নতুন চ্যালেঞ্জ
+
+    
+<img
+    src="../assets/news/24-1.jpg"
+    alt="অবশেষে CPL-এ মিরাজ, অপেক্ষার অবসান—ক্যারিবীয় মঞ্চে নতুন চ্যালেঞ্জ"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        অবশেষে CPL-এ মিরাজ, অপেক্ষার অবসান—ক্যারিবীয় মঞ্চে নতুন চ্যালেঞ্জ
+    </span>
+
 </a>
 
 

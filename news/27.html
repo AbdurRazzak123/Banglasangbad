@@ -325,18 +325,42 @@ main.container{
     border-bottom:2px solid #b40000;
     padding-bottom:8px;
 }
-
 .latest-link{
-    display:block;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
     color:#222;
     border-bottom:1px solid #ddd;
-    padding:10px 0;
+    padding:11px 0;
     font-weight:600;
+    line-height:1.45;
+    transition:all .2s ease;
+}
+
+.latest-link img{
+    width:92px;
+    height:58px;
+    flex:0 0 92px;
+    object-fit:cover;
+    display:block;
+    border-radius:5px;
+    background:#eee;
+}
+
+.latest-link-title{
+    display:block;
+    flex:1;
+    font-size:15px;
 }
 
 .latest-link:hover{
-    color:#d00000;
+    color:#c1121f;
 }
+
+.latest-link:hover img{
+    opacity:.9;
+}
+
 
 .news-grid{
     display:grid;
@@ -435,6 +459,15 @@ main.container{
     .news-title{
         padding:15px;
     }
+    .latest-link img{
+    width:82px;
+    height:54px;
+    flex-basis:82px;
+}
+
+.latest-link-title{
+    font-size:14px;
+}
 
     .news-text-bottom{
         font-size:17px;
@@ -743,14 +776,36 @@ function shareNews() {
 <a
     class="latest-link"
     href="15.html">
-    নেপালের বন্যাদুর্গতদের পাশে স্ট্রে কিডসের লি নো, দিলেন ১০০ মিলিয়ন ওন
+
+    
+<img
+    src="../assets/news/15-1.png"
+    alt="নেপালের বন্যাদুর্গতদের পাশে স্ট্রে কিডসের লি নো, দিলেন ১০০ মিলিয়ন ওন"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        নেপালের বন্যাদুর্গতদের পাশে স্ট্রে কিডসের লি নো, দিলেন ১০০ মিলিয়ন ওন
+    </span>
+
 </a>
 
 
 <a
     class="latest-link"
     href="25.html">
-    বাংলাদেশি আতিথেয়তা ও খাবারের প্রশংসায় ভারতীয় অভিনেতা বিশ্বজিৎ চক্রবর্তী
+
+    
+<img
+    src="../assets/news/25-1.jpg"
+    alt="বাংলাদেশি আতিথেয়তা ও খাবারের প্রশংসায় ভারতীয় অভিনেতা বিশ্বজিৎ চক্রবর্তী"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        বাংলাদেশি আতিথেয়তা ও খাবারের প্রশংসায় ভারতীয় অভিনেতা বিশ্বজিৎ চক্রবর্তী
+    </span>
+
 </a>
 
 

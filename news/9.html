@@ -325,18 +325,42 @@ main.container{
     border-bottom:2px solid #b40000;
     padding-bottom:8px;
 }
-
 .latest-link{
-    display:block;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
     color:#222;
     border-bottom:1px solid #ddd;
-    padding:10px 0;
+    padding:11px 0;
     font-weight:600;
+    line-height:1.45;
+    transition:all .2s ease;
+}
+
+.latest-link img{
+    width:92px;
+    height:58px;
+    flex:0 0 92px;
+    object-fit:cover;
+    display:block;
+    border-radius:5px;
+    background:#eee;
+}
+
+.latest-link-title{
+    display:block;
+    flex:1;
+    font-size:15px;
 }
 
 .latest-link:hover{
-    color:#d00000;
+    color:#c1121f;
 }
+
+.latest-link:hover img{
+    opacity:.9;
+}
+
 
 .news-grid{
     display:grid;
@@ -435,6 +459,15 @@ main.container{
     .news-title{
         padding:15px;
     }
+    .latest-link img{
+    width:82px;
+    height:54px;
+    flex-basis:82px;
+}
+
+.latest-link-title{
+    font-size:14px;
+}
 
     .news-text-bottom{
         font-size:17px;
@@ -859,42 +892,108 @@ function shareNews() {
 <a
     class="latest-link"
     href="17.html">
-    বাংলাদেশ ২০২৬: অন্তর্বর্তীকালীন সংস্কার, অর্থনৈতিক রূপান্তর ও টেকসই গণতন্ত্রের অভিমুখে যাত্রা
+
+    
+<img
+    src="../assets/news/17-1.jpg"
+    alt="বাংলাদেশ ২০২৬: অন্তর্বর্তীকালীন সংস্কার, অর্থনৈতিক রূপান্তর ও টেকসই গণতন্ত্রের অভিমুখে যাত্রা"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        বাংলাদেশ ২০২৬: অন্তর্বর্তীকালীন সংস্কার, অর্থনৈতিক রূপান্তর ও টেকসই গণতন্ত্রের অভিমুখে যাত্রা
+    </span>
+
 </a>
 
 
 <a
     class="latest-link"
     href="18.html">
-    দুর্বল ব্যাংক সামলাতে নতুন পদক্ষেপ, আর্থিক খাতে সংস্কারের গতি বাড়ছে
+
+    
+<img
+    src="../assets/news/18-1.png"
+    alt="দুর্বল ব্যাংক সামলাতে নতুন পদক্ষেপ, আর্থিক খাতে সংস্কারের গতি বাড়ছে"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        দুর্বল ব্যাংক সামলাতে নতুন পদক্ষেপ, আর্থিক খাতে সংস্কারের গতি বাড়ছে
+    </span>
+
 </a>
 
 
 <a
     class="latest-link"
     href="19.html">
-    রান্নার গ্যাসের দামে পরিবর্তন, ১২ কেজির LPG সিলিন্ডার নিয়ে নতুন ঘোষণা
+
+    
+<img
+    src="../assets/news/19-1.jpg"
+    alt="রান্নার গ্যাসের দামে পরিবর্তন, ১২ কেজির LPG সিলিন্ডার নিয়ে নতুন ঘোষণা"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        রান্নার গ্যাসের দামে পরিবর্তন, ১২ কেজির LPG সিলিন্ডার নিয়ে নতুন ঘোষণা
+    </span>
+
 </a>
 
 
 <a
     class="latest-link"
     href="20.html">
-    জন্ম থেকে আজীবন এক ডিজিটাল পরিচয়, নতুন ব্যবস্থার পরিকল্পনা বাংলাদেশে
+
+    
+<img
+    src="../assets/news/20-1.jpg"
+    alt="জন্ম থেকে আজীবন এক ডিজিটাল পরিচয়, নতুন ব্যবস্থার পরিকল্পনা বাংলাদেশে"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        জন্ম থেকে আজীবন এক ডিজিটাল পরিচয়, নতুন ব্যবস্থার পরিকল্পনা বাংলাদেশে
+    </span>
+
 </a>
 
 
 <a
     class="latest-link"
     href="23.html">
-    ডা. আসাদুর রহমানের ওপর হামলা: দুই আসামি ৩ দিনের রিমান্ডে
+
+    
+<img
+    src="../assets/news/23-1.png"
+    alt="ডা. আসাদুর রহমানের ওপর হামলা: দুই আসামি ৩ দিনের রিমান্ডে"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        ডা. আসাদুর রহমানের ওপর হামলা: দুই আসামি ৩ দিনের রিমান্ডে
+    </span>
+
 </a>
 
 
 <a
     class="latest-link"
     href="26.html">
-    মাদারীপুরের ধুরাইলে আ ন ম আয়াস: আওয়ামী লীগ নেতা মনিরুলের বাড়িতে পুলিশ ও স্থানীয়দের উপস্থিতিতে অবস্থান
+
+    
+<img
+    src="../assets/news/26-1.jpg"
+    alt="মাদারীপুরের ধুরাইলে আ ন ম আয়াস: আওয়ামী লীগ নেতা মনিরুলের বাড়িতে পুলিশ ও স্থানীয়দের উপস্থিতিতে অবস্থান"
+    loading="lazy">
+
+
+    <span class="latest-link-title">
+        মাদারীপুরের ধুরাইলে আ ন ম আয়াস: আওয়ামী লীগ নেতা মনিরুলের বাড়িতে পুলিশ ও স্থানীয়দের উপস্থিতিতে অবস্থান
+    </span>
+
 </a>
 
 
