@@ -1,6 +1,47 @@
 {
   "table": {
-    "columns": [],
-    "rows": []
-  }
+    "columns": [
+      "position",
+      "Active",
+      "Image URL",
+      "Click URL",
+      "Title",
+      "Ad Code"
+    ],
+    "rows": [
+      [
+        "Top",
+        "Yes",
+        "",
+        "",
+        "Ad Astra",
+        "<script>\n  atOptions = {\n    'key' : '4ca89a9fee14577c84de4399a0337816',\n    'format' : 'iframe',\n    'height' : 90,\n    'width' : 728,\n    'params' : {}\n  };\n</script>\n<script src=\"https://closurenosy.com/4ca89a9fee14577c84de4399a0337816/invoke.js\"></script>"
+      ],
+      [
+        "Middle Top",
+        "Yes",
+        "",
+        "",
+        "Ad Astra",
+        "<script>\n  atOptions = {\n    'key' : '4ca89a9fee14577c84de4399a0337816',\n    'format' : 'iframe',\n    'height' : 90,\n    'width' : 728,\n    'params' : {}\n  };\n</script>\n<script src=\"https://closurenosy.com/4ca89a9fee14577c84de4399a0337816/invoke.js\"></script>"
+      ],
+      [
+        "Middle Bottom",
+        "Yes",
+        "",
+        "",
+        "Ad Astra",
+        "<script async=\"async\" data-cfasync=\"false\" src=\"https://closurenosy.com/0327a0284d2be31da068607e5bceb134/invoke.js\"></script>\n<div id=\"container-0327a0284d2be31da068607e5bceb134\"></div>"
+      ],
+      [
+        "Bottom",
+        "Yes",
+        "",
+        "",
+        "Ad Astra",
+        "<script>\n  atOptions = {\n    'key' : '4ca89a9fee14577c84de4399a0337816',\n    'format' : 'iframe',\n    'height' : 90,\n    'width' : 728,\n    'params' : {}\n  };\n</script>\n<script src=\"https://closurenosy.com/4ca89a9fee14577c84de4399a0337816/invoke.js\"></script>"
+      ]
+    ]
+  },
+  "updated_at": "2026-09-14T15:33:19.815551Z"
 }
