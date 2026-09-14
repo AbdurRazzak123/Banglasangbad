@@ -1,0 +1,38 @@
+name: Regenerate News Details
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'home.html'
+      - 'Tools/generate_static_news.py'
+      - '.github/workflows/regenerate-news-details.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Regenerate news details
+        run: python Tools/generate_static_news.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add News Asset sitemap.xml news-sitemap.xml news-data.json ads-data.json
+          git diff --cached --quiet || git commit -m 'Regenerate news details'
+          git push
