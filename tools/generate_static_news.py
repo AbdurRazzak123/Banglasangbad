@@ -714,65 +714,6 @@ def same_category_news(
 # SIDEBAR
 # ============================================================
 
-def render_sidebar(
-    current,
-    all_news
-):
-
-    related = same_category_news(
-        current,
-        all_news
-    )
-
-    links = []
-
-    for item in related:
-
-        image = ""
-
-        for value in item.get(
-            "images",
-            []
-        ):
-
-            if value:
-                image = value
-                break
-
-        if image:
-
-            image_html = f"""
-<img
-    src="{escape(relative_image_url(image))}"
-    alt="{escape(item["headline"])}"
-    loading="lazy">
-"""
-
-        else:
-
-            image_html = ""
-
-        links.append(
-            f"""
-<a
-    class="latest-link"
-    href="{escape(safe_id(item["id"]))}.html">
-
-    {image_html}
-
-    <span class="latest-link-title">
-        {escape(item["headline"])}
-    </span>
-
-</a>
-"""
-        )
-
-    return "\n".join(
-        links
-    )
-
-
 # ============================================================
 # FINAL PAGE CSS
 # ============================================================
@@ -1098,44 +1039,46 @@ main.container{
 }
 
 /* =========================
-   SIDEBAR IMAGE + HEADLINE
+   SIDEBAR — HOMEPAGE MATCH
+   Keep Details Page sidebar visually identical to Home Page.
 ========================= */
-.latest-link{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-    color:#222;
-    border-bottom:1px solid #ddd;
-    padding:11px 0;
-    font-weight:600;
-    line-height:1.45;
-    transition:all .2s ease;
+.category-latest-item{
+    padding:10px 0!important;
+    border-bottom:1px solid #eee!important;
 }
-
-.latest-link img{
-    width:92px;
-    height:58px;
-    flex:0 0 92px;
-    object-fit:cover;
-    display:block;
-    border-radius:5px;
-    background:#eee;
+.category-latest-item:last-child{
+    border-bottom:0!important;
 }
-
-.latest-link-title{
-    display:block;
-    flex:1;
-    font-size:15px;
+.category-latest-item a{
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    text-decoration:none!important;
+    color:inherit!important;
 }
-
-.latest-link:hover{
-    color:#c1121f;
+.category-latest-thumb{
+    display:block!important;
+    flex:0 0 92px!important;
+    width:92px!important;
+    height:68px!important;
+    border-radius:6px!important;
+    overflow:hidden!important;
+    background:#d1d5db!important;
 }
-
-.latest-link:hover img{
-    opacity:.9;
+.category-latest-thumb img{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
 }
-
+.category-latest-title{
+    display:block!important;
+    flex:1!important;
+    font-size:15px!important;
+    line-height:1.45!important;
+    font-weight:700!important;
+    color:#1f2937!important;
+}
 
 /* =========================
    RELATED NEWS
@@ -1290,15 +1233,15 @@ main.container{
         gap:15px;
     }
 
-    .latest-link img{
-    width:82px;
-    height:54px;
-    flex-basis:82px;
-}
+    .category-latest-thumb{
+        flex-basis:88px!important;
+        width:88px!important;
+        height:64px!important;
+    }
 
-.latest-link-title{
-    font-size:14px;
-}
+    .category-latest-title{
+        font-size:14px!important;
+    }
 
 }
 
@@ -1324,10 +1267,10 @@ main.container{
         padding:7px 10px;
     }
 
-    .latest-link img{
-        width:76px;
-        height:52px;
-        flex-basis:76px;
+    .category-latest-thumb{
+        flex-basis:88px!important;
+        width:88px!important;
+        height:64px!important;
     }
 
 }
@@ -1473,10 +1416,11 @@ def render_news_page(item, all_news):
 {nav}
 <div class="breaking"><div class="breaking-news-container"><div class="breaking-title">ব্রেকিং নিউজ</div><div class="ticker-window"><div class="ticker-track" id="breaking-ticker">{escape(item["headline"])}</div></div></div></div>
 <main class="container home-main-layout">
-<section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1><div class="ad-slot in-article sheet-ad-slot middle-top" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div><div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}</div></article></section>
-<div class="ad-slot in-article sheet-ad-slot middle-bottom" data-ad-position="middle-bottom" data-ad-slot="middle-bottom" aria-label="বিজ্ঞাপন"></div>
+<section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1><div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}</div></article></section>
 <aside class="sidebar home-sidebar"><h2>সর্বশেষ ১০ সংবাদ</h2><div class="latest-news-scroll" id="latest-news-container">{sidebar}</div></aside>
+<div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div>
 </main>
+<div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-bottom" data-ad-slot="middle-bottom" aria-label="বিজ্ঞাপন"></div>
 <h2 class="section-title">সর্বশেষ ৬ ক্যাটাগরির খবর</h2>
 <section class="news-grid category-six-grid" id="category-six-grid">{cards}</section>
 <div class="ad-slot footer-ad sheet-ad-slot bottom" data-ad-slot="bottom" aria-label="বিজ্ঞাপন"></div>
