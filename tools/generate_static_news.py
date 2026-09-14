@@ -5,34 +5,55 @@ import html
 import io
 import json
 import re
-import shutil
 import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+import requests
+
 from news_assets import process_news_images
 
 
 # ============================================================
-# CONFIG
+# BASIC CONFIG
 # ============================================================
 
-SHEET_ID = "1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg"
+SHEET_ID = (
+    "1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg"
+)
+
 SHEET_NAME = "Bangla News"
 
-BASE_URL = "https://abdurrazzak123.github.io/Banglasangbad/"
+BASE_URL = (
+    "https://abdurrazzak123.github.io/"
+    "Banglasangbad/"
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
 NEWS_DIR = ROOT / "news"
-ASSETS_DIR = ROOT / "assets" / "news"
 
-NEWS_DATA_FILE = ROOT / "news-data.json"
-ADS_DATA_FILE = ROOT / "ads-data.json"
+ASSETS_DIR = (
+    ROOT / "assets" / "news"
+)
 
-SITEMAP_FILE = ROOT / "sitemap.xml"
-NEWS_SITEMAP_FILE = ROOT / "news-sitemap.xml"
+NEWS_DATA_FILE = (
+    ROOT / "news-data.json"
+)
+
+ADS_DATA_FILE = (
+    ROOT / "ads-data.json"
+)
+
+SITEMAP_FILE = (
+    ROOT / "sitemap.xml"
+)
+
+NEWS_SITEMAP_FILE = (
+    ROOT / "news-sitemap.xml"
+)
+
 
 EXPECTED_COLUMNS = [
     "ID",
@@ -53,31 +74,110 @@ EXPECTED_COLUMNS = [
 # ============================================================
 
 def clean(value) -> str:
+
     if value is None:
         return ""
+
     return str(value).strip()
 
 
-def esc(value) -> str:
-    return html.escape(clean(value), quote=True)
+def escape(value) -> str:
+
+    return html.escape(
+        clean(value),
+        quote=True
+    )
 
 
 def safe_id(value) -> str:
+
     value = clean(value)
-    value = re.sub(r"[^A-Za-z0-9_-]+", "-", value)
-    value = re.sub(r"-+", "-", value)
-    return value.strip("-_") or "news"
+
+    value = re.sub(
+        r"[^A-Za-z0-9_-]+",
+        "-",
+        value
+    )
+
+    value = re.sub(
+        r"-+",
+        "-",
+        value
+    )
+
+    return (
+        value.strip("-_")
+        or "news"
+    )
 
 
-def fetch_sheet() -> list[dict[str, str]]:
+def page_url(news_id: str) -> str:
 
-    encoded_sheet = urllib.parse.quote(SHEET_NAME)
+    return (
+        BASE_URL.rstrip("/")
+        + "/news/"
+        + urllib.parse.quote(
+            safe_id(news_id)
+        )
+        + ".html"
+    )
+
+
+def absolute_image_url(path: str) -> str:
+
+    path = clean(path)
+
+    if not path:
+        return ""
+
+    if path.startswith(
+        ("http://", "https://")
+    ):
+        return path
+
+    return (
+        BASE_URL.rstrip("/")
+        + "/"
+        + path.lstrip("/")
+    )
+
+
+def relative_image_url(path: str) -> str:
+
+    path = clean(path)
+
+    if not path:
+        return ""
+
+    if path.startswith(
+        ("http://", "https://")
+    ):
+        return path
+
+    return (
+        "../"
+        + path.lstrip("/")
+    )
+
+
+# ============================================================
+# GOOGLE SHEET
+# ============================================================
+
+def load_google_sheet() -> list[dict]:
+
+    sheet = urllib.parse.quote(
+        SHEET_NAME
+    )
 
     url = (
-        f"https://docs.google.com/spreadsheets/d/"
-        f"{SHEET_ID}/gviz/tq"
-        f"?sheet={encoded_sheet}"
-        f"&tqx=out:csv"
+        "https://docs.google.com/"
+        "spreadsheets/d/"
+        + SHEET_ID
+        + "/gviz/tq"
+        "?sheet="
+        + sheet
+        + "&tqx=out:csv"
     )
 
     request = urllib.request.Request(
@@ -87,55 +187,65 @@ def fetch_sheet() -> list[dict[str, str]]:
         },
     )
 
-    with urllib.request.urlopen(request, timeout=30) as response:
-        raw = response.read().decode("utf-8-sig")
+    with urllib.request.urlopen(
+        request,
+        timeout=30
+    ) as response:
 
-    reader = csv.reader(io.StringIO(raw))
+        content = (
+            response.read()
+            .decode("utf-8-sig")
+        )
+
+    reader = csv.reader(
+        io.StringIO(content)
+    )
 
     rows = list(reader)
 
     if not rows:
         return []
 
-    header = [
-        clean(x)
-        for x in rows[0]
-    ]
-
-    # Google Sheet-এর column order ঠিক রাখতে
-    # প্রথম ১০টি expected column নেওয়া হবে।
-    if header[:10] != EXPECTED_COLUMNS:
-        print("Warning: Sheet header differs from expected order.")
-
-    news = []
+    result = []
 
     for row in rows[1:]:
 
-        values = list(row)
+        row = list(row)
 
-        while len(values) < len(EXPECTED_COLUMNS):
-            values.append("")
+        while len(row) < 10:
+            row.append("")
 
         item = {}
 
-        for index, column in enumerate(EXPECTED_COLUMNS):
-            item[column] = clean(values[index])
+        for index, column in enumerate(
+            EXPECTED_COLUMNS
+        ):
+
+            item[column] = clean(
+                row[index]
+            )
 
         if not item["ID"]:
             continue
 
-        news.append(item)
+        result.append(item)
 
-    return news
+    return result
 
 
-def normalize_news(items):
+# ============================================================
+# NEWS NORMALIZATION
+# ============================================================
+
+def normalize_news(rows):
 
     result = []
 
-    for item in items:
+    for row in rows:
 
-        news_id = safe_id(item.get("ID"))
+        news_id = safe_id(
+            row.get("ID")
+        )
 
         if not news_id:
             continue
@@ -143,122 +253,498 @@ def normalize_news(items):
         result.append(
             {
                 "id": news_id,
-                "category": clean(item.get("Category")),
-                "headline": clean(item.get("Headline")),
-                "details": clean(item.get("Details")),
-                "date": clean(item.get("Date")),
-                "video": clean(item.get("Video")),
-                "keyword": clean(item.get("Keyword")),
+                "category": clean(
+                    row.get("Category")
+                ),
+                "headline": clean(
+                    row.get("Headline")
+                ),
+                "details": clean(
+                    row.get("Details")
+                ),
+                "date": clean(
+                    row.get("Date")
+                ),
+                "video": clean(
+                    row.get("Video")
+                ),
+                "keyword": clean(
+                    row.get("Keyword")
+                ),
                 "image_urls": [
-                    clean(item.get("Image-1")),
-                    clean(item.get("Image-2")),
-                    clean(item.get("Image-3")),
+                    clean(row.get("Image-1")),
+                    clean(row.get("Image-2")),
+                    clean(row.get("Image-3")),
                 ],
+                "images": [],
             }
         )
 
     return result
 
 
-def format_date(value):
+# ============================================================
+# VIDEO
+# ============================================================
 
-    value = clean(value)
+def youtube_id(url: str):
 
-    if not value:
-        return ""
+    url = clean(url)
 
-    return value
+    patterns = [
+        r"youtu\.be/([^?&/]+)",
+        r"youtube\.com/watch\?v=([^?&/]+)",
+        r"youtube\.com/embed/([^?&/]+)",
+        r"youtube\.com/shorts/([^?&/]+)",
+    ]
 
+    for pattern in patterns:
 
-def first_image(images):
+        match = re.search(
+            pattern,
+            url
+        )
 
-    for image in images:
-        if image:
-            return image
+        if match:
+            return match.group(1)
 
     return ""
 
 
-def image_src(path: str) -> str:
-
-    if not path:
-        return ""
-
-    if path.startswith("http://") or path.startswith("https://"):
-        return path
-
-    return "../" + path.lstrip("/")
-
-
-def absolute_image(path: str) -> str:
-
-    if not path:
-        return ""
-
-    if path.startswith("http://") or path.startswith("https://"):
-        return path
-
-    return BASE_URL.rstrip("/") + "/" + path.lstrip("/")
-
-
-def youtube_embed(url):
+def render_video(url: str):
 
     url = clean(url)
 
     if not url:
         return ""
 
-    match = re.search(
-        r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([A-Za-z0-9_-]+)",
-        url,
-    )
+    video_id = youtube_id(url)
 
-    if not match:
-        return ""
+    if video_id:
 
-    video_id = match.group(1)
-
-    return (
-        '<div class="video-box">'
-        f'<iframe src="https://www.youtube.com/embed/{esc(video_id)}" '
-        'title="YouTube video" '
-        'allowfullscreen></iframe>'
-        '</div>'
-    )
-
-
-def video_block(url):
-
-    url = clean(url)
-
-    if not url:
-        return ""
-
-    youtube = youtube_embed(url)
-
-    if youtube:
-        return youtube
+        return f"""
+<div class="video-box">
+    <iframe
+        src="https://www.youtube.com/embed/{escape(video_id)}"
+        title="YouTube video"
+        loading="lazy"
+        allowfullscreen>
+    </iframe>
+</div>
+"""
 
     if url.lower().endswith(
-        (".mp4", ".webm", ".ogg", ".mov")
+        (
+            ".mp4",
+            ".webm",
+            ".ogg",
+            ".mov"
+        )
     ):
-        return (
-            '<div class="video-box">'
-            f'<video controls preload="metadata" src="{esc(url)}"></video>'
-            '</div>'
+
+        return f"""
+<div class="video-box">
+    <video
+        controls
+        preload="metadata"
+        src="{escape(url)}">
+    </video>
+</div>
+"""
+
+    return f"""
+<div class="video-link">
+    <a
+        href="{escape(url)}"
+        target="_blank"
+        rel="noopener">
+        ভিডিও দেখুন
+    </a>
+</div>
+"""
+
+
+# ============================================================
+# DETAILS TEXT
+# ============================================================
+
+def render_details(text: str):
+
+    text = clean(text)
+
+    if not text:
+        return ""
+
+    paragraphs = re.split(
+        r"\n\s*\n",
+        text
+    )
+
+    output = []
+
+    for paragraph in paragraphs:
+
+        paragraph = clean(
+            paragraph
         )
 
-    return (
-        '<div class="video-link">'
-        f'<a href="{esc(url)}" target="_blank" rel="noopener">'
-        "ভিডিও দেখুন"
-        "</a>"
-        "</div>"
+        if not paragraph:
+            continue
+
+        output.append(
+            "<p>"
+            + escape(paragraph)
+            .replace("\n", "<br>")
+            + "</p>"
+        )
+
+    return "\n".join(
+        output
     )
 
 
 # ============================================================
-# FINAL DESIGN CSS
+# IMAGE HTML
+# ============================================================
+
+def render_main_image(
+    item
+):
+
+    images = item.get(
+        "images",
+        []
+    )
+
+    first = ""
+
+    for image in images:
+
+        if image:
+            first = image
+            break
+
+    if not first:
+        return ""
+
+    return f"""
+<div class="news-image-top">
+    <img
+        src="{escape(relative_image_url(first))}"
+        alt="{escape(item["headline"])}"
+        loading="eager">
+</div>
+"""
+
+
+def render_gallery(item):
+
+    images = [
+        x
+        for x in item.get(
+            "images",
+            []
+        )
+        if x
+    ]
+
+    if len(images) <= 1:
+        return ""
+
+    output = [
+        '<div class="news-gallery">'
+    ]
+
+    for image in images:
+
+        output.append(
+            f"""
+<img
+    src="{escape(relative_image_url(image))}"
+    alt="{escape(item["headline"])}"
+    loading="lazy">
+"""
+        )
+
+    output.append(
+        "</div>"
+    )
+
+    return "\n".join(
+        output
+    )
+
+
+# ============================================================
+# SHARE
+# ============================================================
+
+def render_share_buttons(item):
+
+    url = page_url(
+        item["id"]
+    )
+
+    encoded_url = urllib.parse.quote(
+        url,
+        safe=""
+    )
+
+    encoded_title = urllib.parse.quote(
+        item["headline"]
+    )
+
+    facebook = (
+        "https://www.facebook.com/"
+        "sharer/sharer.php?u="
+        + encoded_url
+    )
+
+    twitter = (
+        "https://twitter.com/intent/tweet?"
+        "url="
+        + encoded_url
+        + "&text="
+        + encoded_title
+    )
+
+    whatsapp = (
+        "https://api.whatsapp.com/send?"
+        "text="
+        + urllib.parse.quote(
+            item["headline"]
+            + " "
+            + url
+        )
+    )
+
+    js_title = json.dumps(
+        item["headline"],
+        ensure_ascii=False
+    )
+
+    return f"""
+<div class="share-box">
+
+    <strong>
+        শেয়ার করুন
+    </strong>
+
+    <div class="share-buttons">
+
+        <a
+            class="share-btn"
+            href="{escape(facebook)}"
+            target="_blank"
+            rel="noopener">
+            Facebook
+        </a>
+
+        <a
+            class="share-btn"
+            href="{escape(twitter)}"
+            target="_blank"
+            rel="noopener">
+            X / Twitter
+        </a>
+
+        <a
+            class="share-btn"
+            href="{escape(whatsapp)}"
+            target="_blank"
+            rel="noopener">
+            WhatsApp
+        </a>
+
+        <button
+            class="share-btn"
+            type="button"
+            onclick="shareNews()">
+            Share
+        </button>
+
+        <a
+            class="share-btn"
+            href="https://www.youtube.com/"
+            target="_blank"
+            rel="noopener">
+            YouTube
+        </a>
+
+        <a
+            class="share-btn"
+            href="https://www.tiktok.com/"
+            target="_blank"
+            rel="noopener">
+            TikTok
+        </a>
+
+    </div>
+</div>
+
+<script>
+function shareNews() {{
+
+    const shareData = {{
+        title: {js_title},
+        text: {js_title},
+        url: window.location.href
+    }};
+
+    if (navigator.share) {{
+
+        navigator.share(
+            shareData
+        ).catch(
+            function() {{}}
+        );
+
+    }} else if (
+        navigator.clipboard
+    ) {{
+
+        navigator.clipboard
+            .writeText(
+                window.location.href
+            )
+            .then(
+                function() {{
+                    alert(
+                        "নিউজের লিংক কপি হয়েছে"
+                    );
+                }}
+            );
+
+    }} else {{
+
+        alert(
+            window.location.href
+        );
+    }}
+}}
+</script>
+"""
+
+
+# ============================================================
+# CARD
+# ============================================================
+
+def render_card(item):
+
+    images = item.get(
+        "images",
+        []
+    )
+
+    image = ""
+
+    for value in images:
+
+        if value:
+            image = value
+            break
+
+    if image:
+
+        image_html = f"""
+<img
+    src="{escape(relative_image_url(image))}"
+    alt="{escape(item["headline"])}"
+    loading="lazy">
+"""
+
+    else:
+
+        image_html = ""
+
+    return f"""
+<article class="news-card">
+
+    <a
+        href="{escape(safe_id(item["id"]))}.html">
+
+        {image_html}
+
+        <div class="news-card-content">
+
+            <div class="category">
+                {escape(item["category"])}
+            </div>
+
+            <h3>
+                {escape(item["headline"])}
+            </h3>
+
+        </div>
+
+    </a>
+
+</article>
+"""
+
+
+# ============================================================
+# CATEGORY RELATED NEWS
+# ============================================================
+
+def same_category_news(
+    current,
+    all_news
+):
+
+    category = current["category"]
+
+    result = []
+
+    for item in all_news:
+
+        if item["id"] == current["id"]:
+            continue
+
+        if item["category"] != category:
+            continue
+
+        result.append(item)
+
+    return result[:6]
+
+
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+def render_sidebar(
+    current,
+    all_news
+):
+
+    related = same_category_news(
+        current,
+        all_news
+    )
+
+    links = []
+
+    for item in related:
+
+        links.append(
+            f"""
+<a
+    class="latest-link"
+    href="{escape(safe_id(item["id"]))}.html">
+    {escape(item["headline"])}
+</a>
+"""
+        )
+
+    return "\n".join(
+        links
+    )
+
+
+# ============================================================
+# FINAL PAGE CSS
 # ============================================================
 
 STYLE = r"""
@@ -314,6 +800,7 @@ a{
 .date-box{
     font-size:14px;
     color:#555;
+    padding-bottom:10px;
 }
 
 .nav{
@@ -375,32 +862,6 @@ main.container{
     min-width:0;
 }
 
-.side-news{
-    background:#fff;
-    border:1px solid #ddd;
-    padding:15px;
-}
-
-.side-news h2{
-    margin:0 0 12px;
-    color:#b40000;
-    font-size:22px;
-    border-bottom:2px solid #b40000;
-    padding-bottom:8px;
-}
-
-.latest-link{
-    display:block;
-    color:#222;
-    border-bottom:1px solid #ddd;
-    padding:10px 0;
-    font-weight:600;
-}
-
-.latest-link:hover{
-    color:#d00000;
-}
-
 .news-title{
     background:#fff;
     padding:20px;
@@ -409,14 +870,20 @@ main.container{
 }
 
 .news-title h1{
-    margin:0 0 10px;
+    margin:4px 0 10px;
     font-size:34px;
-    line-height:1.4;
+    line-height:1.45;
 }
 
 .news-meta{
     color:#777;
     font-size:14px;
+}
+
+.category{
+    color:#d00000;
+    font-size:14px;
+    font-weight:800;
 }
 
 .news-body{
@@ -453,15 +920,15 @@ main.container{
 
 .news-gallery img{
     width:100%;
+    height:auto;
     display:block;
     border-radius:5px;
 }
 
 .video-box{
-    margin:20px 0;
-    position:relative;
     width:100%;
     aspect-ratio:16/9;
+    margin:20px 0;
 }
 
 .video-box iframe,
@@ -469,6 +936,15 @@ main.container{
     width:100%;
     height:100%;
     border:0;
+}
+
+.video-link{
+    margin:20px 0;
+}
+
+.video-link a{
+    color:#d00000;
+    font-weight:700;
 }
 
 .share-box{
@@ -490,26 +966,45 @@ main.container{
 
 .share-btn{
     display:inline-block;
+    border:0;
     padding:8px 13px;
     background:#eee;
     color:#111;
     border-radius:4px;
     font-weight:700;
     font-size:14px;
+    cursor:pointer;
 }
 
 .share-btn:hover{
     opacity:.85;
 }
 
-.read-more-btn{
-    display:inline-block;
-    margin-top:10px;
-    background:#c40000;
-    color:#fff;
-    padding:8px 15px;
-    border-radius:4px;
-    font-weight:700;
+.side-news{
+    background:#fff;
+    border:1px solid #ddd;
+    padding:15px;
+    align-self:start;
+}
+
+.side-news h2{
+    margin:0 0 12px;
+    color:#b40000;
+    font-size:22px;
+    border-bottom:2px solid #b40000;
+    padding-bottom:8px;
+}
+
+.latest-link{
+    display:block;
+    color:#222;
+    border-bottom:1px solid #ddd;
+    padding:10px 0;
+    font-weight:600;
+}
+
+.latest-link:hover{
+    color:#d00000;
 }
 
 .news-grid{
@@ -537,15 +1032,10 @@ main.container{
 }
 
 .news-card-content h3{
-    margin:0 0 8px;
+    margin:4px 0 0;
+    color:#222;
     font-size:18px;
     line-height:1.5;
-}
-
-.category{
-    color:#d00000;
-    font-size:13px;
-    font-weight:800;
 }
 
 .footer,
@@ -623,294 +1113,87 @@ main.container{
 
 
 # ============================================================
-# HTML
+# COMPLETE DETAILS PAGE
 # ============================================================
 
-def social_links(item):
+def render_news_page(
+    item,
+    all_news
+):
 
-    page_url = (
-        BASE_URL.rstrip("/")
-        + "/news/"
-        + urllib.parse.quote(item["id"])
-        + ".html"
+    canonical = page_url(
+        item["id"]
     )
 
-    encoded_url = urllib.parse.quote(page_url, safe="")
-
-    facebook = (
-        "https://www.facebook.com/sharer/sharer.php?u="
-        + encoded_url
+    images = item.get(
+        "images",
+        []
     )
 
-    twitter = (
-        "https://twitter.com/intent/tweet?url="
-        + encoded_url
-        + "&text="
-        + urllib.parse.quote(item["headline"])
+    first_image = ""
+
+    for image in images:
+
+        if image:
+            first_image = image
+            break
+
+    og_image = absolute_image_url(
+        first_image
     )
 
-    whatsapp = (
-        "https://api.whatsapp.com/send?text="
-        + urllib.parse.quote(
-            item["headline"] + " " + page_url
-        )
-    )
-
-    youtube = item.get("video", "")
-
-    return f"""
-<div class="share-box">
-    <strong>শেয়ার করুন</strong>
-
-    <div class="share-buttons">
-
-        <a class="share-btn"
-           href="{esc(facebook)}"
-           target="_blank"
-           rel="noopener">
-           Facebook
-        </a>
-
-        <a class="share-btn"
-           href="{esc(twitter)}"
-           target="_blank"
-           rel="noopener">
-           X / Twitter
-        </a>
-
-        <a class="share-btn"
-           href="{esc(whatsapp)}"
-           target="_blank"
-           rel="noopener">
-           WhatsApp
-        </a>
-
-        <button class="share-btn"
-                type="button"
-                onclick="shareNews()">
-                Share
-        </button>
-
-        <a class="share-btn"
-           href="https://www.youtube.com/"
-           target="_blank"
-           rel="noopener">
-           YouTube
-        </a>
-
-        <a class="share-btn"
-           href="https://www.tiktok.com/"
-           target="_blank"
-           rel="noopener">
-           TikTok
-        </a>
-
-    </div>
-</div>
-
-<script>
-function shareNews(){
-
-    const data = {
-        title: {json.dumps(item["headline"], ensure_ascii=False)},
-        text: {json.dumps(item["headline"], ensure_ascii=False)},
-        url: window.location.href
-    };
-
-    if(navigator.share){
-        navigator.share(data).catch(function(){});
-    }else{
-        navigator.clipboard.writeText(window.location.href);
-        alert("নিউজের লিংক কপি হয়েছে");
-    }
-}
-</script>
-"""
-
-
-def card_html(item):
-
-    image = first_image(item.get("images", []))
-
-    if image:
-        image_tag = (
-            f'<img src="{esc(image_src(image))}" '
-            f'alt="{esc(item["headline"])}" '
-            'loading="lazy">'
-        )
-    else:
-        image_tag = ""
-
-    return f"""
-<article class="news-card">
-
-    <a href="{esc(item["id"])}.html">
-
-        {image_tag}
-
-        <div class="news-card-content">
-
-            <div class="category">
-                {esc(item["category"])}
-            </div>
-
-            <h3>
-                {esc(item["headline"])}
-            </h3>
-
-        </div>
-
-    </a>
-
-</article>
-"""
-
-
-def related_news(current, all_news):
-
-    same_category = [
-        x for x in all_news
-        if x["category"] == current["category"]
-    ]
-
-    # বর্তমান নিউজ বাদ দিয়ে একই category-এর নিউজ
-    same_category = [
-        x for x in same_category
-        if x["id"] != current["id"]
-    ]
-
-    return same_category[:6]
-
-
-def latest_same_category(current, all_news):
-
-    same_category = [
-        x for x in all_news
-        if x["category"] == current["category"]
-        and x["id"] != current["id"]
-    ]
-
-    return same_category[:6]
-
-
-def render_page(item, all_news):
-
-    images = item.get("images", [])
-
-    first = first_image(images)
-
-    gallery = ""
-
-    available_images = [
-        x for x in images
-        if x
-    ]
-
-    if len(available_images) > 1:
-
-        gallery_items = []
-
-        for image in available_images:
-
-            gallery_items.append(
-                f"""
-                <img
-                    src="{esc(image_src(image))}"
-                    alt="{esc(item["headline"])}"
-                    loading="lazy"
-                >
-                """
-            )
-
-        gallery = (
-            '<div class="news-gallery">'
-            + "".join(gallery_items)
-            + "</div>"
-        )
-
-    related = related_news(
+    related = same_category_news(
         item,
         all_news
     )
 
-    latest = latest_same_category(
-        item,
-        all_news
-    )
+    related_cards = []
 
-    details = item["details"]
+    for news in related:
 
-    # Details-এর line break বজায় রাখা
-    details_html = "<p>" + (
-        esc(details)
-        .replace("\n\n", "</p><p>")
-        .replace("\n", "<br>")
-    ) + "</p>"
-
-    video = video_block(
-        item.get("video", "")
-    )
-
-    if first:
-        main_image = f"""
-        <div class="news-image-top">
-            <img
-                src="{esc(image_src(first))}"
-                alt="{esc(item["headline"])}"
-            >
-        </div>
-        """
-    else:
-        main_image = ""
+        related_cards.append(
+            render_card(news)
+        )
 
     related_html = ""
 
-    if related:
+    if related_cards:
 
-        related_html = """
-        <section>
-            <div class="news-grid">
-        """
-
-        for news in related:
-            related_html += card_html(news)
-
-        related_html += """
-            </div>
-        </section>
-        """
-
-    latest_html = ""
-
-    for news in latest:
-
-        latest_html += f"""
-        <a class="latest-link"
-           href="{esc(news["id"])}.html">
-           {esc(news["headline"])}
-        </a>
-        """
-
-    canonical = (
-        BASE_URL.rstrip("/")
-        + "/news/"
-        + urllib.parse.quote(item["id"])
-        + ".html"
-    )
-
-    og_image = absolute_image(first)
+        related_html = (
+            '<div class="news-grid">'
+            + "\n".join(
+                related_cards
+            )
+            + "</div>"
+        )
 
     jsonld = {
         "@context": "https://schema.org",
         "@type": "NewsArticle",
         "headline": item["headline"],
-        "datePublished": item["date"],
         "articleSection": item["category"],
+        "datePublished": item["date"],
         "mainEntityOfPage": canonical,
     }
 
     if og_image:
-        jsonld["image"] = [og_image]
+        jsonld["image"] = [
+            og_image
+        ]
+
+    og_image_tag = ""
+
+    if og_image:
+
+        og_image_tag = f"""
+<meta
+    property="og:image"
+    content="{escape(og_image)}">
+
+<meta
+    name="twitter:image"
+    content="{escape(og_image)}">
+"""
 
     return f"""<!DOCTYPE html>
 <html lang="bn">
@@ -919,44 +1202,55 @@ def render_page(item, all_news):
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-<title>{esc(item["headline"])} | বাংলা সংবাদ</title>
+<title>
+{escape(item["headline"])} | বাংলা সংবাদ
+</title>
 
-<meta name="description"
-      content="{esc(item["headline"])}">
+<meta
+    name="description"
+    content="{escape(item["headline"])}">
 
-<meta name="keywords"
-      content="{esc(item["keyword"])}">
+<meta
+    name="keywords"
+    content="{escape(item["keyword"])}">
 
-<link rel="canonical"
-      href="{esc(canonical)}">
+<link
+    rel="canonical"
+    href="{escape(canonical)}">
 
-<meta property="og:type"
-      content="article">
+<meta
+    property="og:type"
+    content="article">
 
-<meta property="og:title"
-      content="{esc(item["headline"])}">
+<meta
+    property="og:title"
+    content="{escape(item["headline"])}">
 
-<meta property="og:description"
-      content="{esc(item["headline"])}">
+<meta
+    property="og:description"
+    content="{escape(item["headline"])}">
 
-<meta property="og:url"
-      content="{esc(canonical)}">
+<meta
+    property="og:url"
+    content="{escape(canonical)}">
 
-<meta property="og:site_name"
-      content="বাংলা সংবাদ">
+<meta
+    property="og:site_name"
+    content="বাংলা সংবাদ">
 
-{"<meta property=\"og:image\" content=\"" + esc(og_image) + "\">" if og_image else ""}
+{og_image_tag}
 
-<meta name="twitter:card"
-      content="summary_large_image">
+<meta
+    name="twitter:card"
+    content="summary_large_image">
 
-<meta name="twitter:title"
-      content="{esc(item["headline"])}">
-
-{"<meta name=\"twitter:image\" content=\"" + esc(og_image) + "\">" if og_image else ""}
+<meta
+    name="twitter:title"
+    content="{escape(item["headline"])}">
 
 <script type="application/ld+json">
 {json.dumps(jsonld, ensure_ascii=False, indent=2)}
@@ -971,9 +1265,11 @@ def render_page(item, all_news):
 <body>
 
 <div class="top-bar">
+
     <div class="header-inner">
-        বাংলা সংবাদ — সর্বশেষ খবর
+        বাংলা সংবাদ
     </div>
+
 </div>
 
 <header class="site-header">
@@ -985,7 +1281,7 @@ def render_page(item, all_news):
         </div>
 
         <div class="date-box">
-            {esc(item["date"])}
+            {escape(item["date"])}
         </div>
 
     </div>
@@ -996,13 +1292,33 @@ def render_page(item, all_news):
 
     <div class="nav-inner">
 
-        <a href="../index.html">হোম</a>
-        <a href="../index.html">জাতীয়</a>
-        <a href="../index.html">রাজনীতি</a>
-        <a href="../index.html">আন্তর্জাতিক</a>
-        <a href="../index.html">খেলা</a>
-        <a href="../index.html">বিনোদন</a>
-        <a href="../index.html">প্রযুক্তি</a>
+        <a href="../index.html">
+            হোম
+        </a>
+
+        <a href="../index.html">
+            জাতীয়
+        </a>
+
+        <a href="../index.html">
+            রাজনীতি
+        </a>
+
+        <a href="../index.html">
+            আন্তর্জাতিক
+        </a>
+
+        <a href="../index.html">
+            খেলা
+        </a>
+
+        <a href="../index.html">
+            বিনোদন
+        </a>
+
+        <a href="../index.html">
+            প্রযুক্তি
+        </a>
 
     </div>
 
@@ -1015,66 +1331,70 @@ def render_page(item, all_news):
     </div>
 
     <div class="breaking-text">
-        {esc(item["headline"])}
+        {escape(item["headline"])}
     </div>
 
 </div>
 
 <main class="container">
 
-    <section class="main-content">
+<section class="main-content">
 
-        <article>
+    <article>
 
-            <div class="news-title">
+        <div class="news-title">
 
-                <div class="category">
-                    {esc(item["category"])}
-                </div>
+            <div class="category">
+                {escape(item["category"])}
+            </div>
 
-                <h1>
-                    {esc(item["headline"])}
-                </h1>
+            <h1>
+                {escape(item["headline"])}
+            </h1>
 
-                <div class="news-meta">
-                    {esc(item["date"])}
-                </div>
+            <div class="news-meta">
+                {escape(item["date"])}
+            </div>
+
+        </div>
+
+        <div class="news-body">
+
+            {render_main_image(item)}
+
+            <div class="news-text-bottom">
+
+                {render_details(item["details"])}
 
             </div>
 
-            <div class="news-body">
+            {render_gallery(item)}
 
-                {main_image}
+            {render_video(item["video"])}
 
-                <div class="news-text-bottom">
+            {render_share_buttons(item)}
 
-                    {details_html}
+        </div>
 
-                </div>
+    </article>
 
-                {gallery}
-
-                {video}
-
-                {social_links(item)}
-
-            </div>
-
-        </article>
+    <div>
 
         {related_html}
 
-    </section>
+    </div>
 
-    <aside class="side-news">
+</section>
 
-        <h2>
-            সর্বশেষ সংবাদ
-        </h2>
+<aside class="side-news">
 
-        {latest_html}
+    <h2>
+        সর্বশেষ সংবাদ
+    </h2>
 
-    </aside>
+    {render_sidebar(item, all_news)}
+
+</aside>
 
 </main>
 
@@ -1086,28 +1406,32 @@ def render_page(item, all_news):
 
     <div class="social-links">
 
-        <a href="https://www.facebook.com/"
-           target="_blank"
-           rel="noopener">
-           Facebook
+        <a
+            href="https://www.facebook.com/"
+            target="_blank"
+            rel="noopener">
+            Facebook
         </a>
 
-        <a href="https://www.youtube.com/"
-           target="_blank"
-           rel="noopener">
-           YouTube
+        <a
+            href="https://www.youtube.com/"
+            target="_blank"
+            rel="noopener">
+            YouTube
         </a>
 
-        <a href="https://www.tiktok.com/"
-           target="_blank"
-           rel="noopener">
-           TikTok
+        <a
+            href="https://www.tiktok.com/"
+            target="_blank"
+            rel="noopener">
+            TikTok
         </a>
 
-        <a href="https://twitter.com/"
-           target="_blank"
-           rel="noopener">
-           X / Twitter
+        <a
+            href="https://twitter.com/"
+            target="_blank"
+            rel="noopener">
+            X / Twitter
         </a>
 
     </div>
@@ -1115,26 +1439,353 @@ def render_page(item, all_news):
 </footer>
 
 </body>
+
 </html>
 """
 
 
 # ============================================================
-# GENERATION
+# GENERATE NEWS PAGES
 # ============================================================
 
-def remove_old_generated_pages(valid_ids):
+def generate_news_pages(
+    news
+):
 
     NEWS_DIR.mkdir(
         parents=True,
         exist_ok=True
     )
 
-    valid_names = {
-        f"{safe_id(x)}.html"
-        for x in valid_ids
+    valid_files = {
+        safe_id(item["id"])
+        + ".html"
+        for item in news
     }
 
-    for file in NEWS_DIR.glob("*.html"):
+    for old_file in NEWS_DIR.glob(
+        "*.html"
+    ):
 
-        if file.name not in valid_names:
+        if old_file.name not in valid_files:
+
+            try:
+                old_file.unlink()
+            except Exception:
+                pass
+
+    for item in news:
+
+        output_file = (
+            NEWS_DIR
+            / (
+                safe_id(item["id"])
+                + ".html"
+            )
+        )
+
+        output_file.write_text(
+            render_news_page(
+                item,
+                news
+            ),
+            encoding="utf-8"
+        )
+
+
+# ============================================================
+# NEWS DATA JSON
+# ============================================================
+
+def generate_news_data(
+    news
+):
+
+    rows = []
+
+    for item in news:
+
+        rows.append(
+            {
+                "ID": item["id"],
+                "Category": item["category"],
+                "Headline": item["headline"],
+                "Details": item["details"],
+                "Image-1": item["image_urls"][0],
+                "Date": item["date"],
+                "Video": item["video"],
+                "Image-2": item["image_urls"][1],
+                "Image-3": item["image_urls"][2],
+                "Keyword": item["keyword"],
+            }
+        )
+
+    data = {
+        "news": news,
+        "table": {
+            "columns": EXPECTED_COLUMNS,
+            "rows": rows,
+        },
+        "updated_at": (
+            datetime.utcnow()
+            .isoformat()
+            + "Z"
+        ),
+    }
+
+    NEWS_DATA_FILE.write_text(
+        json.dumps(
+            data,
+            ensure_ascii=False,
+            indent=2
+        ),
+        encoding="utf-8"
+    )
+
+
+# ============================================================
+# ADS DATA
+# ============================================================
+
+def generate_ads_data():
+
+    data = {
+        "table": {
+            "columns": [],
+            "rows": [],
+        }
+    }
+
+    ADS_DATA_FILE.write_text(
+        json.dumps(
+            data,
+            ensure_ascii=False,
+            indent=2
+        ),
+        encoding="utf-8"
+    )
+
+
+# ============================================================
+# SITEMAP
+# ============================================================
+
+def generate_sitemap(
+    news
+):
+
+    urls = [
+        BASE_URL.rstrip("/")
+        + "/"
+    ]
+
+    for item in news:
+
+        urls.append(
+            page_url(
+                item["id"]
+            )
+        )
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    ]
+
+    for url in urls:
+
+        lines.append(
+            "  <url>"
+            + "<loc>"
+            + escape(url)
+            + "</loc>"
+            + "</url>"
+        )
+
+    lines.append(
+        "</urlset>"
+    )
+
+    SITEMAP_FILE.write_text(
+        "\n".join(lines),
+        encoding="utf-8"
+    )
+
+
+def generate_news_sitemap(
+    news
+):
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    ]
+
+    for item in news:
+
+        lines.append(
+            "  <url>"
+            + "<loc>"
+            + escape(
+                page_url(item["id"])
+            )
+            + "</loc>"
+            + "</url>"
+        )
+
+    lines.append(
+        "</urlset>"
+    )
+
+    NEWS_SITEMAP_FILE.write_text(
+        "\n".join(lines),
+        encoding="utf-8"
+    )
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+def main():
+
+    print(
+        "========================================"
+    )
+
+    print(
+        "Bangla Sangbad Generator"
+    )
+
+    print(
+        "========================================"
+    )
+
+    NEWS_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    ASSETS_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    print(
+        "Reading Google Sheet..."
+    )
+
+    rows = load_google_sheet()
+
+    print(
+        "Rows found:",
+        len(rows)
+    )
+
+    news = normalize_news(
+        rows
+    )
+
+    if not news:
+
+        raise RuntimeError(
+            "No news found in Google Sheet."
+        )
+
+    print(
+        "News found:",
+        len(news)
+    )
+
+    session = requests.Session()
+
+    # --------------------------------------------------------
+    # IMAGES
+    # --------------------------------------------------------
+
+    for item in news:
+
+        print(
+            "Downloading images for:",
+            item["id"]
+        )
+
+        item["images"] = (
+            process_news_images(
+                news_id=item["id"],
+                image_urls=item["image_urls"],
+                assets_dir=ASSETS_DIR,
+                session=session,
+            )
+        )
+
+        print(
+            "Images:",
+            item["images"]
+        )
+
+    # --------------------------------------------------------
+    # PAGES
+    # --------------------------------------------------------
+
+    print(
+        "Generating news pages..."
+    )
+
+    generate_news_pages(
+        news
+    )
+
+    # --------------------------------------------------------
+    # DATA
+    # --------------------------------------------------------
+
+    print(
+        "Generating news-data.json..."
+    )
+
+    generate_news_data(
+        news
+    )
+
+    print(
+        "Generating ads-data.json..."
+    )
+
+    generate_ads_data()
+
+    # --------------------------------------------------------
+    # SITEMAPS
+    # --------------------------------------------------------
+
+    print(
+        "Generating sitemap.xml..."
+    )
+
+    generate_sitemap(
+        news
+    )
+
+    print(
+        "Generating news-sitemap.xml..."
+    )
+
+    generate_news_sitemap(
+        news
+    )
+
+    print(
+        "========================================"
+    )
+
+    print(
+        "SYNC COMPLETE"
+    )
+
+    print(
+        "========================================"
+    )
+
+
+if __name__ == "__main__":
+    main()
