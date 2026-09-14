@@ -1,952 +1,501 @@
-/* =========================================================
-   বাংলা সংবাদ — News Media Engine
-   ---------------------------------------------------------
-   Google Sheet → news-data.json → News Images
+from __future__ import annotations
 
-   Sheet order:
-   0  ID
-   1  Category
-   2  Headline
-   3  Details
-   4  Image-1
-   5  Date
-   6  Video
-   7  Image-2
-   8  Image-3
-   9  Keyword
+import re
+from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
-   Compatibility table.rows[].c[]:
-   0  ID
-   1  Category
-   2  Headline
-   3  Details
-   4  Image-1
-   5  Date
-   6  Image-2
-   7  Image-3
-   8  Video
-   9  Keyword
-   ========================================================= */
-
-(function () {
-    "use strict";
-
-    /* ---------------------------------------------------------
-       DATA URL
-       --------------------------------------------------------- */
-
-    const DATA_URL =
-        location.pathname.includes("/news/")
-            ? "../news-data.json"
-            : "news-data.json";
+import requests
 
 
-    /* ---------------------------------------------------------
-       HELPERS
-       --------------------------------------------------------- */
+USER_AGENT = (
+    "Mozilla/5.0 "
+    "(compatible; BanglaSangbad/1.0; "
+    "+https://abdurrazzak123.github.io/Banglasangbad/)"
+)
 
-    function clean(value) {
-        if (value === null || value === undefined) {
-            return "";
-        }
+TIMEOUT = 45
 
-        return String(value).trim();
+IMAGE_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+    ".gif",
+    ".avif",
+}
+
+
+def clean(value) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def safe_id(value) -> str:
+    value = clean(value)
+
+    value = re.sub(
+        r"[^A-Za-z0-9_-]+",
+        "-",
+        value,
+    )
+
+    value = re.sub(
+        r"-+",
+        "-",
+        value,
+    )
+
+    value = value.strip("-_")
+
+    return value or "news"
+
+
+def get_drive_id(url: str) -> str:
+    url = clean(url)
+
+    if not url:
+        return ""
+
+    if "drive.google.com" not in url.lower():
+        return ""
+
+    match = re.search(
+        r"/file/d/([^/?#]+)",
+        url,
+        re.IGNORECASE,
+    )
+
+    if match:
+        return match.group(1)
+
+    match = re.search(
+        r"/d/([^/?#]+)",
+        url,
+        re.IGNORECASE,
+    )
+
+    if match:
+        return match.group(1)
+
+    try:
+        parsed = urlparse(url)
+        query = parse_qs(parsed.query)
+
+        if query.get("id"):
+            return query["id"][0]
+
+    except Exception:
+        pass
+
+    return ""
+
+
+def drive_urls(url: str) -> list[str]:
+    file_id = get_drive_id(url)
+
+    if not file_id:
+        return []
+
+    return [
+        (
+            "https://drive.google.com/thumbnail"
+            "?id="
+            + file_id
+            + "&sz=w2000"
+        ),
+        (
+            "https://drive.google.com/uc"
+            "?export=view&id="
+            + file_id
+        ),
+        (
+            "https://drive.usercontent.google.com/download"
+            "?id="
+            + file_id
+            + "&export=download"
+        ),
+        (
+            "https://drive.google.com/uc"
+            "?export=download&id="
+            + file_id
+        ),
+    ]
+
+
+def make_candidates(url: str) -> list[str]:
+    url = clean(url)
+
+    if not url:
+        return []
+
+    candidates = []
+
+    for item in drive_urls(url):
+        if item not in candidates:
+            candidates.append(item)
+
+    if url not in candidates:
+        candidates.append(url)
+
+    if "github.com/" in url.lower():
+
+        raw_url = url
+
+        raw_url = raw_url.replace(
+            "https://github.com/",
+            "https://raw.githubusercontent.com/",
+        )
+
+        raw_url = raw_url.replace(
+            "http://github.com/",
+            "https://raw.githubusercontent.com/",
+        )
+
+        raw_url = raw_url.replace(
+            "/blob/",
+            "/",
+        )
+
+        if raw_url not in candidates:
+            candidates.append(raw_url)
+
+    return candidates
+
+
+def detect_extension(
+    url: str,
+    content_type: str,
+    content: bytes,
+) -> str:
+
+    try:
+        suffix = Path(
+            urlparse(url).path
+        ).suffix.lower()
+    except Exception:
+        suffix = ""
+
+    if suffix in IMAGE_EXTENSIONS:
+
+        if suffix == ".jpeg":
+            return ".jpg"
+
+        return suffix
+
+    content_type = clean(
+        content_type
+    ).lower().split(";")[0]
+
+    content_types = {
+        "image/jpeg": ".jpg",
+        "image/jpg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+        "image/gif": ".gif",
+        "image/avif": ".avif",
     }
 
+    if content_type in content_types:
+        return content_types[content_type]
 
-    function normalizeId(value) {
-        const text = clean(value);
+    if content.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
 
-        if (/^\d+(?:\.0+)?$/.test(text)) {
-            return String(parseInt(text, 10));
-        }
+    if content.startswith(
+        b"\x89PNG\r\n\x1a\n"
+    ):
+        return ".png"
 
-        return text;
+    if content.startswith(
+        b"GIF87a"
+    ) or content.startswith(
+        b"GIF89a"
+    ):
+        return ".gif"
+
+    if (
+        len(content) >= 12
+        and content[0:4] == b"RIFF"
+        and content[8:12] == b"WEBP"
+    ):
+        return ".webp"
+
+    return ".jpg"
+
+
+def is_image(
+    content: bytes,
+    content_type: str,
+) -> bool:
+
+    content_type = clean(
+        content_type
+    ).lower()
+
+    if content_type.startswith("image/"):
+        return True
+
+    if content.startswith(b"\xff\xd8\xff"):
+        return True
+
+    if content.startswith(
+        b"\x89PNG\r\n\x1a\n"
+    ):
+        return True
+
+    if content.startswith(
+        b"GIF87a"
+    ) or content.startswith(
+        b"GIF89a"
+    ):
+        return True
+
+    if (
+        len(content) >= 12
+        and content[0:4] == b"RIFF"
+        and content[8:12] == b"WEBP"
+    ):
+        return True
+
+    return False
+
+
+def make_filename(
+    news_id: str,
+    image_number: int,
+    extension: str,
+) -> str:
+
+    news_id = safe_id(news_id)
+
+    extension = clean(
+        extension
+    ).lower()
+
+    if not extension:
+        extension = ".jpg"
+
+    if not extension.startswith("."):
+        extension = "." + extension
+
+    if extension == ".jpeg":
+        extension = ".jpg"
+
+    return (
+        f"{news_id}-"
+        f"{image_number}"
+        f"{extension}"
+    )
+
+
+def download_image(
+    url: str,
+    news_id: str,
+    image_number: int,
+    assets_dir: Path,
+    session: requests.Session,
+) -> str:
+
+    url = clean(url)
+
+    if not url:
+        return ""
+
+    if not url.startswith(
+        ("http://", "https://")
+    ):
+        return ""
+
+    assets_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": (
+            "image/avif,image/webp,"
+            "image/apng,image/svg+xml,"
+            "image/*,*/*;q=0.8"
+        ),
     }
 
+    candidates = make_candidates(url)
 
-    function escapeHtml(value) {
-        return clean(value).replace(
-            /[&<>"']/g,
-            function (character) {
-                return {
-                    "&": "&amp;",
-                    "<": "&lt;",
-                    ">": "&gt;",
-                    '"': "&quot;",
-                    "'": "&#39;"
-                }[character];
-            }
-        );
-    }
+    for candidate in candidates:
 
+        response = None
 
-    function isAbsoluteUrl(value) {
-        return /^https?:\/\//i.test(clean(value));
-    }
+        try:
 
-
-    function isDataUrl(value) {
-        return /^data:/i.test(clean(value));
-    }
-
-
-    function isLocalPath(value) {
-        const text = clean(value);
-
-        return (
-            text.startsWith("../") ||
-            text.startsWith("./") ||
-            text.startsWith("/") ||
-            text.startsWith("assets/")
-        );
-    }
-
-
-    /* ---------------------------------------------------------
-       IMAGE URL NORMALIZER
-       --------------------------------------------------------- */
-
-    function normalizeImageUrl(value) {
-        const original = clean(value);
-
-        if (!original) {
-            return "";
-        }
-
-        if (isDataUrl(original)) {
-            return original;
-        }
-
-        /*
-         * Local GitHub Pages image:
-         * assets/news/31-1.jpg
-         */
-        if (original.startsWith("assets/")) {
-
-            if (location.pathname.includes("/news/")) {
-                return "../" + original;
-            }
-
-            return original;
-        }
-
-
-        /*
-         * Already relative from news page.
-         */
-        if (
-            original.startsWith("../") ||
-            original.startsWith("./") ||
-            original.startsWith("/")
-        ) {
-            return original;
-        }
-
-
-        /*
-         * HTTP / HTTPS URL
-         */
-        if (isAbsoluteUrl(original)) {
-            return original;
-        }
-
-        return original;
-    }
-
-
-    /* ---------------------------------------------------------
-       GOOGLE DRIVE
-       --------------------------------------------------------- */
-
-    function getDriveId(url) {
-        const text = clean(url);
-
-        if (!text) {
-            return "";
-        }
-
-        let match = text.match(
-            /\/file\/d\/([^/]+)/i
-        );
-
-        if (match) {
-            return match[1];
-        }
-
-
-        match = text.match(
-            /[?&]id=([^&]+)/i
-        );
-
-        if (match) {
-            return match[1];
-        }
-
-
-        match = text.match(
-            /\/open\?id=([^&]+)/i
-        );
-
-        if (match) {
-            return match[1];
-        }
-
-
-        return "";
-    }
-
-
-    function googleDriveUrls(url) {
-        const id = getDriveId(url);
-
-        if (!id) {
-            return [];
-        }
-
-        return [
-            "https://drive.google.com/thumbnail?id=" +
-                encodeURIComponent(id) +
-                "&sz=w1600",
-
-            "https://drive.google.com/uc?export=view&id=" +
-                encodeURIComponent(id),
-
-            "https://drive.google.com/uc?export=download&id=" +
-                encodeURIComponent(id)
-        ];
-    }
-
-
-    /* ---------------------------------------------------------
-       IMAGE CANDIDATES
-       --------------------------------------------------------- */
-
-    function imageCandidates(value) {
-
-        const original = clean(value);
-
-        if (!original) {
-            return [];
-        }
-
-
-        const candidates = [];
-
-
-        /*
-         * Google Drive
-         */
-        const driveUrls =
-            googleDriveUrls(original);
-
-        driveUrls.forEach(function (url) {
-            if (!candidates.includes(url)) {
-                candidates.push(url);
-            }
-        });
-
-
-        /*
-         * Original URL
-         */
-        const normalized =
-            normalizeImageUrl(original);
-
-        if (
-            normalized &&
-            !candidates.includes(normalized)
-        ) {
-            candidates.push(normalized);
-        }
-
-
-        /*
-         * If it is a GitHub repository URL,
-         * try raw.githubusercontent.com
-         */
-        if (
-            /^https?:\/\/github\.com\//i.test(
-                original
+            print(
+                "Trying image:",
+                candidate,
             )
-        ) {
-            const raw =
-                original
-                    .replace(
-                        "https://github.com/",
-                        "https://raw.githubusercontent.com/"
+
+            response = session.get(
+                candidate,
+                headers=headers,
+                timeout=TIMEOUT,
+                allow_redirects=True,
+            )
+
+            response.raise_for_status()
+
+            content_type = response.headers.get(
+                "content-type",
+                "",
+            )
+
+            content = response.content
+
+            if not content:
+                raise RuntimeError(
+                    "Empty response"
+                )
+
+            if not is_image(
+                content,
+                content_type,
+            ):
+
+                preview = (
+                    content[:300]
+                    .decode(
+                        "utf-8",
+                        errors="ignore",
                     )
-                    .replace(
-                        "/blob/",
-                        "/"
-                    );
-
-            if (!candidates.includes(raw)) {
-                candidates.push(raw);
-            }
-        }
-
-
-        return candidates;
-    }
-
-
-    /* ---------------------------------------------------------
-       ROW PARSER
-       --------------------------------------------------------- */
-
-    function valueFromCell(cell) {
-
-        if (!cell) {
-            return "";
-        }
-
-        if (
-            cell.v !== undefined &&
-            cell.v !== null
-        ) {
-            return clean(cell.v);
-        }
-
-        if (
-            cell.f !== undefined &&
-            cell.f !== null
-        ) {
-            return clean(cell.f);
-        }
-
-        return "";
-    }
-
-
-    function parseCompatibilityRows(rows) {
-
-        if (!Array.isArray(rows)) {
-            return [];
-        }
-
-        return rows
-            .map(function (row, index) {
-
-                const cells =
-                    Array.isArray(row.c)
-                        ? row.c
-                        : [];
-
-                function value(index) {
-                    return valueFromCell(
-                        cells[index]
-                    );
-                }
-
-
-                return {
-                    id: normalizeId(
-                        value(0) ||
-                        String(index + 1)
-                    ),
-
-                    category: value(1),
-
-                    headline: value(2),
-
-                    details: value(3),
-
-                    image1: value(4),
-
-                    date: value(5),
-
-                    image2: value(6),
-
-                    image3: value(7),
-
-                    video: value(8),
-
-                    keyword: value(9)
-                };
-            })
-            .filter(function (item) {
-                return (
-                    item.headline ||
-                    item.details
-                );
-            });
-    }
-
-
-    /* ---------------------------------------------------------
-       NORMALIZED NEWS ARRAY
-       --------------------------------------------------------- */
-
-    function rowsFromPayload(payload) {
-
-        if (!payload) {
-            return [];
-        }
-
-
-        /*
-         * Main / current format
-         */
-        if (
-            payload.table &&
-            Array.isArray(payload.table.rows)
-        ) {
-            return parseCompatibilityRows(
-                payload.table.rows
-            );
-        }
-
-
-        /*
-         * Fallback:
-         * If generator returns a direct news array.
-         */
-        if (
-            Array.isArray(payload.news)
-        ) {
-            return payload.news.map(
-                function (item) {
-
-                    const images =
-                        Array.isArray(
-                            item.image_urls
-                        )
-                            ? item.image_urls
-                            : [];
-
-                    return {
-                        id: normalizeId(
-                            item.id
-                        ),
-
-                        category: clean(
-                            item.category
-                        ),
-
-                        headline: clean(
-                            item.headline ||
-                            item.title
-                        ),
-
-                        details: clean(
-                            item.details ||
-                            item.summary
-                        ),
-
-                        image1: clean(
-                            images[0] ||
-                            item.image ||
-                            ""
-                        ),
-
-                        date: clean(
-                            item.date
-                        ),
-
-                        image2: clean(
-                            images[1] ||
-                            item.image2 ||
-                            ""
-                        ),
-
-                        image3: clean(
-                            images[2] ||
-                            item.image3 ||
-                            ""
-                        ),
-
-                        video: clean(
-                            item.video
-                        ),
-
-                        keyword: clean(
-                            item.keyword
-                        )
-                    };
-                }
-            );
-        }
-
-
-        return [];
-    }
-
-
-    /* ---------------------------------------------------------
-       FIND NEWS BY ID
-       --------------------------------------------------------- */
-
-    function getNewsById(
-        news,
-        requestedId
-    ) {
-
-        const id =
-            normalizeId(requestedId);
-
-        return news.find(
-            function (item) {
-                return (
-                    normalizeId(item.id) ===
-                    id
-                );
-            }
-        ) || null;
-    }
-
-
-    /* ---------------------------------------------------------
-       IMAGE ELEMENT
-       --------------------------------------------------------- */
-
-    function createImage(
-        source,
-        alt
-    ) {
-
-        const img =
-            document.createElement("img");
-
-        img.alt = clean(alt);
-
-        img.loading = "lazy";
-
-        img.decoding = "async";
-
-        img.style.maxWidth = "100%";
-
-        img.style.height = "auto";
-
-        const candidates =
-            imageCandidates(source);
-
-
-        if (!candidates.length) {
-            return img;
-        }
-
-
-        let position = 0;
-
-
-        function tryNext() {
+                    .lower()
+                )
+
+                if (
+                    "<html" in preview
+                    or "<!doctype" in preview
+                    or "<head" in preview
+                ):
+                    raise RuntimeError(
+                        "Server returned HTML instead of image"
+                    )
+
+                raise RuntimeError(
+                    "Response is not an image"
+                )
+
+            extension = detect_extension(
+                candidate,
+                content_type,
+                content,
+            )
+
+            filename = make_filename(
+                news_id,
+                image_number,
+                extension,
+            )
+
+            destination = (
+                assets_dir / filename
+            )
+
+            temporary = Path(
+                str(destination) + ".tmp"
+            )
+
+            with open(
+                temporary,
+                "wb",
+            ) as file:
+
+                file.write(content)
 
             if (
-                position >=
-                candidates.length
-            ) {
-                return;
-            }
-
-            const url =
-                candidates[position++];
-
-            img.src = url;
-        }
-
-
-        img.onerror = function () {
-            tryNext();
-        };
-
-
-        tryNext();
-
-
-        return img;
-    }
-
-
-    /* ---------------------------------------------------------
-       SET IMAGE SOURCE
-       --------------------------------------------------------- */
-
-    function setImageSource(
-        element,
-        source,
-        alt
-    ) {
-
-        if (!element) {
-            return;
-        }
-
-        const candidates =
-            imageCandidates(source);
-
-
-        if (!candidates.length) {
-            return;
-        }
-
-
-        element.alt =
-            clean(alt);
-
-
-        let position = 0;
-
-
-        function loadNext() {
-
-            if (
-                position >=
-                candidates.length
-            ) {
-                return;
-            }
-
-            const url =
-                candidates[position++];
-
-            element.src = url;
-        }
-
-
-        element.onerror =
-            function () {
-                loadNext();
-            };
-
-
-        loadNext();
-    }
-
-
-    /* ---------------------------------------------------------
-       FIND DATA IMAGE ELEMENTS
-       --------------------------------------------------------- */
-
-    function findImageElements() {
-
-        return Array.from(
-            document.querySelectorAll(
-                "img[data-news-image], " +
-                ".news-image img, " +
-                ".news-image-top img, " +
-                ".news-card img, " +
-                "[data-image]"
-            )
-        );
-    }
-
-
-    /* ---------------------------------------------------------
-       REPLACE EMPTY IMAGE SOURCES
-       --------------------------------------------------------- */
-
-    function hydrateImages(news) {
-
-        const images =
-            findImageElements();
-
-
-        if (!images.length) {
-            return;
-        }
-
-
-        images.forEach(
-            function (img) {
-
-                let imageValue =
-                    img.getAttribute(
-                        "data-news-image"
-                    );
-
-
-                if (!imageValue) {
-                    imageValue =
-                        img.getAttribute(
-                            "data-image"
-                        );
-                }
-
-
-                /*
-                 * If HTML already has a useful
-                 * image source, leave it alone.
-                 */
-                if (!imageValue) {
-
-                    const current =
-                        clean(img.getAttribute("src"));
-
-                    if (
-                        current &&
-                        current !== "#" &&
-                        !current.includes(
-                            "placeholder"
-                        )
-                    ) {
-                        return;
-                    }
-                }
-
-
-                if (!imageValue) {
-                    return;
-                }
-
-
-                setImageSource(
-                    img,
-                    imageValue,
-                    img.alt
-                );
-            }
-        );
-    }
-
-
-    /* ---------------------------------------------------------
-       CURRENT PAGE NEWS ID
-       --------------------------------------------------------- */
-
-    function getCurrentNewsId() {
-
-        const path =
-            location.pathname;
-
-
-        /*
-         * /news/32.html
-         */
-        const match =
-            path.match(
-                /\/news\/([^/]+)\.html$/i
-            );
-
-
-        if (match) {
-            return normalizeId(
-                decodeURIComponent(
-                    match[1]
+                not temporary.exists()
+                or temporary.stat().st_size == 0
+            ):
+                raise RuntimeError(
+                    "Image file is empty"
                 )
-            );
-        }
 
-
-        /*
-         * data-news-id
-         */
-        const element =
-            document.querySelector(
-                "[data-news-id]"
-            );
-
-
-        if (element) {
-
-            return normalizeId(
-                element.getAttribute(
-                    "data-news-id"
-                )
-            );
-        }
-
-
-        /*
-         * ?id=32
-         */
-        const params =
-            new URLSearchParams(
-                location.search
-            );
-
-
-        return normalizeId(
-            params.get("id") || ""
-        );
-    }
-
-
-    /* ---------------------------------------------------------
-       LOAD DATA
-       --------------------------------------------------------- */
-
-    async function loadNewsData() {
-
-        const response =
-            await fetch(
-                DATA_URL +
-                    "?_=" +
-                    Date.now(),
-                {
-                    cache: "no-store"
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "News data HTTP " +
-                response.status
-            );
-        }
-
-
-        return response.json();
-    }
-
-
-    /* ---------------------------------------------------------
-       GET CURRENT NEWS
-       --------------------------------------------------------- */
-
-    async function getCurrentNews() {
-
-        const payload =
-            await loadNewsData();
-
-        const news =
-            rowsFromPayload(payload);
-
-        const id =
-            getCurrentNewsId();
-
-        return {
-            news: news,
-            current: getNewsById(
-                news,
-                id
+            temporary.replace(
+                destination
             )
-        };
-    }
+
+            print(
+                "Saved:",
+                destination,
+            )
+
+            return (
+                "assets/news/"
+                + filename
+            )
+
+        except Exception as error:
+
+            print(
+                "Image failed:",
+                error,
+            )
+
+        finally:
+
+            if response is not None:
+
+                try:
+                    response.close()
+                except Exception:
+                    pass
+
+    return ""
 
 
-    /* ---------------------------------------------------------
-       PUBLIC API
-       --------------------------------------------------------- */
+def process_news_images(
+    news_id: str,
+    image_urls: list[str],
+    assets_dir: Path,
+    session=None,
+) -> list[str]:
 
-    window.BanglaNewsMedia = {
+    assets_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
-        load: loadNewsData,
+    if session is None:
+        session = requests.Session()
 
-        parse: rowsFromPayload,
+    results = []
 
-        getCurrent: getCurrentNews,
+    for index in range(3):
 
-        findById: getNewsById,
+        image_number = index + 1
 
-        imageCandidates:
-            imageCandidates,
+        if index >= len(image_urls):
+            results.append("")
+            continue
 
-        normalizeImageUrl:
-            normalizeImageUrl,
+        url = clean(
+            image_urls[index]
+        )
 
-        setImage:
-            setImageSource,
+        if not url:
+            results.append("")
+            continue
 
-        createImage:
-            createImage
-    };
+        print(
+            f"Processing image {image_number} "
+            f"for news ID {news_id}"
+        )
 
+        result = download_image(
+            url=url,
+            news_id=news_id,
+            image_number=image_number,
+            assets_dir=assets_dir,
+            session=session,
+        )
 
-    /* ---------------------------------------------------------
-       AUTOMATIC IMAGE LOADING
-       --------------------------------------------------------- */
+        results.append(result)
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        async function () {
-
-            try {
-
-                const payload =
-                    await loadNewsData();
-
-                const news =
-                    rowsFromPayload(
-                        payload
-                    );
-
-
-                /*
-                 * First hydrate explicit
-                 * data-news-image elements.
-                 */
-                hydrateImages(news);
-
-
-                /*
-                 * Static news page:
-                 * If an image placeholder has
-                 * data-image-id, load from JSON.
-                 */
-                const id =
-                    getCurrentNewsId();
-
-
-                if (!id) {
-                    return;
-                }
-
-
-                const current =
-                    getNewsById(
-                        news,
-                        id
-                    );
-
-
-                if (!current) {
-                    return;
-                }
-
-
-                /*
-                 * Elements specifically assigned
-                 * to Image-1 / Image-2 / Image-3.
-                 */
-
-                const image1 =
-                    document.querySelector(
-                        '[data-news-image="1"]'
-                    );
-
-                const image2 =
-                    document.querySelector(
-                        '[data-news-image="2"]'
-                    );
-
-                const image3 =
-                    document.querySelector(
-                        '[data-news-image="3"]'
-                    );
-
-
-                if (image1) {
-
-                    setImageSource(
-                        image1,
-                        current.image1,
-                        current.headline
-                    );
-                }
-
-
-                if (image2) {
-
-                    setImageSource(
-                        image2,
-                        current.image2,
-                        current.headline
-                    );
-                }
-
-
-                if (image3) {
-
-                    setImageSource(
-                        image3,
-                        current.image3,
-                        current.headline
-                    );
-                }
-
-
-                /*
-                 * Generic gallery im
+    return results
