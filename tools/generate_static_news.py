@@ -1703,11 +1703,23 @@ def generate_news_data(
             }
         )
 
+    # Frontend-compatible Google Visualization-style table rows.
+    # Keep the original "news" array as well for backwards compatibility.
+    table_rows = [
+        {
+            "c": [
+                {"v": item.get(column, "")}
+                for column in EXPECTED_COLUMNS
+            ]
+        }
+        for item in rows
+    ]
+
     data = {
         "news": news,
         "table": {
             "columns": EXPECTED_COLUMNS,
-            "rows": rows,
+            "rows": table_rows,
         },
         "updated_at": (
             datetime.utcnow()
