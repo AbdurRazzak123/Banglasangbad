@@ -12,3 +12,31 @@
 /* v26: sequential slot rendering is handled by JS; v25 fix: do not use paint containment on ad slots; ad-network creatives may overflow/position internally. */
 .ad-slot { contain: none!important; }
 .ad-code-host img,.ad-code-host iframe { max-width:100%!important; }
+
+
+/* Mobile creative safety: keep direct/network ads inside the phone viewport. */
+@media(max-width:768px){
+  .ad-slot .ad-code-host,
+  .ad-slot .ad-code-host > *,
+  .ad-slot iframe,
+  .ad-slot video,
+  .ad-slot object,
+  .ad-slot embed,
+  .ad-slot canvas,
+  .ad-slot svg,
+  .ad-slot img{
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .ad-slot iframe,
+  .ad-slot video,
+  .ad-slot object,
+  .ad-slot embed{
+    width:100%!important;
+  }
+  .ad-slot .ad-code-host{
+    width:100%!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+}
