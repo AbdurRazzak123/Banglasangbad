@@ -5,6 +5,14 @@ on:
   push:
     paths:
       - 'home.html'
+      - 'index.html'
+      - 'national.html'
+      - 'politics.html'
+      - 'international.html'
+      - 'economics.html'
+      - 'sports.html'
+      - 'entertainment.html'
+      - 'technology.html'
       - 'tools/generate_static_news.py'
       - 'tools/news_assets.py'
       - 'ads-loader.js'
@@ -45,6 +53,27 @@ jobs:
           SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
         run: python tools/generate_static_news.py
 
+      - name: Normalize news-data.json for website
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('news-data.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          news = data.get('news') or []
+          columns = ['ID','Category','Headline','Details','Image-1','Date','Video','Image-2','Image-3','Keyword']
+          data['table'] = {
+              'columns': columns,
+              'rows': [
+                  {'c': [{'v': item.get(col, '')} for col in columns]}
+                  for item in news
+              ]
+          }
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(f'SUCCESS: normalized {len(news)} news rows for frontend.')
+          PY
+
       - name: Validate generated output
         run: |
           python - <<'PY'
@@ -57,11 +86,28 @@ jobs:
           news = data.get('news', [])
           if not news:
               raise SystemExit('ERROR: generator produced no news.')
+          table_rows = data.get('table', {}).get('rows', [])
+          if not table_rows or not all(isinstance(r, dict) and 'c' in r for r in table_rows):
+              raise SystemExit('ERROR: news-data.json table.rows is not frontend-compatible c/v format.')
+          print(f'SUCCESS: news-data.json has {len(table_rows)} frontend-compatible rows.')
 
           pages = {p.stem for p in (root / 'news').glob('*.html')}
           missing = [str(item.get('id')) for item in news if str(item.get('id')) not in pages]
           if missing:
               raise SystemExit('ERROR: missing detail pages: ' + ', '.join(missing[:20]))
+
+          # Final Details-page contract: these are intentionally checked here so
+          # future Google Sheet -> Generate runs keep the requested fixes.
+          sample_pages = list((root / 'news').glob('*.html'))
+          if not sample_pages:
+              raise SystemExit('ERROR: no Details pages generated.')
+          for page in sample_pages:
+              html = page.read_text(encoding='utf-8')
+              required = ('data-site-base=\"../\"', 'id=\"live-date\"', 'detail-live-date-script', '../site-search.js')
+              missing_bits = [x for x in required if x not in html]
+              if missing_bits:
+                  raise SystemExit(f'ERROR: Details contract missing in {page}: ' + ', '.join(missing_bits))
+          print(f'SUCCESS: Details contract verified on {len(sample_pages)} generated pages.')
 
           ads = json.loads((root / 'ads-data.json').read_text(encoding='utf-8'))
           ad_rows = ads.get('table', {}).get('rows', [])
