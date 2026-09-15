@@ -1374,7 +1374,7 @@ def _home_template_parts():
     if not m:
         raise ValueError("Could not read <head> from home.html")
     head = m.group(1)
-    for asset in ("ads.css?v=20260907-ads-v26-sequential-final", "image-pattern.css"):
+    for asset in ("ads.css?v=20260915-ads-v27-sheet-row-compatible", "image-pattern.css"):
         head = head.replace(f'href="{asset}"', f'href="../{asset}"')
     return head
 
@@ -1596,7 +1596,7 @@ def render_news_page(item, all_news):
 <a href="https://twitter.com/" target="_blank" rel="noopener">X / Twitter</a>
 </div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="../advertise.html">বিজ্ঞাপন দিন</a></footer>"""
 
-    scripts = """<script src="../ads-loader.js?v=20260907-ads-v26-sequential-final"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
+    scripts = """<script src="../ads-loader.js?v=20260915-ads-v27-sheet-row-compatible"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
 
     # Exact requested Details ad order:
     # Top -> headline -> Middle top -> article content -> Middle bottom ->
