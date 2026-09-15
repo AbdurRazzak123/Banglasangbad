@@ -1,5 +1,5 @@
 /*
- * বাংলা সংবাদ — FINAL Ads Loader v26
+ * বাংলা সংবাদ — FINAL Ads Loader v27
  * Same direct rendering engine used by the working ad slots + smart row retry.
  * GitHub ads-data.json columns: A Position | B Active | C Image URL | D Click URL | E Title | F Ad Code
  * Supported: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM, ALL, MIDDLE
@@ -8,14 +8,18 @@
   'use strict';
 
   const DATA_URL = 'https://abdurrazzak123.github.io/Banglasangbad/ads-data.json';
-  const VERSION = 'ads-v26-sequential-final';
+  const VERSION = 'ads-v27-sheet-row-compatible';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
   const ENABLE_TEST_FALLBACK = false;
   const SHEET_TIMEOUT_MS = 5000;
   const CODE_TIMEOUT_MS = 4500;
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const value = (row, i) => row && row.c && row.c[i] && row.c[i].v != null ? String(row.c[i].v).trim() : '';
+  const value = (row, i) => {
+    if (Array.isArray(row)) return row[i] != null ? String(row[i]).trim() : '';
+    if (row && Array.isArray(row.c) && row.c[i] && row.c[i].v != null) return String(row.c[i].v).trim();
+    return '';
+  };
 
   function parseGViz(raw) {
     const a = raw.indexOf('{'), b = raw.lastIndexOf('}') + 1;

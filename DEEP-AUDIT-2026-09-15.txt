@@ -1,0 +1,65 @@
+বাংলা সংবাদ — Deep Audit & Fix Report
+তারিখ: 2026-09-15
+
+১) Google Sheet Ads কেন দেখা যাচ্ছিল না
+---------------------------------------
+মূল সমস্যা পাওয়া গেছে ads-data.json এবং ads-loader.js-এর data-format mismatch-এ।
+
+বর্তমান tools/generate_static_news.py Ads tab থেকে rows-কে সাধারণ array আকারে লিখছিল:
+[
+  ["Top", "Yes", "...", "...", "Title", "<script>..."]
+]
+
+কিন্তু ads-loader.js শুধু Google Visualization-এর object format পড়ছিল:
+row.c[i].v
+
+ফলে loader JSON ঠিকমতো download করলেও প্রতিটি row-এর Position/Active/Ad Code খালি হিসেবে পড়ছিল এবং কোনো matching ad তৈরি হচ্ছিল না।
+
+FIX:
+ads-loader.js v27 এখন দুই format-ই পড়ে:
+- সাধারণ array row
+- Google Visualization {c:[{v:...}]} row
+
+বর্তমান ads-data.json-এর 4টি active ad row এখন loader-এর কাছে:
+TOP = 1
+MIDDLE TOP = 1
+MIDDLE BOTTOM = 1
+BOTTOM = 1
+
+২) Regenerate News Details workflow
+------------------------------------
+বর্তমান generator হলো:
+tools/generate_static_news.py
+
+পুরোনো workflow ভুলভাবে:
+Tools/generate_static_news.py
+এবং News / Asset
+ব্যবহার করছিল। Linux/GitHub Actions case-sensitive হওয়ায় এটি বর্তমান repository structure-এর সঙ্গে মেলে না।
+
+FIX:
+.github/workflows/regenerate-news-details.yml এখন:
+- tools/generate_static_news.py চালায়
+- tools/news_assets.py dependency path অনুযায়ী কাজ করে
+- lowercase news এবং assets/news output নেয়
+- news-data.json, ads-data.json, sitemap.xml, news-sitemap.xml commit করে
+- generated news page validation করে
+- Ads row count validation করে
+
+৩) Cache/version fix
+---------------------
+ads-loader.js-কে v27 করা হয়েছে এবং existing HTML/generated detail pages-এর loader URL নতুন version-এ নেওয়া হয়েছে:
+20260915-ads-v27-sheet-row-compatible
+
+এতে পুরোনো cached v26 loader আটকে থাকার ঝুঁকি কমে।
+
+৪) গুরুত্বপূর্ণ operational note
+--------------------------------
+Google Sheet পরিবর্তন করলে website-এর static ads-data.json সঙ্গে সঙ্গে বদলায় না।
+বর্তমান architecture:
+Google Sheet → GitHub Actions → ads-data.json → website
+
+update-news-sitemap.yml প্রতি 5 মিনিটে sync করার জন্য configured আছে। GitHub Actions run এবং GitHub Pages deployment সম্পন্ন হওয়ার পর নতুন ad দেখা যাবে।
+
+৫) Secondary limitation
+------------------------
+Ads loader-এর data-format bug ঠিক করা হয়েছে। এরপরও কোনো নির্দিষ্ট ad network-এর external script যদি server-side HTTP 403/blocked response দেয়, loader সেই network restriction bypass করতে পারবে না। সে ক্ষেত্রে Image URL + Click URL fallback ব্যবহার করা যায়।
