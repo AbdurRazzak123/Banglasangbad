@@ -263,6 +263,57 @@ def load_ads_sheet() -> dict | None:
 # NEWS NORMALIZATION
 # ============================================================
 
+def parse_news_date(value):
+    """Parse the Google Sheet Date cell into a real date when possible."""
+    raw = clean(value).translate(str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789"))
+    if not raw:
+        return None
+
+    m = re.fullmatch(r"Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)", raw)
+    if m:
+        return datetime(int(m.group(1)), int(m.group(2)) + 1, int(m.group(3)))
+
+    # Google Sheets / gviz can return ISO timestamps with milliseconds or Z.
+    iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(?:Z|[+-]\d{2}:?\d{2})?)?", raw)
+    if iso:
+        try:
+            return datetime(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
+        except ValueError:
+            pass
+
+    for fmt in (
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M:%S.%f",
+        "%m/%d/%Y",
+        "%m/%d/%Y %H:%M:%S",
+        "%d/%m/%Y",
+        "%d/%m/%Y %H:%M:%S",
+        "%d-%m-%Y",
+        "%d-%m-%Y %H:%M:%S",
+    ):
+        try:
+            return datetime.strptime(raw, fmt)
+        except ValueError:
+            pass
+    return None
+
+
+def bangla_news_date(value):
+    """Format the Sheet article date in Bengali for display below the category."""
+    d = parse_news_date(value)
+    if not d:
+        return clean(value).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
+    months = [
+        "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+        "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর",
+    ]
+    digits = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+    return f"{str(d.day).translate(digits)} {months[d.month - 1]} {str(d.year).translate(digits)}"
+
+
 def normalize_news(rows):
 
     result = []
@@ -1463,6 +1514,24 @@ def render_news_page(item, all_news):
         jsonld["image"] = [og_image]
 
     head = _home_template_parts()
+    # Copy the same ad CSS used by category pages into every generated Details page.
+    # This prevents page-specific styles from changing the phone layout.
+    ads_css_path = ROOT / "ads.css"
+    if ads_css_path.exists():
+        ads_css = ads_css_path.read_text(encoding="utf-8")
+        head += "\n<style id=\"category-ads-css-copy\">\n" + ads_css + "\n</style>\n"
+    # Details-only safeguards: keep the live Bangladesh date visible on phones and
+    # prevent third-party ad creatives from forcing horizontal overflow.
+    head += """\n<style id=\"details-mobile-final-fix\">
+@media(max-width:900px){
+  .site-header #live-date{display:block!important;margin-left:auto!important;text-align:right!important;font-size:12px!important;line-height:1.35!important;max-width:150px!important;white-space:normal!important;}
+  .ad-slot:not(:empty){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;}
+  .ad-slot:not(:empty) .ad-code-host,.ad-slot:not(:empty)>*,.ad-slot:not(:empty) iframe,.ad-slot:not(:empty) video,.ad-slot:not(:empty) object,.ad-slot:not(:empty) embed,.ad-slot:not(:empty) canvas,.ad-slot:not(:empty) svg,.ad-slot:not(:empty) img{box-sizing:border-box!important;max-width:100%!important;}
+  .ad-slot:not(:empty) iframe,.ad-slot:not(:empty) video,.ad-slot:not(:empty) object,.ad-slot:not(:empty) embed,.ad-slot:not(:empty) canvas,.ad-slot:not(:empty) svg,.ad-slot:not(:empty) img{width:100%!important;height:auto!important;}
+}
+@media(max-width:600px){.site-header #live-date{font-size:11px!important;max-width:125px!important;white-space:normal!important;}}
+</style>
+"""
     head = re.sub(
         r'<title>.*?</title>',
         f'<title>{escape(item["headline"])} | বাংলা সংবাদ</title>',
@@ -1604,15 +1673,16 @@ def render_news_page(item, all_news):
     return f"""<!DOCTYPE html>
 <html lang="bn">
 <head>{head}</head>
-<body>
+<body data-site-base="../">
 <div class="ad-slot top sheet-ad-slot" data-ad-position="top" data-ad-slot="top" aria-label="বিজ্ঞাপন"></div>
 <div class="top-bar">বাংলা সংবাদ — সত্য ও নির্ভরযোগ্য খবর</div>
-<header class="site-header"><div class="header-inner"><div class="logo"><img src="../logo.png" alt="বাংলা সংবাদ লোগো" class="logo-image"><div class="logo-fallback"><h1>বাংলা সংবাদ</h1><p>সর্বশেষ সংবাদ সবার আগে</p></div></div><div id="live-date">{escape(item["date"] or "তারিখ")}</div></div></header>
+<header class="site-header"><div class="header-inner"><div class="logo"><img src="../logo.png" alt="বাংলা সংবাদ লোগো" class="logo-image"><div class="logo-fallback"><h1>বাংলা সংবাদ</h1><p>সর্বশেষ সংবাদ সবার আগে</p></div></div><div id="live-date">তারিখ</div></div></header>
+<script id="detail-live-date-script">(function(){{const e=document.getElementById('live-date');if(e)e.textContent=new Intl.DateTimeFormat('bn-BD',{{timeZone:'Asia/Dhaka',weekday:'long',day:'numeric',month:'long',year:'numeric'}}).format(new Date());}})();</script>
 {nav}
 <div class="breaking"><div class="breaking-news-container"><div class="breaking-title">ব্রেকিং নিউজ</div><div class="ticker-window"><div class="ticker-track" id="breaking-ticker">{escape(item["headline"])}</div></div></div></div>
 <main class="container home-main-layout">
 <section id="home-feature" aria-label="সংবাদের বিস্তারিত"><article class="vertical-news-block" id="news-{escape(safe_id(item["id"]))}">
-{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(item["date"])}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1>
+{image_html}<div class="news-text-bottom"><span class="category-tag">{escape(item["category"])}</span><div class="breaking-news-date">{escape(bangla_news_date(item["date"]))}</div><h1 class="home-feature-title">{escape(item["headline"])}</h1>
 <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-top" data-ad-slot="middle-top" aria-label="বিজ্ঞাপন"></div>
 <div class="home-full-details">{body_html}</div>{gallery_html}{video_html}{share_html}
 <div class="ad-slot in-article sheet-ad-slot middle" data-ad-position="middle-bottom" data-ad-slot="middle-bottom" aria-label="বিজ্ঞাপন"></div>
