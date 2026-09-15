@@ -374,6 +374,13 @@ img{max-width:100%;height:auto}
   .site-footer{width:100%!important;overflow:hidden!important}
 }
 </style>
+
+/* Details-page advertisements: mobile-only responsive behavior. */
+@media(max-width:768px){
+  body.detail-page .ad-slot,body.detail-page .ad-slot.sheet-ad-slot{width:100%!important;max-width:100%!important;min-width:0!important;margin:12px 0!important;padding:0!important;box-sizing:border-box!important;overflow:hidden!important;text-align:center!important}
+  body.detail-page .ad-slot>*{max-width:100%!important;box-sizing:border-box!important}
+  body.detail-page .ad-slot img,body.detail-page .ad-slot iframe,body.detail-page .ad-slot video,body.detail-page .ad-slot object,body.detail-page .ad-slot embed{display:block!important;width:auto!important;max-width:100%!important;height:auto!important;margin:0 auto!important;border:0!important}
+}
 '''
 
 

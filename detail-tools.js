@@ -52,12 +52,12 @@
     else if(type==='instagram'){copy(); window.open('https://www.instagram.com/','_blank','noopener,noreferrer');}
   }
 
-  const header=document.querySelector('.header-inner');
-  if(header){
-    header.querySelectorAll('.bs-social-tools, .bs-detail-search-wrap, .bs-search').forEach(el=>el.remove());
+  const nav=document.querySelector('.nav');
+  if(nav){
+    document.querySelectorAll('.bs-social-tools, .bs-detail-search-wrap, .bs-search').forEach(el=>el.remove());
     const tools=document.createElement('div'); tools.className='bs-social-tools bs-detail-search-wrap';
     tools.innerHTML=`<div class="bs-search" role="search"><input id="bs-search-input" type="search" placeholder="নিউজ খুঁজুন..." aria-label="নিউজ খুঁজুন"><button id="bs-search-btn" type="button" aria-label="সার্চ">⌕</button><div id="bs-search-results" class="bs-search-results"></div></div>`;
-    header.appendChild(tools);
+    nav.insertAdjacentElement('afterend',tools);
     const input=tools.querySelector('#bs-search-input'), results=tools.querySelector('#bs-search-results');
     let items=[];
     fetch(BASE+'news-data.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{

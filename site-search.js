@@ -29,7 +29,7 @@
     if(!q){results.style.display='none';return;}
     const found=items.filter(x=>(x.title+' '+x.category+' '+x.keywords).toLowerCase().includes(q)).slice(0,10);
     if(!found.length){results.innerHTML='<div style="padding:14px;font-weight:700;color:#667085">কোনো সংবাদ পাওয়া যায়নি।</div>';results.style.display='block';return;}
-    found.forEach(x=>{const a=document.createElement('a');a.href='news/'+encodeURIComponent(normalizeId(x.id))+'.html';a.innerHTML='<strong>'+escapeHtml(x.title)+'</strong><br><small>'+escapeHtml(x.category)+'</small>';results.appendChild(a);});
+    found.forEach(x=>{const a=document.createElement('a');a.href=base+'news/'+encodeURIComponent(normalizeId(x.id))+'.html';a.innerHTML='<strong>'+escapeHtml(x.title)+'</strong><br><small>'+escapeHtml(x.category)+'</small>';results.appendChild(a);});
     results.style.display='block';
   }
   function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}

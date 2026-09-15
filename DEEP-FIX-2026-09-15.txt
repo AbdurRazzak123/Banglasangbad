@@ -1,0 +1,7 @@
+বাংলা সংবাদ — Details Page Deep Fix
+
+1. Details/news pages now use the same logo/header/date structure as the other site pages.
+2. The date uses the same Asia/Dhaka Intl.DateTimeFormat as the main pages.
+3. Details search is active via detail-tools.js and is placed below navigation, so the logo bar keeps the date on the right.
+4. Details ad slots are present and receive a mobile-only responsive rule; desktop ad behavior is not changed by this rule.
+5. generate_static_news.py and detail-tools.js were patched so future regeneration preserves these fixes.
