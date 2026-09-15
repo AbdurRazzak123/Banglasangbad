@@ -1,0 +1,15 @@
+Banglasangbad final regenerate fix
+==================================
+Base: AD-FIXED-FINAL-2026-09-15
+
+Fixes:
+1. tools/generate_static_news.py now writes news-data.json table.rows in frontend-compatible Google Visualization c/v format while retaining the news array.
+2. regenerate-news-details.yml also normalizes and validates c/v rows after generation as a safety net.
+3. Workflow triggers include the main category/home/index pages as well as generator/assets/ad files.
+4. Existing Ads v27 compatibility fix is preserved.
+
+Purpose:
+Running Regenerate News Details should regenerate existing Google Sheet news; a new news item is NOT required for existing news to appear.
+
+Upload the extracted project contents to the repository root, then run:
+Actions -> Regenerate News Details -> Run workflow.
