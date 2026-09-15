@@ -5,18 +5,28 @@ on:
   push:
     paths:
       - 'home.html'
-      - 'Tools/generate_static_news.py'
+      - 'tools/generate_static_news.py'
+      - 'tools/news_assets.py'
+      - 'ads-loader.js'
+      - 'ads.css'
       - '.github/workflows/regenerate-news-details.yml'
 
 permissions:
   contents: write
 
+concurrency:
+  group: regenerate-news-details
+  cancel-in-progress: false
+
 jobs:
   regenerate:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -24,15 +34,60 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
 
-      - name: Regenerate news details
-        run: python Tools/generate_static_news.py
+      - name: Regenerate news details from Google Sheet
+        env:
+          NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
+          NEWS_SHEET_NAME: Bangla News
+          SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
+        run: python tools/generate_static_news.py
+
+      - name: Validate generated output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+
+          data = json.loads((root / 'news-data.json').read_text(encoding='utf-8'))
+          news = data.get('news', [])
+          if not news:
+              raise SystemExit('ERROR: generator produced no news.')
+
+          pages = {p.stem for p in (root / 'news').glob('*.html')}
+          missing = [str(item.get('id')) for item in news if str(item.get('id')) not in pages]
+          if missing:
+              raise SystemExit('ERROR: missing detail pages: ' + ', '.join(missing[:20]))
+
+          ads = json.loads((root / 'ads-data.json').read_text(encoding='utf-8'))
+          ad_rows = ads.get('table', {}).get('rows', [])
+          if not ad_rows:
+              print('WARNING: Ads tab produced no rows.')
+          else:
+              print(f'SUCCESS: ads-data.json contains {len(ad_rows)} ad rows.')
+
+          for required in ('news-data.json', 'ads-data.json', 'sitemap.xml', 'news-sitemap.xml'):
+              target = root / required
+              if not target.is_file() or target.stat().st_size == 0:
+                  raise SystemExit(f'ERROR: missing/empty {required}')
+
+          print(f'SUCCESS: {len(news)} news records and {len(pages)} detail pages generated.')
+          PY
 
       - name: Commit generated files
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add News Asset sitemap.xml news-sitemap.xml news-data.json ads-data.json
-          git diff --cached --quiet || git commit -m 'Regenerate news details'
-          git push
+
+          git add             news             assets/news             news-data.json             ads-data.json             sitemap.xml             news-sitemap.xml
+
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+          else
+            git commit -m 'Regenerate news details'
+            git push
+          fi
