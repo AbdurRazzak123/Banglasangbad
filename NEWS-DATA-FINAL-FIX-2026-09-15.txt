@@ -1,0 +1,1 @@
+FINAL FIX: Based on the first AD-FIXED project. Only news-data.json was updated so table.rows use Google Visualization c/v format expected by the existing news pages. Ads files and the rest of the first project were preserved.
