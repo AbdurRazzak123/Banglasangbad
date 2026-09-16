@@ -48,7 +48,7 @@ FIX:
 ৩) Cache/version fix
 ---------------------
 ads-loader.js-কে v27 করা হয়েছে এবং existing HTML/generated detail pages-এর loader URL নতুন version-এ নেওয়া হয়েছে:
-20260915-ads-v27-sheet-row-compatible
+20260915-ads-v28-mobile-fit-sheet-row-compatible
 
 এতে পুরোনো cached v26 loader আটকে থাকার ঝুঁকি কমে।
 

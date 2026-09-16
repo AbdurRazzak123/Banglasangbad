@@ -1,5 +1,5 @@
 /*
- * বাংলা সংবাদ — FINAL Ads Loader v27
+ * বাংলা সংবাদ — FINAL Ads Loader v28
  * Same direct rendering engine used by the working ad slots + smart row retry.
  * GitHub ads-data.json columns: A Position | B Active | C Image URL | D Click URL | E Title | F Ad Code
  * Supported: TOP, MIDDLE TOP, MIDDLE BOTTOM, BOTTOM, ALL, MIDDLE
@@ -8,7 +8,7 @@
   'use strict';
 
   const DATA_URL = 'https://abdurrazzak123.github.io/Banglasangbad/ads-data.json';
-  const VERSION = 'ads-v27-sheet-row-compatible';
+  const VERSION = 'ads-v28-mobile-fit-sheet-row-compatible';
   // Built-in diagnostic fallback: this is NOT a paid/network ad. Set to false to hide it.
   const ENABLE_TEST_FALLBACK = false;
   const SHEET_TIMEOUT_MS = 5000;
@@ -155,6 +155,34 @@
     }
   }
 
+  function fitMobileAdHost(host) {
+    if (!host || !window.matchMedia || !window.matchMedia('(max-width: 768px)').matches) return;
+    const slot = host.parentElement;
+    if (!slot) return;
+    const hostRect = host.getBoundingClientRect();
+    if (hostRect.width <= 1) return;
+
+    const creativeSelectors = 'iframe,img,video,object,embed,canvas,svg,ins,[data-ad-status="filled"]';
+    let bottom = 0;
+    host.querySelectorAll(creativeSelectors).forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.width > 2 && r.height > 2) bottom = Math.max(bottom, r.bottom - hostRect.top);
+    });
+    if (bottom > 2) {
+      // Keep only the rendered creative height; remove an oversized wrapper's
+      // leftover blank area on phones. Never crop the measured creative itself.
+      host.style.height = Math.ceil(bottom) + 'px';
+      host.style.minHeight = '0';
+      slot.style.height = 'auto';
+      slot.style.minHeight = '0';
+    }
+  }
+
+  function scheduleMobileAdFit(host) {
+    if (!host) return;
+    [120, 350, 800, 1500, 2500, 4000].forEach(ms => setTimeout(() => fitMobileAdHost(host), ms));
+  }
+
   async function executeDirect(slot, code, title) {
     const source = String(code || '').trim();
     if (!source) return false;
@@ -163,7 +191,18 @@
     const host = document.createElement('div');
     host.className = 'ad-code-host';
     host.dataset.adProvider = 'direct';
-    host.style.cssText = 'display:block;width:100%;max-width:100%;min-height:1px;text-align:center;position:relative;overflow:visible;';
+
+    // Read common fixed ad dimensions (e.g. 728x90 / 320x50) from the snippet.
+    // This lets mobile CSS preserve the creative's aspect ratio instead of leaving
+    // a tall fixed-height iframe/parent behind a short banner.
+    const declaredH = source.match(/(?:['\"]height['\"]|\bheight)\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)['\"]?/i);
+    const declaredW = source.match(/(?:['\"]width['\"]|\bwidth)\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)['\"]?/i);
+    if (declaredW && declaredH && Number(declaredW[1]) > 0 && Number(declaredH[1]) > 0) {
+      host.dataset.adWidth = declaredW[1];
+      host.dataset.adHeight = declaredH[1];
+      host.style.setProperty('--ad-ratio', declaredW[1] + ' / ' + declaredH[1]);
+    }
+    host.style.cssText += 'display:block;width:100%;max-width:100%;min-height:1px;text-align:center;position:relative;overflow:visible;';
     slot.appendChild(host);
 
     const originalWrite = document.write;
@@ -196,10 +235,10 @@
       let previous = 0;
       for (const ms of checks) {
         await sleep(Math.max(0, ms - previous)); previous = ms;
-        if (hasCreative(host)) { mark(slot, title, 'code'); return true; }
+        if (hasCreative(host)) { mark(slot, title, 'code'); scheduleMobileAdFit(host); return true; }
         if (performance.now() - started >= CODE_TIMEOUT_MS) break;
       }
-      if (host.children.length && host.getBoundingClientRect().height > 2) { mark(slot, title, 'code'); return true; }
+      if (host.children.length && host.getBoundingClientRect().height > 2) { mark(slot, title, 'code'); scheduleMobileAdFit(host); return true; }
       clear(slot); return false;
     } catch (e) {
       restore();

@@ -13,3 +13,6 @@ IMPORTANT:
 - Home page keeps its existing three ad slots.
 - Middle top is placed directly below the Details headline.
 
+
+
+Mobile ad fix: phone ad containers now fit the rendered creative height; desktop ad behavior is unchanged.

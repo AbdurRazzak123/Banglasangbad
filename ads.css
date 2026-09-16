@@ -1,4 +1,4 @@
-/* বাংলা সংবাদ — FINAL Ads CSS v21 */
+/* বাংলা সংবাদ — FINAL Ads CSS v22 — mobile height fix */
 .ad-slot,.ad-slot.sheet-ad-slot{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;margin:16px auto!important;padding:0!important;box-sizing:border-box!important;overflow:visible!important;text-align:center!important;background:transparent!important;position:relative!important;clear:both!important}
 .ad-slot:empty{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important}.ad-slot[data-ad-error]{min-height:0!important}.ad-slot.ad-loaded{visibility:visible!important}.ad-code-host{display:block!important;width:100%!important;max-width:100%!important;min-height:1px!important;height:auto!important;margin:0 auto!important;padding:0!important;overflow:visible!important;text-align:center!important;position:relative!important}.ad-code-host iframe{max-width:100%!important;border:0!important}.ad-slot>a{display:block;width:100%;text-decoration:none}.ad-slot img{display:block!important;width:auto!important;max-width:100%!important;height:auto!important;max-height:none!important;margin:0 auto!important;border:0!important}@media(max-width:768px){.ad-slot,.ad-slot.sheet-ad-slot{width:100%!important;max-width:100%!important;margin:12px 0!important}}
 
@@ -33,6 +33,16 @@
   .ad-slot object,
   .ad-slot embed{
     width:100%!important;
+    height:auto!important;
+  }
+  .ad-slot .ad-code-host[data-ad-width][data-ad-height] iframe{
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:var(--ad-ratio)!important;
+  }
+  .ad-slot .ad-code-host{
+    min-height:0!important;
+    height:auto!important;
   }
   .ad-slot .ad-code-host{
     width:100%!important;
