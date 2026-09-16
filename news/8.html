@@ -1294,8 +1294,76 @@ section.news-grid > article:nth-child(6) .news-image img {
 </style>
 
 </style>
-  <link rel="stylesheet" href="../ads.css?v=20260907-ads-v26-sequential-final">
+  <link rel="stylesheet" href="ads.css?v=20260907-ads-v26-sequential-final">
 <link rel="stylesheet" href="../image-pattern.css">
+
+<style id="category-ads-css-copy">
+/* বাংলা সংবাদ — FINAL Ads CSS v22 — mobile height fix */
+.ad-slot,.ad-slot.sheet-ad-slot{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;margin:16px auto!important;padding:0!important;box-sizing:border-box!important;overflow:visible!important;text-align:center!important;background:transparent!important;position:relative!important;clear:both!important}
+.ad-slot:empty{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important}.ad-slot[data-ad-error]{min-height:0!important}.ad-slot.ad-loaded{visibility:visible!important}.ad-code-host{display:block!important;width:100%!important;max-width:100%!important;min-height:1px!important;height:auto!important;margin:0 auto!important;padding:0!important;overflow:visible!important;text-align:center!important;position:relative!important}.ad-code-host iframe{max-width:100%!important;border:0!important}.ad-slot>a{display:block;width:100%;text-decoration:none}.ad-slot img{display:block!important;width:auto!important;max-width:100%!important;height:auto!important;max-height:none!important;margin:0 auto!important;border:0!important}@media(max-width:768px){.ad-slot,.ad-slot.sheet-ad-slot{width:100%!important;max-width:100%!important;margin:12px 0!important}}
+
+
+/* v18 built-in diagnostic fallback (not a paid/network advertisement) */
+.ad-test-fallback{box-sizing:border-box;width:100%;min-height:180px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:2px dashed #999;background:#f5f5f5;color:#222;text-align:center;font-family:Arial,sans-serif;padding:20px;}
+.ad-test-fallback strong{font-size:28px;letter-spacing:1px;}
+.ad-test-fallback span{font-size:18px;}
+.ad-test-fallback small{font-size:13px;opacity:.75;}
+
+/* v26: sequential slot rendering is handled by JS; v25 fix: do not use paint containment on ad slots; ad-network creatives may overflow/position internally. */
+.ad-slot { contain: none!important; }
+.ad-code-host img,.ad-code-host iframe { max-width:100%!important; }
+
+
+/* Mobile creative safety: keep direct/network ads inside the phone viewport. */
+@media(max-width:768px){
+  .ad-slot .ad-code-host,
+  .ad-slot .ad-code-host > *,
+  .ad-slot iframe,
+  .ad-slot video,
+  .ad-slot object,
+  .ad-slot embed,
+  .ad-slot canvas,
+  .ad-slot svg,
+  .ad-slot img{
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .ad-slot iframe,
+  .ad-slot video,
+  .ad-slot object,
+  .ad-slot embed{
+    width:100%!important;
+    height:auto!important;
+  }
+  .ad-slot .ad-code-host[data-ad-width][data-ad-height] iframe{
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:var(--ad-ratio)!important;
+  }
+  .ad-slot .ad-code-host{
+    min-height:0!important;
+    height:auto!important;
+  }
+  .ad-slot .ad-code-host{
+    width:100%!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+}
+
+</style>
+
+<style id="details-mobile-final-fix">
+@media(max-width:900px){
+  .site-header #live-date{display:block!important;margin-left:auto!important;text-align:right!important;font-size:12px!important;line-height:1.35!important;max-width:150px!important;white-space:normal!important;}
+  .ad-slot:not(:empty){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;}
+  .ad-slot:not(:empty) .ad-code-host,.ad-slot:not(:empty)>*,.ad-slot:not(:empty) iframe,.ad-slot:not(:empty) video,.ad-slot:not(:empty) object,.ad-slot:not(:empty) embed,.ad-slot:not(:empty) canvas,.ad-slot:not(:empty) svg,.ad-slot:not(:empty) img{box-sizing:border-box!important;max-width:100%!important;}
+  .ad-slot:not(:empty) iframe,.ad-slot:not(:empty) video,.ad-slot:not(:empty) object,.ad-slot:not(:empty) embed,.ad-slot:not(:empty) canvas,.ad-slot:not(:empty) svg,.ad-slot:not(:empty) img{width:100%!important;height:auto!important;}
+  .ad-slot:not(:empty) .ad-code-host{min-height:0!important;height:auto!important;}
+  .ad-slot:not(:empty) .ad-code-host[data-ad-width][data-ad-height] iframe{width:100%!important;height:auto!important;aspect-ratio:var(--ad-ratio)!important;}
+}
+@media(max-width:600px){.site-header #live-date{font-size:11px!important;max-width:125px!important;white-space:normal!important;}}
+</style>
 
 <meta property="og:type" content="article">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -1551,15 +1619,15 @@ function shareNews() {
 </a>
 </article>
 <article class="latest-item category-latest-item">
-<a href="31.html" data-news-id="31">
-<span class="category-latest-thumb"><img loading="lazy" src="../assets/news/31-1.jpg" alt="BRICS সম্মেলনে যাচ্ছেন না প্রধানমন্ত্রী তারেক রহমান, দিল্লি সফর নিয়ে অবস্থান স্পষ্ট" onerror="imageFallback(this)"></span>
-<span class="category-latest-copy"><span class="category-latest-category">আন্তর্জাতিক</span><span class="category-latest-title">BRICS সম্মেলনে যাচ্ছেন না প্রধানমন্ত্রী তারেক রহমান, দিল্লি সফর নিয়ে অবস্থান স্পষ্ট</span></span>
+<a href="32.html" data-news-id="32">
+<span class="category-latest-thumb"><img loading="lazy" src="../assets/news/32-1.jpg" alt="রাশিয়া-ইউক্রেন যুদ্ধ: জ্বালানি অবকাঠামোতে হামলা না করার বিষয়ে আংশিক সম্মতি" onerror="imageFallback(this)"></span>
+<span class="category-latest-copy"><span class="category-latest-category">আন্তর্জাতিক</span><span class="category-latest-title">রাশিয়া-ইউক্রেন যুদ্ধ: জ্বালানি অবকাঠামোতে হামলা না করার বিষয়ে আংশিক সম্মতি</span></span>
 </a>
 </article>
 <article class="latest-item category-latest-item">
-<a href="12.html" data-news-id="12">
-<span class="category-latest-thumb"><img loading="lazy" src="../assets/news/12-1.png" alt="বিশ্বজুড়ে বাড়ছে ভূরাজনৈতিক উত্তেজনা, যুদ্ধ ও অর্থনৈতিক অনিশ্চয়তায় নতুন চাপ" onerror="imageFallback(this)"></span>
-<span class="category-latest-copy"><span class="category-latest-category">আন্তর্জাতিক</span><span class="category-latest-title">বিশ্বজুড়ে বাড়ছে ভূরাজনৈতিক উত্তেজনা, যুদ্ধ ও অর্থনৈতিক অনিশ্চয়তায় নতুন চাপ</span></span>
+<a href="31.html" data-news-id="31">
+<span class="category-latest-thumb"><img loading="lazy" src="../assets/news/31-1.jpg" alt="BRICS সম্মেলনে যাচ্ছেন না প্রধানমন্ত্রী তারেক রহমান, দিল্লি সফর নিয়ে অবস্থান স্পষ্ট" onerror="imageFallback(this)"></span>
+<span class="category-latest-copy"><span class="category-latest-category">আন্তর্জাতিক</span><span class="category-latest-title">BRICS সম্মেলনে যাচ্ছেন না প্রধানমন্ত্রী তারেক রহমান, দিল্লি সফর নিয়ে অবস্থান স্পষ্ট</span></span>
 </a>
 </article>
 <article class="latest-item category-latest-item">
@@ -1612,8 +1680,8 @@ function shareNews() {
 </article></div></aside>
 </main>
 <h2 class="section-title">সর্বশেষ ৬ ক্যাটাগরির খবর</h2>
-<section class="news-grid category-six-grid" id="category-six-grid"><article class="news-card"><a href="31.html" class="category-card-link" data-news-id="31">
-<div class="news-image"><img loading="lazy" src="../assets/news/31-1.jpg" alt="BRICS সম্মেলনে যাচ্ছেন না প্রধানমন্ত্রী তারেক রহমান, দিল্লি সফর নিয়ে অবস্থান স্পষ্ট" onerror="imageFallback(this)"></div><div class="news-card-content"><div class="category">আন্তর্জাতিক</div><h3>BRICS সম্মেলনে যাচ্ছেন না প্রধানমন্ত্রী তারেক রহমান, দিল্লি সফর নিয়ে অবস্থান স্পষ্ট</h3></div>
+<section class="news-grid category-six-grid" id="category-six-grid"><article class="news-card"><a href="32.html" class="category-card-link" data-news-id="32">
+<div class="news-image"><img loading="lazy" src="../assets/news/32-1.jpg" alt="রাশিয়া-ইউক্রেন যুদ্ধ: জ্বালানি অবকাঠামোতে হামলা না করার বিষয়ে আংশিক সম্মতি" onerror="imageFallback(this)"></div><div class="news-card-content"><div class="category">আন্তর্জাতিক</div><h3>রাশিয়া-ইউক্রেন যুদ্ধ: জ্বালানি অবকাঠামোতে হামলা না করার বিষয়ে আংশিক সম্মতি</h3></div>
 </a></article>
 <article class="news-card"><a href="30.html" class="category-card-link" data-news-id="30">
 <div class="news-image"><img loading="lazy" src="../assets/news/30-1.jpg" alt="২ বছরের শিশুসন্তানকে ৫ লাখে বিক্রি করে পরকীয়া প্রেমিকের সাথে বিদেশে পলায়ন, বিচারের আকুতি ভুক্তভোগী পিতার" onerror="imageFallback(this)"></div><div class="news-card-content"><div class="category">জাতীয়</div><h3>২ বছরের শিশুসন্তানকে ৫ লাখে বিক্রি করে পরকীয়া প্রেমিকের সাথে বিদেশে পলায়ন, বিচারের আকুতি ভুক্তভোগী পিতার</h3></div>
