@@ -271,7 +271,10 @@ def parse_news_date(value):
 
     m = re.fullmatch(r"Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)", raw)
     if m:
-        return datetime(int(m.group(1)), int(m.group(2)) + 1, int(m.group(3)))
+        try:
+            return datetime(int(m.group(1)), int(m.group(2)) + 1, int(m.group(3)))
+        except ValueError:
+            return None
 
     # Google Sheets / gviz can return ISO timestamps with milliseconds or Z.
     iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(?:Z|[+-]\d{2}:?\d{2})?)?", raw)
@@ -1427,6 +1430,22 @@ def _home_template_parts():
     head = m.group(1)
     for asset in ("ads.css?v=20260915-ads-v28-mobile-fit-sheet-row-compatible", "image-pattern.css"):
         head = head.replace(f'href="{asset}"', f'href="../{asset}"')
+    head += """\n<style id="mobile-logo-live-date-final-fix">
+/* FINAL MOBILE-ONLY HEADER FIX — desktop/tablet unchanged */
+@media (max-width:768px){
+  .site-header{overflow:visible!important;}
+  .site-header .header-inner{position:relative!important;width:100%!important;max-width:none!important;overflow:visible!important;}
+  .site-header .logo{left:45%!important;width:175px!important;}
+  .site-header .logo-image,.site-header .site-brand-logo{width:175px!important;max-width:44vw!important;max-height:56px!important;}
+  .site-header #live-date{display:block!important;position:absolute!important;right:4px!important;top:50%!important;transform:translateY(-50%)!important;width:125px!important;max-width:32vw!important;margin:0!important;padding:0!important;text-align:right!important;white-space:normal!important;overflow:visible!important;font-size:11px!important;line-height:1.25!important;z-index:5!important;}
+}
+@media (max-width:380px){
+  .site-header .logo{left:42%!important;width:145px!important;}
+  .site-header .logo-image,.site-header .site-brand-logo{width:145px!important;max-width:46vw!important;max-height:52px!important;}
+  .site-header #live-date{right:5px!important;width:100px!important;max-width:31vw!important;font-size:10px!important;line-height:1.22!important;}
+}
+</style>
+"""
     return head
 
 
