@@ -1425,7 +1425,7 @@ def _home_template_parts():
     if not m:
         raise ValueError("Could not read <head> from home.html")
     head = m.group(1)
-    for asset in ("ads.css?v=20260915-ads-v27-sheet-row-compatible", "image-pattern.css"):
+    for asset in ("ads.css?v=20260915-ads-v28-mobile-fit-sheet-row-compatible", "image-pattern.css"):
         head = head.replace(f'href="{asset}"', f'href="../{asset}"')
     return head
 
@@ -1528,6 +1528,8 @@ def render_news_page(item, all_news):
   .ad-slot:not(:empty){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;}
   .ad-slot:not(:empty) .ad-code-host,.ad-slot:not(:empty)>*,.ad-slot:not(:empty) iframe,.ad-slot:not(:empty) video,.ad-slot:not(:empty) object,.ad-slot:not(:empty) embed,.ad-slot:not(:empty) canvas,.ad-slot:not(:empty) svg,.ad-slot:not(:empty) img{box-sizing:border-box!important;max-width:100%!important;}
   .ad-slot:not(:empty) iframe,.ad-slot:not(:empty) video,.ad-slot:not(:empty) object,.ad-slot:not(:empty) embed,.ad-slot:not(:empty) canvas,.ad-slot:not(:empty) svg,.ad-slot:not(:empty) img{width:100%!important;height:auto!important;}
+  .ad-slot:not(:empty) .ad-code-host{min-height:0!important;height:auto!important;}
+  .ad-slot:not(:empty) .ad-code-host[data-ad-width][data-ad-height] iframe{width:100%!important;height:auto!important;aspect-ratio:var(--ad-ratio)!important;}
 }
 @media(max-width:600px){.site-header #live-date{font-size:11px!important;max-width:125px!important;white-space:normal!important;}}
 </style>
@@ -1665,7 +1667,7 @@ def render_news_page(item, all_news):
 <a href="https://twitter.com/" target="_blank" rel="noopener">X / Twitter</a>
 </div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="../advertise.html">বিজ্ঞাপন দিন</a></footer>"""
 
-    scripts = """<script src="../ads-loader.js?v=20260915-ads-v27-sheet-row-compatible"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
+    scripts = """<script src="../ads-loader.js?v=20260915-ads-v28-mobile-fit-sheet-row-compatible"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
 
     # Exact requested Details ad order:
     # Top -> headline -> Middle top -> article content -> Middle bottom ->
