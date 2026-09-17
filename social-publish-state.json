@@ -123,6 +123,46 @@
     "31": {
       "status": "skipped_existing",
       "platforms": {}
+    },
+    "32": {
+      "status": "waiting_sheet_publish",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": false,
+        "facebook": false,
+        "instagram": false,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "updated_at": "2026-09-17T14:53:34.660681+00:00"
+    },
+    "9999": {
+      "status": "waiting_sheet_publish",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": false,
+        "facebook": false,
+        "instagram": false,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "updated_at": "2026-09-17T14:53:34.660709+00:00"
+    },
+    "10000": {
+      "status": "no_social_platform_selected",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": false,
+        "instagram": false,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "updated_at": "2026-09-17T14:53:34.660745+00:00"
     }
-  }
+  },
+  "updated_at": "2026-09-17T14:53:34.660748+00:00"
 }
