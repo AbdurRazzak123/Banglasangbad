@@ -76,6 +76,17 @@ EXPECTED_COLUMNS = [
     "Image-2",
     "Image-3",
     "Keyword",
+    # Social automation controls/status are read from the same Bangla News tab.
+    # They are kept in the news records but are intentionally not exposed as
+    # frontend table columns, so the existing website JS remains unchanged.
+    "Publish",
+    "Facebook",
+    "Instagram",
+    "X",
+    "Threads",
+    "Youtube",
+    "Social Status",
+    "Posted Time",
 ]
 
 
@@ -351,6 +362,16 @@ def normalize_news(rows):
                 "keyword": clean(
                     row.get("Keyword")
                 ),
+                # These fields come from the same Google Sheet row and drive
+                # per-news social publishing. Missing/blank values remain safe.
+                "publish": clean(row.get("Publish")),
+                "facebook": clean(row.get("Facebook")),
+                "instagram": clean(row.get("Instagram")),
+                "x": clean(row.get("X")),
+                "threads": clean(row.get("Threads")),
+                "youtube": clean(row.get("Youtube")),
+                "social_status": clean(row.get("Social Status")),
+                "posted_time": clean(row.get("Posted Time")),
                 "image_urls": [
                     clean(row.get("Image-1")),
                     clean(row.get("Image-2")),
@@ -1794,13 +1815,17 @@ def generate_news_data(
             }
         )
 
-    # Frontend-compatible Google Visualization-style table rows.
-    # Keep the original "news" array as well for backwards compatibility.
+    # Keep the existing website table at its original 10 columns.
+    # Social controls remain available in data["news"] for automation.
+    FRONTEND_COLUMNS = [
+        "ID", "Category", "Headline", "Details", "Image-1",
+        "Date", "Video", "Image-2", "Image-3", "Keyword"
+    ]
     table_rows = [
         {
             "c": [
                 {"v": item.get(column, "")}
-                for column in EXPECTED_COLUMNS
+                for column in FRONTEND_COLUMNS
             ]
         }
         for item in rows
@@ -1809,7 +1834,7 @@ def generate_news_data(
     data = {
         "news": news,
         "table": {
-            "columns": EXPECTED_COLUMNS,
+            "columns": FRONTEND_COLUMNS,
             "rows": table_rows,
         },
         "updated_at": (
