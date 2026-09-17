@@ -84,7 +84,10 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add social-publish-state.json social-publish-log.json social-media
+          git add social-publish-state.json social-publish-log.json
+          if [ -d social-media ]; then
+            git add social-media
+          fi
           if git diff --cached --quiet; then
             echo 'No social state/card changes.'
           else
