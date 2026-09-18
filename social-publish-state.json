@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-18T20:50:22.702775+00:00"
+      "updated_at": "2026-09-18T21:51:20.602365+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -148,7 +148,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-18T20:50:22.702795+00:00"
+      "updated_at": "2026-09-18T21:51:20.602387+00:00"
     },
     "10000": {
       "status": "no_social_platform_selected",
@@ -161,8 +161,8 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-18T20:50:22.702829+00:00"
+      "updated_at": "2026-09-18T21:51:20.602414+00:00"
     }
   },
-  "updated_at": "2026-09-18T20:50:22.702831+00:00"
+  "updated_at": "2026-09-18T21:51:20.602416+00:00"
 }
