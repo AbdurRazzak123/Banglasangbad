@@ -1,0 +1,7 @@
+// বাংলা সংবাদ — Social Share Counter backend
+const SHEET_NAME='ShareCounts';
+const NETWORKS=['Facebook','Instagram','X','Twitter','YouTube','Threads','TikTok','Share'];
+function sheet_(){const ss=SpreadsheetApp.getActiveSpreadsheet();let sh=ss.getSheetByName(SHEET_NAME);if(!sh){sh=ss.insertSheet(SHEET_NAME);sh.appendRow(['NewsID'].concat(NETWORKS).concat(['Total']));}return sh;}
+function json_(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);}
+function findRow_(sh,id){const last=sh.getLastRow();if(last<2)return 0;const ids=sh.getRange(2,1,last-1,1).getValues();for(let i=0;i<ids.length;i++)if(String(ids[i][0])===id)return i+2;return 0;}
+function doGet(e){const action=String((e.parameter&&e.parameter.action)||'get').toLowerCase(),id=String((e.parameter&&e.parameter.newsId)||'').trim(),network=String((e.parameter&&e.parameter.network)||'').trim().toLowerCase();if(!id)return json_({ok:false,error:'missing_news_id'});const sh=sheet_();let row=findRow_(sh,id);if(!row){sh.appendRow([id,0,0,0,0,0,0,0,0,0]);row=sh.getLastRow();}if(action==='increment'){const map={facebook:2,instagram:3,x:4,twitter:5,youtube:6,threads:7,tiktok:8,share:9},col=map[network];if(!col)return json_({ok:false,error:'invalid_network'});const cell=sh.getRange(row,col);cell.setValue(Number(cell.getValue()||0)+1);}const vals=sh.getRange(row,1,1,10).getValues()[0];const total=NETWORKS.reduce((sum,_,i)=>sum+Number(vals[i+1]||0),0);sh.getRange(row,10).setValue(total);return json_({ok:true,newsId:id,total:total});}

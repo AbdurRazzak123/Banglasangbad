@@ -1,0 +1,11 @@
+বাংলা সংবাদ — Social Share Total Counter
+
+১) social-share-counter-apps-script.gs Google Apps Script-এ বসান।
+২) আপনার Google Sheet-এর সঙ্গে bind করুন।
+৩) Deploy → New deployment → Web app → Execute as: Me → Who has access: Anyone।
+৪) পাওয়া /exec URL social-share-config.js-এর endpoint-এ বসান।
+৫) Commit/push করুন।
+
+Facebook 5 + TikTok 6 হলে সাইটে শুধু “সর্বমোট শেয়ার: ১১” দেখা যাবে। প্রতিটি NewsID-এর হিসাব আলাদা। কোনো fake 3.8K নেই।
+
+নোট: এই counter সাইটের share-button actions গণনা করে; Facebook/TikTok-এর native platform-wide share count সরাসরি নির্ভরযোগ্যভাবে পড়া যায় না।
