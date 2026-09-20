@@ -581,149 +581,25 @@ def render_gallery(item):
 # ============================================================
 
 def render_share_buttons(item):
-
-    url = page_url(
-        item["id"]
-    )
-
-    encoded_url = urllib.parse.quote(
-        url,
-        safe=""
-    )
-
-    encoded_title = urllib.parse.quote(
-        item["headline"]
-    )
-
-    facebook = (
-        "https://www.facebook.com/"
-        "sharer/sharer.php?u="
-        + encoded_url
-    )
-
-    twitter = (
-        "https://twitter.com/intent/tweet?"
-        "url="
-        + encoded_url
-        + "&text="
-        + encoded_title
-    )
-
-    whatsapp = (
-        "https://api.whatsapp.com/send?"
-        "text="
-        + urllib.parse.quote(
-            item["headline"]
-            + " "
-            + url
-        )
-    )
-
-    js_title = json.dumps(
-        item["headline"],
-        ensure_ascii=False
-    )
-
+    """Render the Details-page social share bar with one per-news total counter."""
+    news_id = json.dumps(safe_id(item["id"]), ensure_ascii=False)
+    title = json.dumps(item["headline"], ensure_ascii=False)
+    url = json.dumps(page_url(item["id"]), ensure_ascii=False)
     return f"""
-<div class="share-box">
-
-    <strong>
-        শেয়ার করুন
-    </strong>
-
-    <div class="share-buttons">
-
-        <a
-            class="share-btn"
-            href="{escape(facebook)}"
-            target="_blank"
-            rel="noopener">
-            Facebook
-        </a>
-
-        <a
-            class="share-btn"
-            href="{escape(twitter)}"
-            target="_blank"
-            rel="noopener">
-            X / Twitter
-        </a>
-
-        <a
-            class="share-btn"
-            href="{escape(whatsapp)}"
-            target="_blank"
-            rel="noopener">
-            WhatsApp
-        </a>
-
-        <button
-            class="share-btn"
-            type="button"
-            onclick="shareNews()">
-            Share
-        </button>
-
-        <a
-            class="share-btn"
-            href="https://www.youtube.com/"
-            target="_blank"
-            rel="noopener">
-            YouTube
-        </a>
-
-        <a
-            class="share-btn"
-            href="https://www.tiktok.com/"
-            target="_blank"
-            rel="noopener">
-            TikTok
-        </a>
-
+<div class="details-share-box social-share-bar" data-news-id="{escape(safe_id(item['id']))}" aria-label="সামাজিক মাধ্যমে শেয়ার">
+    <div class="social-share-total-wrap"><span class="social-share-total-label">সর্বমোট শেয়ার:</span> <strong class="social-share-total" data-share-total>0</strong></div>
+    <div class="social-share-icons" role="group" aria-label="শেয়ার অপশন">
+        <a class="social-share-icon social-facebook" data-share-network="facebook" href="#" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook"><span>f</span></a>
+        <a class="social-share-icon social-instagram" data-share-network="instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram"><span>◎</span></a>
+        <a class="social-share-icon social-x" data-share-network="x" href="#" target="_blank" rel="noopener" aria-label="X" title="X"><span>𝕏</span></a>
+        <a class="social-share-icon social-twitter" data-share-network="twitter" href="#" target="_blank" rel="noopener" aria-label="Twitter" title="Twitter"><span>t</span></a>
+        <a class="social-share-icon social-youtube" data-share-network="youtube" href="#" target="_blank" rel="noopener" aria-label="YouTube" title="YouTube"><span>▶</span></a>
+        <a class="social-share-icon social-threads" data-share-network="threads" href="#" target="_blank" rel="noopener" aria-label="Threads" title="Threads"><span>@</span></a>
+        <a class="social-share-icon social-tiktok" data-share-network="tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok" title="TikTok"><span>♪</span></a>
+        <button class="social-share-icon social-native" data-share-network="share" type="button" aria-label="Share" title="Share"><span>↗</span></button>
     </div>
 </div>
-
-<script>
-function shareNews() {{
-
-    const shareData = {{
-        title: {js_title},
-        text: {js_title},
-        url: window.location.href
-    }};
-
-    if (navigator.share) {{
-
-        navigator.share(
-            shareData
-        ).catch(
-            function() {{}}
-        );
-
-    }} else if (
-        navigator.clipboard
-    ) {{
-
-        navigator.clipboard
-            .writeText(
-                window.location.href
-            )
-            .then(
-                function() {{
-                    alert(
-                        "নিউজের লিংক কপি হয়েছে"
-                    );
-                }}
-            );
-
-    }} else {{
-
-        alert(
-            window.location.href
-        );
-    }}
-}}
-</script>
+<script>(function(){{window.BN_DETAIL_SHARE={{id:{news_id},title:{title},url:{url}}};}})();</script>
 """
 
 
@@ -1554,6 +1430,8 @@ def render_news_page(item, all_news):
         jsonld["image"] = [og_image]
 
     head = _home_template_parts()
+    head += '<style id="social-share-final-css">\n.social-share-bar{margin-top:22px!important;padding:14px 0!important;border-top:1px solid #eee!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;flex-wrap:wrap!important;min-width:0!important;width:100%!important;overflow:hidden!important}\n.social-share-total-wrap{display:flex!important;align-items:center!important;gap:5px!important;white-space:nowrap!important;font-weight:700!important;color:#222!important}\n.social-share-total{color:#c1121f!important;font-size:18px!important}\n.social-share-icons{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;flex-wrap:wrap!important;min-width:0!important}\n.social-share-icon{width:34px!important;height:34px!important;min-width:34px!important;border:1px solid #ddd!important;border-radius:50%!important;background:#fff!important;color:#222!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;text-decoration:none!important;cursor:pointer!important;font-family:Arial,sans-serif!important;font-size:17px!important;font-weight:800!important;line-height:1!important;padding:0!important;box-sizing:border-box!important}\n.social-share-icon:hover{transform:translateY(-1px)!important;box-shadow:0 2px 7px rgba(0,0,0,.12)!important}\n@media(max-width:600px){.social-share-bar{align-items:flex-start!important;justify-content:flex-start!important;gap:10px!important}.social-share-icons{justify-content:flex-start!important;width:100%!important}.social-share-icon{width:32px!important;height:32px!important;min-width:32px!important}.social-share-total{font-size:17px!important}}</style>'
+
     # Copy the same ad CSS used by category pages into every generated Details page.
     # This prevents page-specific styles from changing the phone layout.
     ads_css_path = ROOT / "ads.css"
@@ -1707,7 +1585,7 @@ def render_news_page(item, all_news):
 <a href="https://twitter.com/" target="_blank" rel="noopener">X / Twitter</a>
 </div><p>© ২০২৬ বাংলা সংবাদ — সর্বস্বত্ব সংরক্ষিত</p><a href="../advertise.html">বিজ্ঞাপন দিন</a></footer>"""
 
-    scripts = """<script src="../ads-loader.js?v=20260915-ads-v28-mobile-fit-sheet-row-compatible"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script>"""
+    scripts = """<script src="../ads-loader.js?v=20260915-ads-v28-mobile-fit-sheet-row-compatible"></script><script src="../news-media.js?v=20260912-details-v1"></script><script src="../news-reader.js"></script><script src="../site-search.js" defer></script><script src="../social-share-config.js"></script><script src="../social-share.js"></script>"""
 
     # Exact requested Details ad order:
     # Top -> headline -> Middle top -> article content -> Middle bottom ->
