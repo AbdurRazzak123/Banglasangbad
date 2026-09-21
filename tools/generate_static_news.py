@@ -1417,21 +1417,76 @@ def _home_category_cards(current, all_news):
     return "\n".join(chosen) or '<div style="text-align:center;padding:30px;color:#888;grid-column:1/-1;">কোনো সংবাদ নেই।</div>'
 
 
+def seo_description(item):
+    """Generate a concise, article-specific description from headline/details."""
+    headline = clean(item.get("headline"))
+    details = re.sub(r"\s+", " ", clean(item.get("details")))
+    category = clean(item.get("category"))
+    if details.startswith(headline):
+        details = details[len(headline):].lstrip(" -:।")
+    text = f"{headline} — {details}" if details else f"{headline} — {category} বিভাগের সর্বশেষ সংবাদ ও গুরুত্বপূর্ণ আপডেট বাংলা সংবাদে পড়ুন।"
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) > 158:
+        text = text[:159].rsplit(" ", 1)[0].rstrip(" ,;:।-") + "…"
+    return text
+
+
+def seo_title(item):
+    headline = clean(item.get("headline"))
+    category = clean(item.get("category"))
+    title = f"{headline} | {category} | বাংলা সংবাদ" if category else f"{headline} | বাংলা সংবাদ"
+    if len(title) > 75:
+        title = headline[:60].rsplit(" ", 1)[0].rstrip(" ,;:।-") + " | বাংলা সংবাদ"
+    return title
+
+
+def seo_keywords(item):
+    values = []
+    for value in re.split(r"[,|،\n]+", clean(item.get("keyword"))):
+        value = value.strip()
+        if value and value not in values:
+            values.append(value)
+    category = clean(item.get("category"))
+    if category and category not in values:
+        values.append(category)
+    return ", ".join(values[:12])
+
+
+def article_date_iso(value):
+    parsed = parse_news_date(value)
+    if not parsed:
+        return ""
+    return parsed.strftime("%Y-%m-%dT00:00:00+06:00")
+
+
 def render_news_page(item, all_news):
     canonical = page_url(item["id"])
     first_image = next((x for x in item.get("images", []) if x), "")
     og_image = absolute_image_url(first_image)
 
+    published_iso = article_date_iso(item["date"])
+    image_urls = [absolute_image_url(x) for x in item.get("images", []) if x]
     jsonld = {
         "@context": "https://schema.org",
         "@type": "NewsArticle",
+        "@id": canonical + "#article",
+        "url": canonical,
         "headline": item["headline"],
+        "description": seo_description(item),
         "articleSection": item["category"],
-        "datePublished": item["date"],
-        "mainEntityOfPage": canonical,
+        "inLanguage": "bn-BD",
+        "isAccessibleForFree": True,
+        "mainEntityOfPage": {"@type": "WebPage", "@id": canonical},
+        "author": {"@type": "Organization", "name": "বাংলা সংবাদ", "url": BASE_URL},
+        "publisher": {"@type": "Organization", "name": "বাংলা সংবাদ", "url": BASE_URL, "logo": {"@type": "ImageObject", "url": BASE_URL + "/logo.png"}},
     }
-    if og_image:
-        jsonld["image"] = [og_image]
+    if published_iso:
+        jsonld["datePublished"] = published_iso
+        jsonld["dateModified"] = published_iso
+    if image_urls:
+        jsonld["image"] = image_urls
+    if seo_keywords(item):
+        jsonld["keywords"] = seo_keywords(item)
 
     head = _home_template_parts()
     head += """<style id="social-share-final-css">
@@ -1474,7 +1529,7 @@ def render_news_page(item, all_news):
 """
     head = re.sub(
         r'<title>.*?</title>',
-        f'<title>{escape(item["headline"])} | বাংলা সংবাদ</title>',
+        f'<title>{escape(seo_title(item))}</title>',
         head,
         flags=re.I | re.S,
     )
@@ -1486,25 +1541,25 @@ def render_news_page(item, all_news):
     )
     head = re.sub(
         r'<meta\s+name="description"[^>]*>',
-        f'<meta name="description" content="{escape(item["headline"])}">',
+        f'<meta name="description" content="{escape(seo_description(item))}">',
         head,
         flags=re.I,
     )
     head = re.sub(
         r'<meta\s+name="keywords"[^>]*>',
-        f'<meta name="keywords" content="{escape(item.get("keyword", ""))}">',
+        f'<meta name="keywords" content="{escape(seo_keywords(item))}">',
         head,
         flags=re.I,
     )
     head = re.sub(
         r'<meta\s+property="og:title"[^>]*>',
-        f'<meta property="og:title" content="{escape(item["headline"])}">',
+        f'<meta property="og:title" content="{escape(seo_title(item))}">',
         head,
         flags=re.I,
     )
     head = re.sub(
         r'<meta\s+property="og:description"[^>]*>',
-        f'<meta property="og:description" content="{escape(item["headline"])}">',
+        f'<meta property="og:description" content="{escape(seo_description(item))}">',
         head,
         flags=re.I,
     )
@@ -1514,6 +1569,15 @@ def render_news_page(item, all_news):
         head,
         flags=re.I,
     )
+    head = re.sub(r'<meta\s+property="og:type"[^>]*>', '<meta property="og:type" content="article">', head, flags=re.I)
+    head = re.sub(r'<meta\s+name="twitter:title"[^>]*>', f'<meta name="twitter:title" content="{escape(seo_title(item))}">', head, flags=re.I)
+    head = re.sub(r'<meta\s+name="twitter:description"[^>]*>', f'<meta name="twitter:description" content="{escape(seo_description(item))}">', head, flags=re.I)
+    if '<meta property="article:section"' in head:
+        head = re.sub(r'<meta\s+property="article:section"[^>]*>', f'<meta property="article:section" content="{escape(item.get("category"))}">', head, flags=re.I)
+    else:
+        head += f'\n<meta property="article:section" content="{escape(item.get("category"))}">'
+    if published_iso:
+        head += f'\n<meta property="article:published_time" content="{escape(published_iso)}">\n<meta property="article:modified_time" content="{escape(published_iso)}">'
     if og_image:
         head = re.sub(
             r'<meta\s+property="og:image"[^>]*>',
@@ -1778,77 +1842,43 @@ def generate_ads_data():
 # SITEMAP
 # ============================================================
 
-def generate_sitemap(
-    news
-):
-
-    urls = [
-        BASE_URL.rstrip("/")
-        + "/"
+def generate_sitemap(news):
+    """Generate a complete XML sitemap for canonical public pages and articles."""
+    static_pages = [
+        "", "home.html", "national.html", "politics.html", "international.html",
+        "economy.html", "sports.html", "entertainment.html", "technology.html",
+        "more.html", "about.html", "contact.html", "privacy.html", "disclaimer.html",
     ]
-
-    for item in news:
-
-        urls.append(
-            page_url(
-                item["id"]
-            )
-        )
-
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-    ]
-
+    urls = [BASE_URL.rstrip("/") + ("/" + p if p else "/") for p in static_pages]
+    urls += [page_url(item["id"]) for item in news]
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    seen=set()
     for url in urls:
-
-        lines.append(
-            "  <url>"
-            + "<loc>"
-            + escape(url)
-            + "</loc>"
-            + "</url>"
-        )
-
-    lines.append(
-        "</urlset>"
-    )
-
-    SITEMAP_FILE.write_text(
-        "\n".join(lines),
-        encoding="utf-8"
-    )
+        if url in seen: continue
+        seen.add(url)
+        lines.append(f"  <url><loc>{escape(url)}</loc></url>")
+    lines.append("</urlset>")
+    SITEMAP_FILE.write_text("\\n".join(lines), encoding="utf-8")
 
 
-def generate_news_sitemap(
-    news
-):
-
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-    ]
-
+def generate_news_sitemap(news):
+    """Generate a Google News sitemap for articles dated within the last 48 hours."""
+    cutoff = datetime.now() - __import__('datetime').timedelta(days=2)
+    recent=[]
     for item in news:
-
-        lines.append(
-            "  <url>"
-            + "<loc>"
-            + escape(
-                page_url(item["id"])
-            )
-            + "</loc>"
-            + "</url>"
-        )
-
-    lines.append(
-        "</urlset>"
-    )
-
-    NEWS_SITEMAP_FILE.write_text(
-        "\n".join(lines),
-        encoding="utf-8"
-    )
+        d=parse_news_date(item.get("date"))
+        if d and d >= cutoff:
+            recent.append((item,d))
+    recent=recent[-1000:]
+    lines=[
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
+    ]
+    for item,d in recent:
+        pub=d.strftime('%Y-%m-%dT00:00:00+06:00')
+        lines.append(f"  <url><loc>{escape(page_url(item['id']))}</loc><news:news><news:publication><news:name>বাংলা সংবাদ</news:name><news:language>bn</news:language></news:publication><news:publication_date>{pub}</news:publication_date><news:title>{escape(item['headline'])}</news:title></news:news></url>")
+    lines.append('</urlset>')
+    NEWS_SITEMAP_FILE.write_text("\\n".join(lines), encoding="utf-8")
 
 
 # ============================================================
