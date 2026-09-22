@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install requests
+          python -m pip install requests beautifulsoup4
 
       - name: Regenerate news details from Google Sheet
         env:
@@ -70,7 +70,10 @@ jobs:
                   for item in news
               ]
           }
-          path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+          path.write_text(
+              json.dumps(data, ensure_ascii=False, indent=2),
+              encoding='utf-8'
+          )
           print(f'SUCCESS: normalized {len(news)} news rows for frontend.')
           PY
 
@@ -82,46 +85,113 @@ jobs:
 
           root = Path('.')
 
-          data = json.loads((root / 'news-data.json').read_text(encoding='utf-8'))
+          data = json.loads(
+              (root / 'news-data.json').read_text(encoding='utf-8')
+          )
           news = data.get('news', [])
+
           if not news:
               raise SystemExit('ERROR: generator produced no news.')
+
           table_rows = data.get('table', {}).get('rows', [])
-          if not table_rows or not all(isinstance(r, dict) and 'c' in r for r in table_rows):
-              raise SystemExit('ERROR: news-data.json table.rows is not frontend-compatible c/v format.')
-          print(f'SUCCESS: news-data.json has {len(table_rows)} frontend-compatible rows.')
 
-          pages = {p.stem for p in (root / 'news').glob('*.html')}
-          missing = [str(item.get('id')) for item in news if str(item.get('id')) not in pages]
+          if not table_rows or not all(
+              isinstance(r, dict) and 'c' in r
+              for r in table_rows
+          ):
+              raise SystemExit(
+                  'ERROR: news-data.json table.rows is not '
+                  'frontend-compatible c/v format.'
+              )
+
+          print(
+              f'SUCCESS: news-data.json has '
+              f'{len(table_rows)} frontend-compatible rows.'
+          )
+
+          pages = {
+              p.stem
+              for p in (root / 'news').glob('*.html')
+          }
+
+          missing = [
+              str(item.get('id'))
+              for item in news
+              if str(item.get('id')) not in pages
+          ]
+
           if missing:
-              raise SystemExit('ERROR: missing detail pages: ' + ', '.join(missing[:20]))
+              raise SystemExit(
+                  'ERROR: missing detail pages: '
+                  + ', '.join(missing[:20])
+              )
 
-          # Final Details-page contract: these are intentionally checked here so
-          # future Google Sheet -> Generate runs keep the requested fixes.
-          sample_pages = list((root / 'news').glob('*.html'))
+          sample_pages = list(
+              (root / 'news').glob('*.html')
+          )
+
           if not sample_pages:
-              raise SystemExit('ERROR: no Details pages generated.')
+              raise SystemExit(
+                  'ERROR: no Details pages generated.'
+              )
+
           for page in sample_pages:
               html = page.read_text(encoding='utf-8')
-              required = ('data-site-base=\"../\"', 'id=\"live-date\"', 'detail-live-date-script', '../site-search.js')
-              missing_bits = [x for x in required if x not in html]
-              if missing_bits:
-                  raise SystemExit(f'ERROR: Details contract missing in {page}: ' + ', '.join(missing_bits))
-          print(f'SUCCESS: Details contract verified on {len(sample_pages)} generated pages.')
 
-          ads = json.loads((root / 'ads-data.json').read_text(encoding='utf-8'))
+              required = (
+                  'data-site-base="../"',
+                  'id="live-date"',
+                  'detail-live-date-script',
+                  '../site-search.js'
+              )
+
+              missing_bits = [
+                  x for x in required
+                  if x not in html
+              ]
+
+              if missing_bits:
+                  raise SystemExit(
+                      f'ERROR: Details contract missing in {page}: '
+                      + ', '.join(missing_bits)
+                  )
+
+          print(
+              f'SUCCESS: Details contract verified on '
+              f'{len(sample_pages)} generated pages.'
+          )
+
+          ads = json.loads(
+              (root / 'ads-data.json').read_text(encoding='utf-8')
+          )
+
           ad_rows = ads.get('table', {}).get('rows', [])
+
           if not ad_rows:
               print('WARNING: Ads tab produced no rows.')
           else:
-              print(f'SUCCESS: ads-data.json contains {len(ad_rows)} ad rows.')
+              print(
+                  f'SUCCESS: ads-data.json contains '
+                  f'{len(ad_rows)} ad rows.'
+              )
 
-          for required in ('news-data.json', 'ads-data.json', 'sitemap.xml', 'news-sitemap.xml'):
+          for required in (
+              'news-data.json',
+              'ads-data.json',
+              'sitemap.xml',
+              'news-sitemap.xml'
+          ):
               target = root / required
-              if not target.is_file() or target.stat().st_size == 0:
-                  raise SystemExit(f'ERROR: missing/empty {required}')
 
-          print(f'SUCCESS: {len(news)} news records and {len(pages)} detail pages generated.')
+              if not target.is_file() or target.stat().st_size == 0:
+                  raise SystemExit(
+                      f'ERROR: missing/empty {required}'
+                  )
+
+          print(
+              f'SUCCESS: {len(news)} news records and '
+              f'{len(pages)} detail pages generated.'
+          )
           PY
 
       - name: Commit generated files
@@ -129,7 +199,13 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          git add             news             assets/news             news-data.json             ads-data.json             sitemap.xml             news-sitemap.xml
+          git add \
+            news \
+            assets/news \
+            news-data.json \
+            ads-data.json \
+            sitemap.xml \
+            news-sitemap.xml
 
           if git diff --cached --quiet; then
             echo 'No generated changes.'
