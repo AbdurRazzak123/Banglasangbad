@@ -1,0 +1,60 @@
+বাংলা সংবাদ — SEO / Google Sitemap Deep Research Audit
+====================================================
+
+প্রকল্প: https://abdurrazzak123.github.io/Banglasangbad/
+তারিখ: 2026-09-22
+
+মূল সমস্যা পাওয়া গেছে
+---------------------
+1) tools/generate_static_news.py-তে sitemap.xml এবং news-sitemap.xml লেখার সময়
+   "\\n".join(lines) ব্যবহার করা ছিল। ফলে ভবিষ্যতে GitHub Actions sitemap তৈরি করলে
+   XML-এর ভেতরে আসল newline-এর বদলে literal backslash-n চলে যেতে পারত। এই কারণেই
+   ব্রাউজারে দেখা "Start tag expected, '<' not found" ধরনের XML parsing error-এর
+   সঙ্গে এটি মিলে যায়।
+
+2) Standard sitemap generation fixed করা হয়েছে। এখন UTF-8 XML declaration,
+   proper line breaks এবং canonical/indexable HTML URLs ব্যবহার করে sitemap তৈরি হবে।
+
+3) noindex পেজ sitemap-এ না ঢোকার জন্য generation logic যোগ করা হয়েছে।
+   যেমন details.html এবং direct-ad-manager.html sitemap-এ যাবে না।
+
+4) Google News sitemap automation ঠিক করা হয়েছে। Google-এর নিয়ম অনুযায়ী শুধু
+   সাম্প্রতিক খবরের URL থাকবে; পুরোনো URL রাখা হবে না।
+
+5) GitHub Actions-এ tools/validate_seo.py যোগ করা হয়েছে, যাতে ভবিষ্যতে
+   sitemap ভেঙে গেলে commit হওয়ার আগেই workflow ব্যর্থ হয়।
+
+বর্তমান package validation
+--------------------------
+- sitemap.xml: VALID XML
+- news-sitemap.xml: VALID XML
+- robots.txt: দুই sitemap-ই উল্লেখ আছে
+- Standard sitemap: 45টি URL
+- Current Google News sitemap: 0টি URL
+
+Google News sitemap বর্তমানে 0 হওয়া সমস্যা নয়। বর্তমান news-data.json-এর
+সর্বশেষ তারিখ 2026-09-15; 2026-09-22 অনুযায়ী এগুলো Google News sitemap-এর
+সাম্প্রতিক দুই দিনের সীমার বাইরে। নতুন খবর Google Sheet-এ এলে GitHub Action
+নতুন News sitemap তৈরি করবে।
+
+আপলোডের পর করণীয়
+-----------------
+1) এই ZIP-এর ভেতরের সব ফাইল GitHub repository-তে upload/replace করো।
+2) GitHub Actions-এ workflow সফল হয়েছে কিনা দেখো।
+3) তারপর Google Search Console > Sitemaps-এ:
+   sitemap.xml
+   news-sitemap.xml
+   — দুটোই submit করা যায়।
+4) পুরোনো broken sitemap submission থাকলে fixed sitemap submit করে Google-এর
+   নতুন fetch/processing-এর জন্য সময় দাও।
+5) URL Inspection মূলত HTML page পরীক্ষা করার জন্য ব্যবহার করো। Sitemap-এর
+   ক্ষেত্রে Sitemaps report-এর status/last read/error দেখাই বেশি উপযুক্ত।
+
+নোট
+----
+Sitemap Google-কে URL discovery-এর জন্য সাহায্য করে; sitemap submit করলেই
+কোনো URL অবশ্যই index হবে—এমন নিশ্চয়তা Google দেয় না। তাই category pages,
+homepage এবং individual news pages-এর crawlable <a> links-ও গুরুত্বপূর্ণ।
+
+এই package-এ HTML/CSS/JS-এর unrelated অংশ ইচ্ছাকৃতভাবে না বদলে sitemap/SEO
+automation ও validation-এ targeted changes করা হয়েছে।
