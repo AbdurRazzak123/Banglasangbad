@@ -7,10 +7,11 @@ import json
 import re
 import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import requests
+from bs4 import BeautifulSoup
 
 try:
     from news_assets import process_news_images
@@ -1842,43 +1843,98 @@ def generate_ads_data():
 # SITEMAP
 # ============================================================
 
+def _indexable_static_pages():
+    """Return root-level HTML pages that are canonical and not marked noindex."""
+    pages = []
+    for path in ROOT.glob("*.html"):
+        if path.name in {"index.html"}:
+            pages.append("")
+            continue
+
+        soup = BeautifulSoup(path.read_text(encoding="utf-8", errors="replace"), "html.parser")
+        robots = soup.find("meta", attrs={"name": re.compile(r"^robots$", re.I)})
+        robots_content = clean(robots.get("content", "") if robots else "").lower()
+        if "noindex" in robots_content:
+            continue
+
+        canonical = soup.find("link", attrs={"rel": lambda value: value and "canonical" in value})
+        if canonical and clean(canonical.get("href", "")).startswith(BASE_URL):
+            pages.append(path.name)
+
+    return sorted(set(pages))
+
+
 def generate_sitemap(news):
-    """Generate a complete XML sitemap for canonical public pages and articles."""
-    static_pages = [
-        "", "home.html", "national.html", "politics.html", "international.html",
-        "economy.html", "sports.html", "entertainment.html", "technology.html",
-        "more.html", "about.html", "contact.html", "privacy.html", "disclaimer.html",
+    """Generate a UTF-8, canonical-only XML sitemap."""
+    static_pages = _indexable_static_pages()
+    urls = [
+        BASE_URL.rstrip("/") + ("/" + page if page else "/")
+        for page in static_pages
     ]
-    urls = [BASE_URL.rstrip("/") + ("/" + p if p else "/") for p in static_pages]
     urls += [page_url(item["id"]) for item in news]
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    seen=set()
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    ]
+
+    seen = set()
     for url in urls:
-        if url in seen: continue
+        if url in seen:
+            continue
         seen.add(url)
-        lines.append(f"  <url><loc>{escape(url)}</loc></url>")
+        lines.extend([
+            "  <url>",
+            f"    <loc>{escape(url)}</loc>",
+            "  </url>",
+        ])
+
     lines.append("</urlset>")
-    SITEMAP_FILE.write_text("\\n".join(lines), encoding="utf-8")
+    SITEMAP_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def generate_news_sitemap(news):
-    """Generate a Google News sitemap for articles dated within the last 48 hours."""
-    cutoff = datetime.now() - __import__('datetime').timedelta(days=2)
-    recent=[]
+    """Generate a Google News sitemap containing only very recent articles."""
+    # The Sheet currently stores publication dates without a reliable time.
+    # Use Bangladesh calendar dates conservatively: today + yesterday only.
+    from zoneinfo import ZoneInfo
+
+    today = datetime.now(ZoneInfo("Asia/Dhaka")).date()
+    cutoff_date = today - timedelta(days=1)
+
+    recent = []
     for item in news:
-        d=parse_news_date(item.get("date"))
-        if d and d >= cutoff:
-            recent.append((item,d))
-    recent=recent[-1000:]
-    lines=[
+        d = parse_news_date(item.get("date"))
+        if d and cutoff_date <= d.date() <= today:
+            recent.append((item, d))
+
+    recent.sort(key=lambda pair: (pair[1], safe_id(pair[0]["id"])), reverse=True)
+    recent = recent[:1000]
+
+    lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+        '        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
     ]
-    for item,d in recent:
-        pub=d.strftime('%Y-%m-%dT00:00:00+06:00')
-        lines.append(f"  <url><loc>{escape(page_url(item['id']))}</loc><news:news><news:publication><news:name>বাংলা সংবাদ</news:name><news:language>bn</news:language></news:publication><news:publication_date>{pub}</news:publication_date><news:title>{escape(item['headline'])}</news:title></news:news></url>")
-    lines.append('</urlset>')
-    NEWS_SITEMAP_FILE.write_text("\\n".join(lines), encoding="utf-8")
+
+    for item, d in recent:
+        publication_date = d.strftime("%Y-%m-%dT00:00:00+06:00")
+        lines.extend([
+            "  <url>",
+            f"    <loc>{escape(page_url(item['id']))}</loc>",
+            "    <news:news>",
+            "      <news:publication>",
+            "        <news:name>বাংলা সংবাদ</news:name>",
+            "        <news:language>bn</news:language>",
+            "      </news:publication>",
+            f"      <news:publication_date>{publication_date}</news:publication_date>",
+            f"      <news:title>{escape(item['headline'])}</news:title>",
+            "    </news:news>",
+            "  </url>",
+        ])
+
+    lines.append("</urlset>")
+    NEWS_SITEMAP_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 # ============================================================
