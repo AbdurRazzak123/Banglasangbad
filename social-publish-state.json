@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-24T12:51:18.329021+00:00"
+      "updated_at": "2026-09-24T12:53:04.902158+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -168,12 +168,12 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-24T12:51:18.813803+00:00",
+          "updated_at": "2026-09-24T12:53:05.217127+00:00",
           "error": "Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-24T12:51:18.813825+00:00",
+          "updated_at": "2026-09-24T12:53:05.217148+00:00",
           "error": "Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID"
         },
         "x": {
@@ -194,10 +194,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-24T12:51:18.329076+00:00",
+      "last_attempt_at": "2026-09-24T12:53:04.902203+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-24T12:51:18.493805+00:00"
+      "updated_at": "2026-09-24T12:53:05.034087+00:00"
     }
   },
-  "updated_at": "2026-09-24T12:51:18.813840+00:00"
+  "updated_at": "2026-09-24T12:53:05.217161+00:00"
 }
