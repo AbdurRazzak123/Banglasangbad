@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-09-24T15:19:48.726151+00:00",
+  "generated_at": "2026-09-24T19:01:38.979578+00:00",
   "articles": {
     "33": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-24T15:19:48.725585+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 24-Sep-26 08:00:00 PDT. The current time is Thursday, 24-Sep-26 08:19:48 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AlBOu3RyeCthAb_K_1Hxl_8'}}"
+          "updated_at": "2026-09-24T19:01:38.978771+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: The session is invalid because the user logged out.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 467, 'fbtrace_id': 'A4Aqp8qg5AmsH4PYam5LnBM'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-24T15:19:48.726129+00:00",
+          "updated_at": "2026-09-24T19:01:38.979553+00:00",
           "error": "Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID"
         },
         "x": {
@@ -32,9 +32,9 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-24T15:19:47.971022+00:00",
+      "last_attempt_at": "2026-09-24T19:01:38.238359+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-24T15:19:48.133048+00:00"
+      "updated_at": "2026-09-24T19:01:38.399548+00:00"
     }
   }
 }
