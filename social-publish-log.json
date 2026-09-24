@@ -1,4 +1,40 @@
 {
-  "generated_at": "2026-09-24T12:07:21.337248+00:00",
-  "articles": {}
+  "generated_at": "2026-09-24T12:20:06.632419+00:00",
+  "articles": {
+    "33": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-09-24T12:20:06.632383+00:00",
+          "error": "Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN"
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-09-24T12:20:06.632405+00:00",
+          "error": "Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-09-24T12:19:37.240978+00:00",
+      "social_card": "social-media/33.jpg",
+      "updated_at": "2026-09-24T12:19:37.393382+00:00"
+    }
+  }
 }
