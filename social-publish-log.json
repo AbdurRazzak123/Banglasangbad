@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-09-24T12:24:13.223370+00:00",
+  "generated_at": "2026-09-24T12:42:24.222016+00:00",
   "articles": {
     "33": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-24T12:24:13.223325+00:00",
+          "updated_at": "2026-09-24T12:42:24.221974+00:00",
           "error": "Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-24T12:24:13.223352+00:00",
+          "updated_at": "2026-09-24T12:42:24.221998+00:00",
           "error": "Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID"
         },
         "x": {
@@ -32,9 +32,9 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-24T12:24:12.743247+00:00",
+      "last_attempt_at": "2026-09-24T12:42:23.807495+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-24T12:24:12.911006+00:00"
+      "updated_at": "2026-09-24T12:42:23.969913+00:00"
     }
   }
 }
