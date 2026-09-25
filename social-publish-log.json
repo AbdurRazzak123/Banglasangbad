@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T11:19:49.255352+00:00",
+  "generated_at": "2026-09-25T10:31:15.267272+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -50,8 +50,8 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-25T11:19:49.254538+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AMlAC9oi8UNqSNm0ODi2NL-'}}"
+          "updated_at": "2026-09-25T10:31:15.266579+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AntJ-4oP3SN3XkJetnIi7tG'}}"
         },
         "instagram": {
           "status": "posted",
@@ -84,8 +84,8 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T11:19:48.452646+00:00",
-      "last_attempt_at": "2026-09-25T11:19:47.299483+00:00",
+      "updated_at": "2026-09-25T10:31:14.202715+00:00",
+      "last_attempt_at": "2026-09-25T10:31:13.477218+00:00",
       "social_card": "social-media/32.jpg",
       "instagram_carousel": [
         "social-media/instagram/32/32-ig-01.jpg",
