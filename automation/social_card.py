@@ -21,13 +21,18 @@ def _font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
 
     if not bold:
         candidates = [
-            p.with_name(p.name.replace('Bold', ''))
+            p.with_name(
+                p.name.replace('Bold', '')
+            )
             for p in DEFAULT_FONT_CANDIDATES
         ] + candidates
 
     for p in candidates:
         if p.exists():
-            return ImageFont.truetype(str(p), size)
+            return ImageFont.truetype(
+                str(p),
+                size
+            )
 
     return ImageFont.load_default()
 
@@ -40,17 +45,26 @@ def _fit_text(
     start: int,
     min_size: int = 24
 ):
-    text = ' '.join(str(text or '').split())
+    text = ' '.join(
+        str(text or '').split()
+    )
+
     size = start
 
     while size >= min_size:
-        f = _font(size, True)
+        f = _font(
+            size,
+            True
+        )
+
         words = text.split()
         lines = []
         current = ''
 
         for word in words:
-            trial = (current + ' ' + word).strip()
+            trial = (
+                current + ' ' + word
+            ).strip()
 
             if draw.textbbox(
                 (0, 0),
@@ -60,7 +74,10 @@ def _fit_text(
                 current = trial
             else:
                 if current:
-                    lines.append(current)
+                    lines.append(
+                        current
+                    )
+
                 current = word
 
         if current:
@@ -71,7 +88,11 @@ def _fit_text(
 
         size -= 2
 
-    f = _font(min_size, True)
+    f = _font(
+        min_size,
+        True
+    )
+
     return f, lines[:max_lines]
 
 
@@ -82,7 +103,9 @@ def _paste_cover(
     focus: str = 'center'
 ):
     x1, y1, x2, y2 = box
-    w, h = x2 - x1, y2 - y1
+
+    w = x2 - x1
+    h = y2 - y1
 
     fitted = ImageOps.fit(
         image.convert('RGB'),
@@ -91,8 +114,38 @@ def _paste_cover(
         centering=(0.5, 0.45)
     )
 
-    base.paste(fitted, (x1, y1))
+    base.paste(
+        fitted,
+        (x1, y1)
+    )
 
+
+def _rounded_mask(size, radius):
+    mask = Image.new(
+        'L',
+        size,
+        0
+    )
+
+    d = ImageDraw.Draw(mask)
+
+    d.rounded_rectangle(
+        (
+            0,
+            0,
+            size[0] - 1,
+            size[1] - 1
+        ),
+        radius=radius,
+        fill=255
+    )
+
+    return mask
+
+
+# ============================================================
+# LOGO
+# ============================================================
 
 def _paste_logo_top_right(
     canvas: Image.Image,
@@ -103,26 +156,52 @@ def _paste_logo_top_right(
     margin: int = 35
 ):
     """
-    লোগো ছবির এলাকার উপরের ডান পাশে বসাবে।
-    Footer-এ আর কোনো logo থাকবে না।
+    Logo will be placed at the TOP-RIGHT corner
+    of the MAIN PHOTO area.
+
+    It will NOT appear in the bottom footer.
     """
 
-    if not logo_path or not logo_path.exists():
+    if not logo_path:
         return
 
-    logo = Image.open(logo_path).convert('RGBA')
+    if not logo_path.exists():
+        return
+
+    try:
+        logo = Image.open(
+            logo_path
+        ).convert('RGBA')
+    except Exception:
+        return
 
     logo.thumbnail(
-        (max_width, max_height),
+        (
+            max_width,
+            max_height
+        ),
         Image.Resampling.LANCZOS
     )
 
-    x = canvas.width - logo.width - margin
+    # Right side position
+    x = (
+        canvas.width
+        - logo.width
+        - margin
+    )
+
+    # Top of the main image
     y = margin
 
-    # Logo যেন ছবির এলাকার মধ্যেই থাকে
-    if y + logo.height > photo_h - margin:
-        y = max(margin, photo_h - logo.height - margin)
+    # Make absolutely sure the logo stays
+    # inside the main photo area.
+    if y + logo.height > photo_h:
+        y = max(
+            margin,
+            photo_h
+            - logo.height
+            - margin
+        )
 
     canvas.paste(
         logo,
@@ -141,7 +220,9 @@ def create_card(
     height: int = 1500
 ) -> Path:
 
-    image = Image.open(image_path).convert('RGB')
+    image = Image.open(
+        image_path
+    ).convert('RGB')
 
     canvas = Image.new(
         'RGB',
@@ -149,16 +230,29 @@ def create_card(
         '#f3f3f3'
     )
 
-    photo_h = int(height * 0.62)
+    photo_h = int(
+        height * 0.62
+    )
 
-    # Main news photo
+    # ========================================================
+    # MAIN NEWS PHOTO
+    # ========================================================
+
     _paste_cover(
         canvas,
         image,
-        (0, 0, width, photo_h)
+        (
+            0,
+            0,
+            width,
+            photo_h
+        )
     )
 
-    # Logo — ছবির উপরের ডান পাশে
+    # ========================================================
+    # LOGO — TOP RIGHT OF PHOTO
+    # ========================================================
+
     _paste_logo_top_right(
         canvas,
         logo_path,
@@ -168,40 +262,87 @@ def create_card(
         margin=35
     )
 
-    # Red news lower panel
+    # ========================================================
+    # DARK/RED NEWS LOWER PANEL
+    # ========================================================
+
     panel_y = photo_h - 2
 
     panel = Image.new(
         'RGB',
-        (width, height - panel_y),
+        (
+            width,
+            height - panel_y
+        ),
         '#a40000'
     )
 
-    pd = ImageDraw.Draw(panel)
+    pd = ImageDraw.Draw(
+        panel
+    )
 
-    for y in range(panel.height):
-        t = y / max(1, panel.height - 1)
+    for y in range(
+        panel.height
+    ):
 
-        r = int(170 - 45 * t)
-        g = int(8 + 12 * t)
-        b = int(8 + 12 * t)
-
-        pd.line(
-            (0, y, width, y),
-            fill=(r, g, b)
+        t = y / max(
+            1,
+            panel.height - 1
         )
 
-    canvas.paste(panel, (0, panel_y))
+        r = int(
+            170 - 45 * t
+        )
 
-    d = ImageDraw.Draw(canvas)
+        g = int(
+            8 + 12 * t
+        )
 
-    # White divider
+        b = int(
+            8 + 12 * t
+        )
+
+        pd.line(
+            (
+                0,
+                y,
+                width,
+                y
+            ),
+            fill=(
+                r,
+                g,
+                b
+            )
+        )
+
+    canvas.paste(
+        panel,
+        (0, panel_y)
+    )
+
+    d = ImageDraw.Draw(
+        canvas
+    )
+
+    # ========================================================
+    # WHITE DIVIDER
+    # ========================================================
+
     d.rectangle(
-        (0, panel_y, width, panel_y + 6),
+        (
+            0,
+            panel_y,
+            width,
+            panel_y + 6
+        ),
         fill='white'
     )
 
-    # Headline
+    # ========================================================
+    # HEADLINE
+    # ========================================================
+
     headline_font, lines = _fit_text(
         d,
         headline,
@@ -211,30 +352,46 @@ def create_card(
         30
     )
 
-    line_h = headline_font.size + 13
+    line_h = (
+        headline_font.size
+        + 13
+    )
 
     y = panel_y + 95
 
     for line in lines:
+
         bbox = d.textbbox(
             (0, 0),
             line,
             font=headline_font
         )
 
-        tw = bbox[2] - bbox[0]
-        x = (width - tw) // 2
+        tw = (
+            bbox[2]
+            - bbox[0]
+        )
 
-        # Shadow
+        x = (
+            width - tw
+        ) // 2
+
+        # Subtle shadow
         d.text(
-            (x + 2, y + 2),
+            (
+                x + 2,
+                y + 2
+            ),
             line,
             font=headline_font,
             fill='#5b0000'
         )
 
         d.text(
-            (x, y),
+            (
+                x,
+                y
+            ),
             line,
             font=headline_font,
             fill='white'
@@ -242,8 +399,15 @@ def create_card(
 
         y += line_h
 
-    # First comment notice
-    sub_font = _font(32, True)
+    # ========================================================
+    # COMMENT NOTICE
+    # ========================================================
+
+    sub_font = _font(
+        32,
+        True
+    )
+
     sub = 'বিস্তারিত প্রথম কমেন্টে'
 
     sb = d.textbbox(
@@ -254,7 +418,13 @@ def create_card(
 
     d.text(
         (
-            (width - (sb[2] - sb[0])) // 2,
+            (
+                width
+                - (
+                    sb[2]
+                    - sb[0]
+                )
+            ) // 2,
             y + 38
         ),
         sub,
@@ -262,22 +432,43 @@ def create_card(
         fill='#ffe500'
     )
 
-    # Footer — শুধু date থাকবে, logo থাকবে না
+    # ========================================================
+    # FOOTER
+    # ========================================================
+    # IMPORTANT:
+    # Logo is NO LONGER placed here.
+    # Only date remains in footer.
+
     footer_y = height - 120
 
     d.rectangle(
-        (40, footer_y, width - 40, footer_y + 2),
+        (
+            40,
+            footer_y,
+            width - 40,
+            footer_y + 2
+        ),
         fill='#ffffff'
     )
 
-    date_font = _font(26, True)
+    date_font = _font(
+        26,
+        True
+    )
 
     d.text(
-        (55, footer_y + 24),
+        (
+            55,
+            footer_y + 24
+        ),
         date_text,
         font=date_font,
         fill='white'
     )
+
+    # No logo here.
+    # No default "বাংলা সংবাদ" logo here.
+    # Logo is already at the top-right of photo.
 
     output.parent.mkdir(
         parents=True,
@@ -303,7 +494,12 @@ def create_vertical_frame(
     height: int = 1920
 ) -> Path:
 
-    image = Image.open(image_path).convert('RGB')
+    # Same visual language,
+    # optimized for Shorts/Reels/vertical video.
+
+    image = Image.open(
+        image_path
+    ).convert('RGB')
 
     canvas = Image.new(
         'RGB',
@@ -313,13 +509,25 @@ def create_vertical_frame(
 
     photo_h = 1180
 
+    # ========================================================
+    # MAIN VERTICAL PHOTO
+    # ========================================================
+
     _paste_cover(
         canvas,
         image,
-        (0, 0, width, photo_h)
+        (
+            0,
+            0,
+            width,
+            photo_h
+        )
     )
 
-    # Logo — vertical image-এর উপরের ডান পাশে
+    # ========================================================
+    # LOGO — TOP RIGHT OF VERTICAL PHOTO
+    # ========================================================
+
     _paste_logo_top_right(
         canvas,
         logo_path,
@@ -329,25 +537,51 @@ def create_vertical_frame(
         margin=30
     )
 
+    # ========================================================
+    # RED LOWER PANEL
+    # ========================================================
+
     panel_y = photo_h
 
     panel = Image.new(
         'RGB',
-        (width, height - panel_y),
+        (
+            width,
+            height - panel_y
+        ),
         '#a40000'
     )
 
-    pd = ImageDraw.Draw(panel)
+    pd = ImageDraw.Draw(
+        panel
+    )
 
-    for y in range(panel.height):
-        t = y / max(1, panel.height - 1)
+    for y in range(
+        panel.height
+    ):
+
+        t = y / max(
+            1,
+            panel.height - 1
+        )
 
         pd.line(
-            (0, y, width, y),
+            (
+                0,
+                y,
+                width,
+                y
+            ),
             fill=(
-                int(175 - 55 * t),
-                int(8 + 15 * t),
-                int(8 + 15 * t)
+                int(
+                    175 - 55 * t
+                ),
+                int(
+                    8 + 15 * t
+                ),
+                int(
+                    8 + 15 * t
+                )
             )
         )
 
@@ -356,12 +590,27 @@ def create_vertical_frame(
         (0, panel_y)
     )
 
-    d = ImageDraw.Draw(canvas)
+    d = ImageDraw.Draw(
+        canvas
+    )
+
+    # ========================================================
+    # WHITE DIVIDER
+    # ========================================================
 
     d.rectangle(
-        (0, panel_y, width, panel_y + 6),
+        (
+            0,
+            panel_y,
+            width,
+            panel_y + 6
+        ),
         fill='white'
     )
+
+    # ========================================================
+    # HEADLINE
+    # ========================================================
 
     f, lines = _fit_text(
         d,
@@ -375,55 +624,96 @@ def create_vertical_frame(
     y = panel_y + 80
 
     for line in lines:
-        tw = d.textbbox(
+
+        bbox = d.textbbox(
             (0, 0),
             line,
             font=f
-        )[2]
+        )
 
-        x = (width - tw) // 2
+        tw = bbox[2]
+
+        x = (
+            width - tw
+        ) // 2
 
         d.text(
-            (x + 2, y + 2),
+            (
+                x + 2,
+                y + 2
+            ),
             line,
             font=f,
             fill='#5b0000'
         )
 
         d.text(
-            (x, y),
+            (
+                x,
+                y
+            ),
             line,
             font=f,
             fill='white'
         )
 
-        y += f.size + 12
+        y += (
+            f.size
+            + 12
+        )
 
-    sf = _font(34, True)
+    # ========================================================
+    # COMMENT NOTICE
+    # ========================================================
+
+    sf = _font(
+        34,
+        True
+    )
 
     sub = 'বিস্তারিত প্রথম কমেন্টে'
 
-    tw = d.textbbox(
+    bbox = d.textbbox(
         (0, 0),
         sub,
         font=sf
-    )[2]
+    )
+
+    tw = bbox[2]
 
     d.text(
-        ((width - tw) // 2, y + 40),
+        (
+            (width - tw) // 2,
+            y + 40
+        ),
         sub,
         font=sf,
         fill='#ffe500'
     )
 
-    df = _font(28, True)
+    # ========================================================
+    # DATE FOOTER
+    # ========================================================
+
+    df = _font(
+        28,
+        True
+    )
 
     d.text(
-        (55, height - 105),
+        (
+            55,
+            height - 105
+        ),
         date_text,
         font=df,
         fill='white'
     )
+
+    # IMPORTANT:
+    # Logo is NOT placed at bottom anymore.
+    # It was already placed at the top-right
+    # of the main photo above.
 
     output.parent.mkdir(
         parents=True,
