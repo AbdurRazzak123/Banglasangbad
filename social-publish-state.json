@@ -129,19 +129,19 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-25T14:03:14.652927+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AH4YLf0lpn4QTL5jtfLvvyJ'}}"
+          "updated_at": "2026-09-25T14:35:45.699787+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AbNCa5x0LzomWFOjfolwdHV'}}"
         },
         "instagram": {
           "status": "posted",
-          "updated_at": "2026-09-25T14:07:59.314710+00:00",
+          "updated_at": "2026-09-25T14:40:25.848774+00:00",
           "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 05:00:00 PDT. The current time is Friday, 25-Sep-26 06:32:03 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A-3pziKmjImjK4C4dCZ2XFX'}}",
           "result": {
-            "id": "17972332512141657",
-            "creation_id": "18107446022125017",
+            "id": "18096363476398920",
+            "creation_id": "18107477021125017",
             "children": [
-              "18107445806125017",
-              "18107445920125017"
+              "18107476835125017",
+              "18107476922125017"
             ]
           }
         },
@@ -163,8 +163,8 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T14:03:13.861706+00:00",
-      "last_attempt_at": "2026-09-25T14:03:12.771406+00:00",
+      "updated_at": "2026-09-25T14:35:43.664169+00:00",
+      "last_attempt_at": "2026-09-25T14:35:42.816147+00:00",
       "social_card": "social-media/32.jpg",
       "instagram_carousel": [
         "social-media/instagram/32/32-ig-01.jpg",
@@ -202,8 +202,8 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-25T14:08:00.511807+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019_122100455385487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AN5o4MuyeqATEiqkhfXkkAN'}}",
+          "updated_at": "2026-09-25T14:40:27.401180+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019_122100455385487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AcDgl33XOSWQum9Z6w_CWwm'}}",
           "result": {
             "id": "1240194305854019_122100455385487710",
             "comment_error": "POST https://graph.facebook.com/v26.0/1240194305854019_122100455385487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AvfIGhc3bbyWUIYanFXqYa0'}}",
@@ -212,14 +212,14 @@
         },
         "instagram": {
           "status": "posted",
-          "updated_at": "2026-09-25T14:12:39.934973+00:00",
+          "updated_at": "2026-09-25T14:45:09.609024+00:00",
           "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 05:00:00 PDT. The current time is Friday, 25-Sep-26 06:17:22 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'Ao4foAWJZ7n7AZxg5pwT53p'}}",
           "result": {
-            "id": "18442981264192951",
-            "creation_id": "18107450237125017",
+            "id": "18446189728127717",
+            "creation_id": "18107482355125017",
             "children": [
-              "18107450060125017",
-              "18107450174125017"
+              "18107482211125017",
+              "18107482295125017"
             ]
           }
         },
@@ -241,14 +241,14 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-25T14:07:59.314746+00:00",
+      "last_attempt_at": "2026-09-25T14:40:25.848806+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-25T14:08:00.048689+00:00",
+      "updated_at": "2026-09-25T14:40:26.440647+00:00",
       "instagram_carousel": [
         "social-media/instagram/33/33-ig-01.jpg",
         "social-media/instagram/33/33-ig-02.jpg"
       ]
     }
   },
-  "updated_at": "2026-09-25T14:12:39.935003+00:00"
+  "updated_at": "2026-09-25T14:45:09.609055+00:00"
 }
