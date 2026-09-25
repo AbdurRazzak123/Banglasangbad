@@ -154,25 +154,36 @@ def request_json(method, url, **kwargs):
 def caption(item: dict) -> str:
     headline = clean_text(item.get('headline'))
     category = clean_text(item.get('category'))
+    # Keep the article URL directly in the Facebook photo caption. Facebook
+    # renders HTTPS URLs as tappable links, so the post no longer depends on a
+    # second comment request (which was failing with permission errors).
     return (f'📰 {headline}\n\n'
-            f'বিস্তারিত খবর: {news_url(str(item.get("id")))}\n\n'
+            f'🔗 পুরো সংবাদ: {news_url(str(item.get("id")))}\n\n'
             f'#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ')
 
 
 def instagram_caption(item: dict) -> str:
     headline = clean_text(item.get('headline'))
     category = clean_text(item.get('category'))
+    # Instagram feed-caption links are only tappable for accounts included in
+    # Meta's limited caption-link rollout. For ordinary accounts the URL is
+    # intentionally kept as visible text and the CTA points viewers to the
+    # profile Links field. The automation must not claim a plain caption URL
+    # is universally clickable.
     return (f'📰 {headline}\n\n'
-            f'এই পোস্টের স্লাইডগুলোতে পুরো খবরের বিস্তারিত পড়ুন।\n\n'
-            f'🌐 ওয়েবসাইট: {news_url(str(item.get("id")))}\n\n'
+            f'🌐 পুরো সংবাদ: {news_url(str(item.get("id")))}\n'
+            f'ওয়েবসাইট লিংক প্রোফাইলের Links-এও দেওয়া আছে।\n\n'
             f'#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ')
 
 
 def facebook_publish(item, card_path, dry_run=False, prior_result=None):
-    """Publish a Page photo and ensure its website URL is posted as a comment.
+    """Publish one Page photo with the article URL in the photo caption.
 
-    If a previous run already created the Page post but the comment failed,
-    retry the comment on the existing post instead of creating a duplicate.
+    The previous implementation posted the photo first and then attempted a
+    second API call to create a comment containing the URL. That second call
+    was the source of the observed permissions failure. Keeping the article
+    URL in the photo caption makes the link part of the original post and
+    avoids duplicate photo creation or comment retries.
     """
     message = caption(item)
     if dry_run:
@@ -185,27 +196,15 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
 
     prior_result = prior_result or {}
     post_id = prior_result.get('post_id') or prior_result.get('id')
-    comment_id = prior_result.get('first_comment_id')
-
-    # Retry only the missing comment when the Page post already exists.
-    if post_id and not comment_id:
-        comment = request_json(
-            'POST',
-            f'{META_BASE}/{post_id}/comments',
-            data={
-                'message': f'🔗 পুরো সংবাদ: {news_url(str(item["id"]))}',
-                'access_token': token,
-            },
-        )
-        comment_id = comment.get('id')
-        if not comment_id:
-            raise RuntimeError(f'Facebook comment creation returned no id: {comment}')
+    if post_id and prior_result.get('status') in {'posted', 'posted_comment_failed'}:
+        # A Page photo was already created. Never create another photo just to
+        # repair a comment; this is the duplicate-prevention rule.
         return {
             'id': post_id,
             'post_id': post_id,
-            'first_comment_id': comment_id,
             'status': 'posted',
-            'comment_retried': True,
+            'reused_existing_post': True,
+            'website_url': news_url(str(item['id'])),
         }
 
     data = {
@@ -218,33 +217,11 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
     if not post_id:
         raise RuntimeError(f'Facebook photo publish returned no post id: {result}')
 
-    try:
-        comment = request_json(
-            'POST',
-            f'{META_BASE}/{post_id}/comments',
-            data={
-                'message': f'🔗 পুরো সংবাদ: {news_url(str(item["id"]))}',
-                'access_token': token,
-            },
-        )
-        comment_id = comment.get('id')
-        if not comment_id:
-            raise RuntimeError(f'Facebook comment creation returned no id: {comment}')
-    except Exception as exc:
-        # Preserve the live post id so the next run retries only the comment.
-        return {
-            'id': post_id,
-            'post_id': post_id,
-            'first_comment_id': None,
-            'comment_error': str(exc),
-            'status': 'posted_comment_failed',
-        }
-
     return {
         'id': post_id,
         'post_id': post_id,
-        'first_comment_id': comment_id,
         'status': 'posted',
+        'website_url': news_url(str(item['id'])),
     }
 
 
@@ -315,10 +292,26 @@ def instagram_publish(item, carousel_paths=None, dry_run=False):
         raise RuntimeError(f'Instagram carousel container returned no id: {parent}')
     _wait_instagram_container(creation_id, token)
 
-    published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-        'creation_id': creation_id,
-        'access_token': token,
-    })
+    published = None
+    last_error = None
+    # Meta can return transient 9007 ('media is not ready') even after the
+    # container reports FINISHED. Retry the publish step without creating a
+    # second container or duplicate carousel.
+    for attempt in range(6):
+        try:
+            published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
+                'creation_id': creation_id,
+                'access_token': token,
+            })
+            break
+        except RuntimeError as exc:
+            last_error = exc
+            if '9007' not in str(exc) and 'not ready for publishing' not in str(exc).lower():
+                raise
+            time.sleep(5 + attempt * 3)
+            _wait_instagram_container(creation_id, token, attempts=6)
+    if published is None:
+        raise RuntimeError(f'Instagram publish did not become ready: {last_error}')
     published_id = published.get('id')
     if not published_id:
         raise RuntimeError(f'Instagram carousel publish returned no id: {published}')
