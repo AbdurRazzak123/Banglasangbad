@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T05:29:17.136586+00:00"
+      "updated_at": "2026-09-25T05:30:56.376472+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -168,13 +168,13 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-25T05:29:17.708420+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'AWm47TUpfDO3hmPhTHcSV-L'}}"
+          "updated_at": "2026-09-25T05:30:57.003931+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'Am3gApSZPFaeD-mbMooZJwN'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-25T05:29:17.776929+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'A6ssFafE8NVNlfR3EeEgkQd'}}"
+          "updated_at": "2026-09-25T05:30:57.152900+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'AUeaE4PBL55D34TybOSzF8c'}}"
         },
         "x": {
           "status": "not_selected"
@@ -194,10 +194,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-25T05:29:17.136641+00:00",
+      "last_attempt_at": "2026-09-25T05:30:56.376526+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-25T05:29:17.298414+00:00"
+      "updated_at": "2026-09-25T05:30:56.538899+00:00"
     }
   },
-  "updated_at": "2026-09-25T05:29:17.777423+00:00"
+  "updated_at": "2026-09-25T05:30:57.153653+00:00"
 }
