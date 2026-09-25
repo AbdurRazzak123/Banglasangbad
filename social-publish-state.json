@@ -125,17 +125,43 @@
       "platforms": {}
     },
     "32": {
-      "status": "waiting_sheet_publish",
-      "platforms": {},
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-09-25T09:37:16.980036+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 00:00:00 PDT. The current time is Friday, 25-Sep-26 02:37:16 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A9EDKdKKY60nY7flhOfuOqj'}}"
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-09-25T09:37:17.041453+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 00:00:00 PDT. The current time is Friday, 25-Sep-26 02:37:17 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AmnWJirRQh76dezEWTu3KWD'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
       "sheet_controls": {
-        "publish": false,
-        "facebook": false,
-        "instagram": false,
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
         "x": false,
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T09:00:15.233566+00:00"
+      "updated_at": "2026-09-25T09:36:47.797056+00:00",
+      "last_attempt_at": "2026-09-25T09:36:46.703282+00:00",
+      "social_card": "social-media/32.jpg",
+      "instagram_carousel": [
+        "social-media/instagram/32/32-ig-01.jpg",
+        "social-media/instagram/32/32-ig-02.jpg"
+      ]
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -208,5 +234,5 @@
       "updated_at": "2026-09-25T06:00:43.519739+00:00"
     }
   },
-  "updated_at": "2026-09-25T09:00:15.233615+00:00"
+  "updated_at": "2026-09-25T09:37:17.041950+00:00"
 }
