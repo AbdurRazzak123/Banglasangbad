@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T05:56:46.888627+00:00"
+      "updated_at": "2026-09-25T06:00:43.348907+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -164,7 +164,7 @@
       "updated_at": "2026-09-21T14:32:09.981918+00:00"
     },
     "33": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
           "status": "posted",
@@ -177,12 +177,12 @@
           }
         },
         "instagram": {
-          "status": "failed",
-          "updated_at": "2026-09-25T05:56:59.281333+00:00",
+          "status": "posted",
+          "updated_at": "2026-09-25T06:01:03.975502+00:00",
           "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 400: {'error': {'message': 'Media ID is not available', 'type': 'OAuthException', 'code': 9007, 'error_subcode': 2207027, 'is_transient': False, 'error_user_title': 'Cannot Publish', 'error_user_msg': 'The media is not ready for publishing, please wait for a moment', 'fbtrace_id': 'AfUZHguDGTB-Pmt7l2aL5Cm'}}",
           "result": {
-            "dry_run": true,
-            "caption": "📰 বিমানের বহরে যুক্ত হচ্ছে আরও ১১টি বোয়িং উড়োজাহাজ\n\nবিস্তারিত: https://abdurrazzak123.github.io/Banglasangbad/news/33.html\n\n#জাতীয় #বাংলা_সংবাদ"
+            "id": "18111694769146720",
+            "creation_id": "18107150174125017"
           }
         },
         "x": {
@@ -203,10 +203,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-25T05:56:46.888681+00:00",
+      "last_attempt_at": "2026-09-25T06:00:43.348963+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-25T05:56:47.049219+00:00"
+      "updated_at": "2026-09-25T06:00:43.519739+00:00"
     }
   },
-  "updated_at": "2026-09-25T05:56:59.282132+00:00"
+  "updated_at": "2026-09-25T06:01:03.975535+00:00"
 }
