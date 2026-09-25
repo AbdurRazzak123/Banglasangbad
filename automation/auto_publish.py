@@ -422,8 +422,32 @@ def generate_video(item, image_path: Path, video_path: Path):
 
 
 
+def git_sync_and_push(max_attempts: int = 4):
+    """Synchronize with origin/main and push without losing remote commits."""
+    subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], cwd=ROOT, check=True)
+    subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], cwd=ROOT, check=True)
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            subprocess.run(['git', 'fetch', 'origin', 'main'], cwd=ROOT, check=True)
+            subprocess.run(['git', 'rebase', 'origin/main'], cwd=ROOT, check=True)
+            subprocess.run(['git', 'push', 'origin', 'HEAD:main'], cwd=ROOT, check=True)
+            return
+        except subprocess.CalledProcessError as exc:
+            last_error = exc
+            # If rebase entered a conflict, abort it before the next retry so
+            # the local commit remains intact and can be rebased again.
+            subprocess.run(['git', 'rebase', '--abort'], cwd=ROOT, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # A concurrent Sheet sync can update main between fetch/rebase/push.
+            # Retry from the latest remote state rather than force-pushing.
+            if attempt < max_attempts:
+                time.sleep(min(10, 2 * attempt))
+                continue
+            raise last_error
+
+
 def publish_social_assets_to_pages(paths, news_id: str):
-    """Commit generated Facebook/Instagram assets so GitHub Pages serves them publicly."""
+    """Commit generated social assets and push them so GitHub Pages can serve them."""
     rels = [Path(p).relative_to(ROOT).as_posix() for p in paths]
     subprocess.run(['git', 'add', *rels], cwd=ROOT, check=True)
     staged = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
@@ -431,7 +455,20 @@ def publish_social_assets_to_pages(paths, news_id: str):
         subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], cwd=ROOT, check=True)
         subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], cwd=ROOT, check=True)
         subprocess.run(['git', 'commit', '-m', f'Create social assets for news {news_id}'], cwd=ROOT, check=True)
-        subprocess.run(['git', 'push'], cwd=ROOT, check=True)
+        git_sync_and_push()
+
+
+def commit_social_state():
+    """Persist publisher state/log and push them safely to main."""
+    subprocess.run(['git', 'add', 'social-publish-state.json', 'social-publish-log.json'], cwd=ROOT, check=True)
+    if (ROOT / 'social-media').is_dir():
+        subprocess.run(['git', 'add', 'social-media'], cwd=ROOT, check=True)
+    staged = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
+    if staged.returncode == 0:
+        return False
+    subprocess.run(['git', 'commit', '-m', 'Update social auto-publish state'], cwd=ROOT, check=True)
+    git_sync_and_push()
+    return True
 
 def wait_public(url: str, attempts: int = 12) -> bool:
     for i in range(attempts):
@@ -619,7 +656,19 @@ def main():
 
     state['updated_at']=utc_now(); log['generated_at']=utc_now()
     save_json(STATE_FILE,state); save_json(LOG_FILE,log)
-    print(json.dumps({'processed':[str(x['id']) for x in candidates], 'dry_run':args.dry_run}, ensure_ascii=False, indent=2))
+
+    # Persist state here so the workflow's final git push is only a safety check.
+    # This avoids a second independent writer racing with the Sheet sync workflow.
+    if not args.dry_run:
+        commit_social_state()
+
+    print(json.dumps({
+        'processed':[str(x['id']) for x in candidates],
+        'dry_run':args.dry_run,
+        'total_news': len(news),
+        'candidate_count': len(candidates),
+        'latest_news_id': str(news[-1].get('id')) if news else None,
+    }, ensure_ascii=False, indent=2))
 
 if __name__ == '__main__':
     main()
