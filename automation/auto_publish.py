@@ -33,6 +33,7 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 ROOT = Path(__file__).resolve().parents[1]
+AUTOMATION_VERSION = '2026-09-25-git-identity-v3'
 STATE_FILE = ROOT / 'social-publish-state.json'
 LOG_FILE = ROOT / 'social-publish-log.json'
 NEWS_FILE = ROOT / 'news-data.json'
@@ -422,10 +423,35 @@ def generate_video(item, image_path: Path, video_path: Path):
 
 
 
+def configure_git_identity():
+    """Set Git identity both in the repo config and subprocess environment.
+
+    GitHub-hosted runners do not guarantee a preconfigured author identity.
+    Setting both config and environment variables makes every commit path
+    deterministic, including commits created before the workflow's final step.
+    """
+    name = 'github-actions[bot]'
+    email = '41898282+github-actions[bot]@users.noreply.github.com'
+    os.environ['GIT_AUTHOR_NAME'] = name
+    os.environ['GIT_AUTHOR_EMAIL'] = email
+    os.environ['GIT_COMMITTER_NAME'] = name
+    os.environ['GIT_COMMITTER_EMAIL'] = email
+    subprocess.run(['git', 'config', 'user.name', name], cwd=ROOT, check=True)
+    subprocess.run(['git', 'config', 'user.email', email], cwd=ROOT, check=True)
+
+
+def verify_git_identity():
+    configure_git_identity()
+    name = subprocess.check_output(['git', 'config', '--get', 'user.name'], cwd=ROOT, text=True).strip()
+    email = subprocess.check_output(['git', 'config', '--get', 'user.email'], cwd=ROOT, text=True).strip()
+    if not name or not email:
+        raise RuntimeError('Git identity verification failed: user.name/user.email is empty')
+    print(f'Git identity: {name} <{email}>')
+
+
 def git_sync_and_push(max_attempts: int = 4):
     """Synchronize with origin/main and push without losing remote commits."""
-    subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], cwd=ROOT, check=True)
-    subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], cwd=ROOT, check=True)
+    verify_git_identity()
     last_error = None
     for attempt in range(1, max_attempts + 1):
         try:
@@ -460,12 +486,19 @@ def publish_social_assets_to_pages(paths, news_id: str):
 
 def commit_social_state():
     """Persist publisher state/log and push them safely to main."""
+    # Do this before staging/commit so no code path can reach git commit
+    # without an explicit author/committer identity.
+    verify_git_identity()
     subprocess.run(['git', 'add', 'social-publish-state.json', 'social-publish-log.json'], cwd=ROOT, check=True)
     if (ROOT / 'social-media').is_dir():
         subprocess.run(['git', 'add', 'social-media'], cwd=ROOT, check=True)
     staged = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
     if staged.returncode == 0:
         return False
+    # The workflow's checkout does not guarantee a preconfigured Git identity.
+    # Configure it BEFORE commit (not only before push), otherwise Git aborts
+    # with "Author identity unknown" before git_sync_and_push() is reached.
+    configure_git_identity()
     subprocess.run(['git', 'commit', '-m', 'Update social auto-publish state'], cwd=ROOT, check=True)
     git_sync_and_push()
     return True
