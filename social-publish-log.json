@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T10:02:01.767794+00:00",
+  "generated_at": "2026-09-25T10:17:57.911181+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -50,13 +50,13 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-25T10:02:01.649064+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 00:00:00 PDT. The current time is Friday, 25-Sep-26 03:02:01 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A4cBerC67VswV44BJhf-0EW'}}"
+          "updated_at": "2026-09-25T10:17:57.755486+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 00:00:00 PDT. The current time is Friday, 25-Sep-26 03:17:57 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AqrumX3paBQDLmKCmMxK0jH'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-25T10:02:01.766954+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 00:00:00 PDT. The current time is Friday, 25-Sep-26 03:02:01 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AHlrqR6yjir04cOThhowTrf'}}"
+          "updated_at": "2026-09-25T10:17:57.910932+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 00:00:00 PDT. The current time is Friday, 25-Sep-26 03:17:57 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'ATv8RjU1Mb2U4H9722YDhlB'}}"
         },
         "x": {
           "status": "not_selected"
@@ -76,8 +76,8 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T10:02:00.235527+00:00",
-      "last_attempt_at": "2026-09-25T10:01:59.382132+00:00",
+      "updated_at": "2026-09-25T10:17:56.917279+00:00",
+      "last_attempt_at": "2026-09-25T10:17:56.314782+00:00",
       "social_card": "social-media/32.jpg",
       "instagram_carousel": [
         "social-media/instagram/32/32-ig-01.jpg",
