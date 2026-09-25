@@ -6,6 +6,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,7 +15,22 @@ from urllib.parse import urlencode
 
 import requests
 
-from social_card import create_card, create_vertical_frame, create_instagram_carousel
+# Load social_card reliably whether it is kept beside this file (recommended)
+# or accidentally uploaded at the repository root.
+AUTOMATION_DIR = Path(__file__).resolve().parent
+REPO_ROOT_FOR_IMPORT = AUTOMATION_DIR.parent
+for _p in (AUTOMATION_DIR, REPO_ROOT_FOR_IMPORT):
+    _ps = str(_p)
+    if _ps not in sys.path:
+        sys.path.insert(0, _ps)
+
+try:
+    from social_card import create_card, create_vertical_frame, create_instagram_carousel
+except ModuleNotFoundError as exc:
+    raise RuntimeError(
+        'social_card.py was not found. Put social_card.py in automation/ ' 
+        'beside auto_publish.py, then rerun the GitHub Action.'
+    ) from exc
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE_FILE = ROOT / 'social-publish-state.json'
