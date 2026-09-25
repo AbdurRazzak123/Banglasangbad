@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-25T05:40:08.730251+00:00"
+      "updated_at": "2026-09-25T05:42:26.698690+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -164,21 +164,21 @@
       "updated_at": "2026-09-21T14:32:09.981918+00:00"
     },
     "33": {
-      "status": "dry_run",
+      "status": "partial_failure",
       "platforms": {
         "facebook": {
-          "status": "dry_run",
-          "updated_at": "2026-09-25T05:40:08.831910+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'Am3gApSZPFaeD-mbMooZJwN'}}",
+          "status": "failed",
+          "updated_at": "2026-09-25T05:42:27.233909+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'AYA_sRXm6v7vSoLLt888BOi'}}",
           "result": {
             "dry_run": true,
             "message": "📰 বিমানের বহরে যুক্ত হচ্ছে আরও ১১টি বোয়িং উড়োজাহাজ\n\nবিস্তারিত: https://abdurrazzak123.github.io/Banglasangbad/news/33.html\n\n#জাতীয় #বাংলা_সংবাদ"
           }
         },
         "instagram": {
-          "status": "dry_run",
-          "updated_at": "2026-09-25T05:40:08.831924+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'AUeaE4PBL55D34TybOSzF8c'}}",
+          "status": "failed",
+          "updated_at": "2026-09-25T05:42:27.423717+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Invalid OAuth access token - Cannot parse access token', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'AgQssCFn6TFGwBPp4XzRcOK'}}",
           "result": {
             "dry_run": true,
             "caption": "📰 বিমানের বহরে যুক্ত হচ্ছে আরও ১১টি বোয়িং উড়োজাহাজ\n\nবিস্তারিত: https://abdurrazzak123.github.io/Banglasangbad/news/33.html\n\n#জাতীয় #বাংলা_সংবাদ"
@@ -202,10 +202,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-25T05:40:08.730289+00:00",
+      "last_attempt_at": "2026-09-25T05:42:26.698736+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-25T05:40:08.831704+00:00"
+      "updated_at": "2026-09-25T05:42:26.813770+00:00"
     }
   },
-  "updated_at": "2026-09-25T05:40:08.831933+00:00"
+  "updated_at": "2026-09-25T05:42:27.424399+00:00"
 }
