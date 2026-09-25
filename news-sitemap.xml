@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
-  <url>
-    <loc>https://abdurrazzak123.github.io/Banglasangbad/news/33.html</loc>
-    <news:news>
-      <news:publication>
-        <news:name>বাংলা সংবাদ</news:name>
-        <news:language>bn</news:language>
-      </news:publication>
-      <news:publication_date>2026-09-24T00:00:00+06:00</news:publication_date>
-      <news:title>বিমানের বহরে যুক্ত হচ্ছে আরও ১১টি বোয়িং উড়োজাহাজ</news:title>
-    </news:news>
-  </url>
 </urlset>
