@@ -154,7 +154,9 @@ def request_json(method, url, **kwargs):
 def caption(item: dict) -> str:
     headline = clean_text(item.get('headline'))
     category = clean_text(item.get('category'))
-    return f'📰 {headline}\n\nবিস্তারিত: {news_url(str(item.get("id")))}\n\n#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ'
+    return (f'📰 {headline}\n\n'
+            f'বিস্তারিত খবর: {news_url(str(item.get("id")))}\n\n'
+            f'#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ')
 
 
 def instagram_caption(item: dict) -> str:
@@ -191,7 +193,7 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
             'POST',
             f'{META_BASE}/{post_id}/comments',
             data={
-                'message': f'বিস্তারিত খবর: {news_url(str(item["id"]))}',
+                'message': f'🔗 পুরো সংবাদ: {news_url(str(item["id"]))}',
                 'access_token': token,
             },
         )
@@ -221,7 +223,7 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
             'POST',
             f'{META_BASE}/{post_id}/comments',
             data={
-                'message': f'বিস্তারিত খবর: {news_url(str(item["id"]))}',
+                'message': f'🔗 পুরো সংবাদ: {news_url(str(item["id"]))}',
                 'access_token': token,
             },
         )
@@ -646,6 +648,9 @@ def main():
 
             # In dry-run, do not require the card to be publicly visible.
             if not args.dry_run:
+                article_url = news_url(nid)
+                if not wait_public(article_url, attempts=24):
+                    raise RuntimeError(f'News article URL is not publicly reachable yet: {article_url}')
                 publish_social_assets_to_pages([card, *ig_carousel], nid)
                 public_urls = [f'{SITE_BASE_URL}/social-media/{nid}.jpg'] + [f'{SITE_BASE_URL}/social-media/instagram/{nid}/{p.name}' for p in ig_carousel]
                 for public_url in public_urls:
