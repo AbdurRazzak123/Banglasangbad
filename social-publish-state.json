@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-24T22:26:00.411456+00:00"
+      "updated_at": "2026-09-25T00:34:37.777621+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -168,12 +168,12 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-24T22:26:01.087050+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: The session is invalid because the user logged out.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 467, 'fbtrace_id': 'AbsZfD3bRh4DeIeh9IHm2m5'}}"
+          "updated_at": "2026-09-25T00:34:38.608844+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: The session is invalid because the user logged out.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 467, 'fbtrace_id': 'A4nHn2uqYVAJVB2gFS3f_vA'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-24T22:26:01.087637+00:00",
+          "updated_at": "2026-09-25T00:34:38.609621+00:00",
           "error": "Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID"
         },
         "x": {
@@ -194,10 +194,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-24T22:26:00.411532+00:00",
+      "last_attempt_at": "2026-09-25T00:34:37.777749+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-24T22:26:00.554825+00:00"
+      "updated_at": "2026-09-25T00:34:37.948871+00:00"
     }
   },
-  "updated_at": "2026-09-24T22:26:01.087654+00:00"
+  "updated_at": "2026-09-25T00:34:38.609641+00:00"
 }
