@@ -14,6 +14,7 @@ from typing import Any
 from urllib.parse import urlencode
 
 import requests
+from PIL import Image
 
 # Load social_card reliably whether it is kept beside this file (recommended)
 # or accidentally uploaded at the repository root.
@@ -33,7 +34,7 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 ROOT = Path(__file__).resolve().parents[1]
-AUTOMATION_VERSION = '2026-09-25-git-identity-v3'
+AUTOMATION_VERSION = '2026-09-26-premium-fb-ig-v2'
 STATE_FILE = ROOT / 'social-publish-state.json'
 LOG_FILE = ROOT / 'social-publish-log.json'
 NEWS_FILE = ROOT / 'news-data.json'
@@ -124,7 +125,15 @@ def download_remote_image(item: dict, dest: Path) -> Path | None:
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(r.content)
             if dest.stat().st_size > 1000:
-                return dest
+                try:
+                    with Image.open(dest) as probe:
+                        probe.verify()
+                    return dest
+                except Exception:
+                    try:
+                        dest.unlink()
+                    except OSError:
+                        pass
         except Exception:
             continue
     return None
@@ -152,27 +161,93 @@ def request_json(method, url, **kwargs):
 
 
 def caption(item: dict) -> str:
-    headline = clean_text(item.get('headline'))
-    category = clean_text(item.get('category'))
-    return (f'📰 {headline}\n\n'
-            f'বিস্তারিত খবর: {news_url(str(item.get("id")))}\n\n'
-            f'#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ')
+    """Facebook post text: the exact article Details Page URL only."""
+    return news_url(str(item.get("id")))
 
 
 def instagram_caption(item: dict) -> str:
+    """Instagram caption with no website URL.
+
+    Short articles use the complete Details text directly in the caption.
+    Longer articles are published as a carousel; their complete Details text
+    is rendered across the carousel slides so no article text is silently cut.
+    """
+    headline = clean_text(item.get('headline'))
+    details = clean_text(item.get('details'))
+    category = clean_text(item.get('category'))
+    tag = f"#{re.sub(r'[^\w\u0980-\u09ff]+', '', category)} #বাংলা_সংবাদ" if category else '#বাংলা_সংবাদ'
+    return '\n\n'.join([f'📰 {headline}', details, tag]) if details else '\n\n'.join([f'📰 {headline}', tag])
+
+
+def instagram_needs_carousel(item: dict) -> bool:
+    # Instagram captions have a finite character limit. Use a carousel for
+    # longer Details fields so the complete article remains available without
+    # putting a website URL in the Instagram post.
+    return len(instagram_caption(item)) > 2200
+
+
+def instagram_carousel_caption(item: dict) -> str:
     headline = clean_text(item.get('headline'))
     category = clean_text(item.get('category'))
-    return (f'📰 {headline}\n\n'
-            f'এই পোস্টের স্লাইডগুলোতে পুরো খবরের বিস্তারিত পড়ুন।\n\n'
-            f'🌐 ওয়েবসাইট: {news_url(str(item.get("id")))}\n\n'
-            f'#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ')
+    tag = f"#{re.sub(r'[^\w\u0980-\u09ff]+', '', category)} #বাংলা_সংবাদ" if category else '#বাংলা_সংবাদ'
+    return f'📰 {headline}\n\n{tag}'
+
+def meta_preflight(dry_run: bool = False) -> None:
+    """Validate the Meta Page token, Page ID, and Instagram account before any publish.
+
+    This is intentionally a read-only check. It never prints or stores the token.
+    A bad/expired token stops the run before a single article is attempted, so the
+    queue remains clean and will retry automatically after the GitHub secret is fixed.
+    """
+    if dry_run:
+        return
+    token = os.getenv('META_PAGE_ACCESS_TOKEN', '').strip()
+    page_id = os.getenv('META_PAGE_ID', '').strip()
+    ig_id = os.getenv('INSTAGRAM_BUSINESS_ACCOUNT_ID', '').strip()
+    if not token or not page_id:
+        raise RuntimeError('Meta preflight failed: META_PAGE_ID or META_PAGE_ACCESS_TOKEN is missing.')
+    if not ig_id:
+        raise RuntimeError('Meta preflight failed: INSTAGRAM_BUSINESS_ACCOUNT_ID is missing.')
+
+    try:
+        page = request_json('GET', f'{META_BASE}/{page_id}', params={
+            'fields': 'id,name,instagram_business_account',
+            'access_token': token,
+        })
+    except Exception as exc:
+        raise RuntimeError(
+            'Meta preflight failed for the Facebook Page. The Page token may be expired, invalid, or missing required Page access. ' + str(exc)
+        ) from exc
+    if str(page.get('id', '')).strip() != page_id:
+        raise RuntimeError('Meta preflight failed: META_PAGE_ID does not match the Page returned by Meta.')
+
+    linked_ig = ((page.get('instagram_business_account') or {}).get('id') or '').strip()
+    if linked_ig and linked_ig != ig_id:
+        raise RuntimeError('Meta preflight failed: INSTAGRAM_BUSINESS_ACCOUNT_ID does not match the Instagram account linked to the Page.')
+
+    try:
+        ig = request_json('GET', f'{META_BASE}/{ig_id}', params={
+            'fields': 'id,username',
+            'access_token': token,
+        })
+    except Exception as exc:
+        raise RuntimeError(
+            'Meta preflight failed for Instagram. The Page token may not have access to the configured Instagram Business account. ' + str(exc)
+        ) from exc
+    if str(ig.get('id', '')).strip() != ig_id:
+        raise RuntimeError('Meta preflight failed: Instagram account ID verification failed.')
+
+    print(f"Meta preflight OK: Page {page_id}; Instagram {ig_id}.")
 
 
 def facebook_publish(item, card_path, dry_run=False, prior_result=None):
-    """Publish a Page photo and ensure its website URL is posted as a comment.
+    """Publish one Facebook Page photo with only the article URL in the post text.
 
-    If a previous run already created the Page post but the comment failed,
-    retry the comment on the existing post instead of creating a duplicate.
+    The website URL is intentionally NOT posted as a separate comment. This
+    keeps the Facebook post to one image + one direct article link, matching
+    the site's social-card format. If an earlier version already created the
+    Page post but failed while adding its old comment, reuse that existing post
+    instead of creating a duplicate.
     """
     message = caption(item)
     if dry_run:
@@ -184,28 +259,13 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
         raise RuntimeError('Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN')
 
     prior_result = prior_result or {}
-    post_id = prior_result.get('post_id') or prior_result.get('id')
-    comment_id = prior_result.get('first_comment_id')
-
-    # Retry only the missing comment when the Page post already exists.
-    if post_id and not comment_id:
-        comment = request_json(
-            'POST',
-            f'{META_BASE}/{post_id}/comments',
-            data={
-                'message': f'🔗 পুরো সংবাদ: {news_url(str(item["id"]))}',
-                'access_token': token,
-            },
-        )
-        comment_id = comment.get('id')
-        if not comment_id:
-            raise RuntimeError(f'Facebook comment creation returned no id: {comment}')
+    existing_post_id = prior_result.get('post_id') or prior_result.get('id')
+    if existing_post_id:
         return {
-            'id': post_id,
-            'post_id': post_id,
-            'first_comment_id': comment_id,
+            'id': existing_post_id,
+            'post_id': existing_post_id,
             'status': 'posted',
-            'comment_retried': True,
+            'reused_existing_post': True,
         }
 
     data = {
@@ -218,32 +278,9 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
     if not post_id:
         raise RuntimeError(f'Facebook photo publish returned no post id: {result}')
 
-    try:
-        comment = request_json(
-            'POST',
-            f'{META_BASE}/{post_id}/comments',
-            data={
-                'message': f'🔗 পুরো সংবাদ: {news_url(str(item["id"]))}',
-                'access_token': token,
-            },
-        )
-        comment_id = comment.get('id')
-        if not comment_id:
-            raise RuntimeError(f'Facebook comment creation returned no id: {comment}')
-    except Exception as exc:
-        # Preserve the live post id so the next run retries only the comment.
-        return {
-            'id': post_id,
-            'post_id': post_id,
-            'first_comment_id': None,
-            'comment_error': str(exc),
-            'status': 'posted_comment_failed',
-        }
-
     return {
         'id': post_id,
         'post_id': post_id,
-        'first_comment_id': comment_id,
         'status': 'posted',
     }
 
@@ -270,23 +307,75 @@ def _wait_instagram_container(container_id: str, token: str, attempts: int = 30)
     raise RuntimeError(f'Instagram media container {container_id} did not reach FINISHED: {last}')
 
 
-def instagram_publish(item, carousel_paths=None, dry_run=False, prior_result=None):
-    """Publish a detailed Instagram carousel with publicly reachable images."""
+def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False, prior_result=None):
+    """Publish one Instagram image or a full-article carousel. No URL is posted."""
+    use_carousel = instagram_needs_carousel(item)
     if dry_run:
         return {
             'dry_run': True,
-            'caption': instagram_caption(item),
-            'carousel_items': [str(p) for p in (carousel_paths or [])],
+            'mode': 'carousel' if use_carousel else 'single',
+            'caption': instagram_carousel_caption(item) if use_carousel else instagram_caption(item),
+            'image': str(image_path) if image_path else None,
+            'carousel_images': [str(p) for p in (carousel_paths or [])],
         }
 
     token = os.getenv('META_PAGE_ACCESS_TOKEN')
     ig_id = os.getenv('INSTAGRAM_BUSINESS_ACCOUNT_ID')
     if not token or not ig_id:
         raise RuntimeError('Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID')
+    if use_carousel:
+        paths = carousel_paths or []
+        if len(paths) < 2:
+            raise RuntimeError('Instagram carousel was required but fewer than 2 public carousel images were generated.')
+        prior_parent = (prior_result or {}).get('creation_id')
+        if prior_parent:
+            try:
+                _wait_instagram_container(prior_parent, token, attempts=36)
+                published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
+                    'creation_id': prior_parent,
+                    'access_token': token,
+                })
+                published_id = published.get('id')
+                if published_id:
+                    return {'id': published_id, 'creation_id': prior_parent, 'mode': 'carousel', 'retried_existing_container': True}
+            except Exception:
+                pass
 
-    # If a previous run created the carousel container but failed while waiting
-    # for/triggering publish, reuse that container instead of creating another
-    # Instagram post. This is the key duplicate-protection path for retries.
+        child_ids = []
+        for path in paths:
+            public_url = f'{SITE_BASE_URL}/social-media/instagram/{item["id"]}/{path.name}'
+            child = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
+                'image_url': public_url,
+                'is_carousel_item': 'true',
+                'access_token': token,
+            })
+            cid = child.get('id')
+            if not cid:
+                raise RuntimeError(f'Instagram carousel child returned no id: {child}')
+            _wait_instagram_container(cid, token, attempts=36)
+            child_ids.append(cid)
+
+        parent = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
+            'media_type': 'CAROUSEL',
+            'children': ','.join(child_ids),
+            'caption': instagram_carousel_caption(item),
+            'access_token': token,
+        })
+        parent_id = parent.get('id')
+        if not parent_id:
+            raise RuntimeError(f'Instagram carousel parent returned no id: {parent}')
+        _wait_instagram_container(parent_id, token, attempts=36)
+        published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
+            'creation_id': parent_id,
+            'access_token': token,
+        })
+        published_id = published.get('id')
+        if not published_id:
+            raise RuntimeError(f'Instagram carousel publish returned no id: {published}')
+        return {'id': published_id, 'creation_id': parent_id, 'mode': 'carousel', 'children': child_ids}
+
+    if not image_path:
+        raise RuntimeError('No Instagram image was generated')
     prior_result = prior_result or {}
     prior_creation_id = prior_result.get('creation_id')
     if prior_creation_id:
@@ -298,52 +387,28 @@ def instagram_publish(item, carousel_paths=None, dry_run=False, prior_result=Non
             })
             published_id = published.get('id')
             if published_id:
-                return {'id': published_id, 'creation_id': prior_creation_id, 'retried_existing_container': True}
-        except Exception as exc:
-            # If the old container is expired/invalid, fall through and create
-            # a fresh container. The failure is recorded by the caller.
-            prior_result = {'retry_error': str(exc)}
+                return {'id': published_id, 'creation_id': prior_creation_id, 'mode': 'single', 'retried_existing_container': True}
+        except Exception:
+            pass
 
-    if not carousel_paths:
-        raise RuntimeError('No Instagram carousel images were generated')
-    if len(carousel_paths) < 2:
-        raise RuntimeError('Instagram carousel requires at least 2 media items')
-    if len(carousel_paths) > 10:
-        carousel_paths = carousel_paths[:10]
-
-    children = []
-    for path in carousel_paths:
-        public_url = f'{SITE_BASE_URL}/social-media/instagram/{item["id"]}/{path.name}'
-        child = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
-            'image_url': public_url,
-            'is_carousel_item': 'true',
-            'access_token': token,
-        })
-        child_id = child.get('id')
-        if not child_id:
-            raise RuntimeError(f'Instagram carousel child creation returned no id: {child}')
-        _wait_instagram_container(child_id, token)
-        children.append(child_id)
-
-    parent = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
-        'media_type': 'CAROUSEL',
-        'children': ','.join(children),
+    public_url = f'{SITE_BASE_URL}/social-media/instagram/{item["id"]}.jpg'
+    container = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
+        'image_url': public_url,
         'caption': instagram_caption(item),
         'access_token': token,
     })
-    creation_id = parent.get('id')
+    creation_id = container.get('id')
     if not creation_id:
-        raise RuntimeError(f'Instagram carousel container returned no id: {parent}')
-    _wait_instagram_container(creation_id, token)
-
+        raise RuntimeError(f'Instagram media container returned no id: {container}')
+    _wait_instagram_container(creation_id, token, attempts=36)
     published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
         'creation_id': creation_id,
         'access_token': token,
     })
     published_id = published.get('id')
     if not published_id:
-        raise RuntimeError(f'Instagram carousel publish returned no id: {published}')
-    return {'id': published_id, 'creation_id': creation_id, 'children': children}
+        raise RuntimeError(f'Instagram publish returned no id: {published}')
+    return {'id': published_id, 'creation_id': creation_id, 'mode': 'single'}
 
 def x_upload_image(path: Path, token: str) -> str:
     raw = path.read_bytes()
@@ -530,7 +595,7 @@ def wait_public(url: str, attempts: int = 12) -> bool:
     for i in range(attempts):
         try:
             r = requests.get(url, timeout=15, allow_redirects=True, headers={'User-Agent':'BanglasangbadSocialBot/1.0'})
-            if r.status_code == 200 and int(r.headers.get('content-length','1')) > 100:
+            if r.status_code == 200 and len(r.content) > 100:
                 return True
         except Exception:
             pass
@@ -624,6 +689,10 @@ def main():
     log.setdefault('articles',{})
     reconcile_state(state)
 
+    # Validate Meta once, before touching the queue. This prevents a bad token
+    # from causing a long series of predictable per-article failures.
+    meta_preflight(args.dry_run)
+
     news = sorted(load_news(), key=lambda x: int(str(x.get('id','0')) or 0))
     candidates = []
     for item in news:
@@ -669,14 +738,29 @@ def main():
                 raise RuntimeError(f'No usable news image for article {nid}')
 
             card = CARD_DIR / f'{nid}.jpg'
-            create_card(image_path, clean_text(item['headline']), bangla_date(item.get('date','')), ROOT/'logo.png', card)
-            ig_dir = CARD_DIR / 'instagram' / nid
-            ig_carousel = create_instagram_carousel(
-                image_path, clean_text(item['headline']), clean_text(item.get('details')),
-                bangla_date(item.get('date','')), ROOT/'logo.png', ig_dir, nid, max_slides=10
-            )
+            create_card(image_path, clean_text(item['headline']), bangla_date(item.get('date','')), ROOT/'logo.png', card, width=1200, height=1500, category=clean_text(item.get('category')))
+            # Instagram uses the same visual template, resized to its 4:5 feed format.
+            ig_card = CARD_DIR / 'instagram' / f'{nid}.jpg'
+            create_card(image_path, clean_text(item['headline']), bangla_date(item.get('date','')), ROOT/'logo.png', ig_card, width=1080, height=1350, category=clean_text(item.get('category')))
+            carousel_paths = []
+            if instagram_needs_carousel(item):
+                carousel_dir = CARD_DIR / 'instagram' / str(nid)
+                carousel_paths = create_instagram_carousel(
+                    image_path,
+                    clean_text(item.get('headline')),
+                    clean_text(item.get('details')),
+                    bangla_date(item.get('date','')),
+                    ROOT/'logo.png',
+                    carousel_dir,
+                    nid,
+                    max_slides=10,
+                )
             entry['social_card'] = f'social-media/{nid}.jpg'
-            entry['instagram_carousel'] = [f'social-media/instagram/{nid}/{p.name}' for p in ig_carousel]
+            entry['instagram_image'] = f'social-media/instagram/{nid}.jpg'
+            if carousel_paths:
+                entry['instagram_carousel'] = [Path(p).relative_to(ROOT).as_posix() for p in carousel_paths]
+            else:
+                entry.pop('instagram_carousel', None)
             entry['updated_at'] = utc_now()
 
             requested = requested_platforms(item)
@@ -689,15 +773,22 @@ def main():
                 article_url = news_url(nid)
                 if not wait_public(article_url, attempts=24):
                     raise RuntimeError(f'News article URL is not publicly reachable yet: {article_url}')
-                publish_social_assets_to_pages([card, *ig_carousel], nid)
-                public_urls = [f'{SITE_BASE_URL}/social-media/{nid}.jpg'] + [f'{SITE_BASE_URL}/social-media/instagram/{nid}/{p.name}' for p in ig_carousel]
+                asset_paths = [card, ig_card] + carousel_paths
+                # Preserve order while removing duplicates.
+                unique_asset_paths = list(dict.fromkeys(asset_paths))
+                publish_social_assets_to_pages(unique_asset_paths, nid)
+                public_urls = [f'{SITE_BASE_URL}/social-media/{nid}.jpg', f'{SITE_BASE_URL}/social-media/instagram/{nid}.jpg']
                 for public_url in public_urls:
                     if not wait_public(public_url, attempts=24):
                         raise RuntimeError(f'Social asset is not publicly reachable yet: {public_url}')
+                for cp in carousel_paths:
+                    public_url = f'{SITE_BASE_URL}/social-media/instagram/{nid}/{Path(cp).name}'
+                    if not wait_public(public_url, attempts=24):
+                        raise RuntimeError(f'Instagram carousel asset is not publicly reachable yet: {public_url}')
 
             funcs = {
                 'facebook': lambda: facebook_publish(item, card, args.dry_run, pentry.get('result')),
-                'instagram': lambda: instagram_publish(item, ig_carousel, args.dry_run, pentry.get('result')),
+                'instagram': lambda: instagram_publish(item, ig_card, carousel_paths, args.dry_run, pentry.get('result')),
                 'x': lambda: x_publish(item, card, args.dry_run),
                 'threads': lambda: threads_publish(item, args.dry_run),
                 'youtube': lambda: youtube_upload(item, video_path, args.dry_run),

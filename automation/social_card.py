@@ -95,7 +95,7 @@ def _add_logo(canvas: Image.Image, logo_path: Optional[Path], max_size=(250, 90)
 
 
 def create_card(image_path: Path, headline: str, date_text: str, logo_path: Optional[Path], output: Path,
-                width: int = 1200, height: int = 1500) -> Path:
+                width: int = 1200, height: int = 1500, category: str = '') -> Path:
     """Create the main Facebook/website social card in a premium news style."""
     image = Image.open(image_path).convert('RGB')
     canvas = Image.new('RGBA', (width, height), '#f4f4f4')
@@ -128,8 +128,13 @@ def create_card(image_path: Path, headline: str, date_text: str, logo_path: Opti
     d.rectangle((0, panel_y, width, panel_y + 7), fill=(255, 255, 255, 255))
 
     # Category-style kicker gives the card a polished newsroom hierarchy.
+    # The social card itself contains NO website URL; the Facebook post carries
+    # the article URL separately, while Instagram uses the caption for the
+    # complete article text.
     kicker_font = _font(25, True)
-    kicker = 'বাংলা সংবাদ  •  সর্বশেষ খবর'
+    category_map = {'national': 'জাতীয়', 'politics': 'রাজনীতি', 'international': 'আন্তর্জাতিক', 'economy': 'অর্থনীতি', 'sports': 'খেলাধুলা', 'entertainment': 'বিনোদন', 'technology': 'প্রযুক্তি'}
+    raw_category = str(category or '').strip()
+    kicker = category_map.get(raw_category.lower(), raw_category) or 'সর্বশেষ খবর'
     kb = d.textbbox((0, 0), kicker, font=kicker_font)
     d.text(((width - (kb[2] - kb[0])) // 2, panel_y + 34), kicker, font=kicker_font, fill='#f7d66a')
 
@@ -145,16 +150,7 @@ def create_card(image_path: Path, headline: str, date_text: str, logo_path: Opti
         d.text((x, y), line, font=headline_font, fill='white')
         y += line_h
 
-    sub_font = _font(31, True)
-    sub = 'বিস্তারিত প্রথম কমেন্টে'
-    sb = d.textbbox((0, 0), sub, font=sub_font)
-    pill_w = (sb[2] - sb[0]) + 56
-    pill_h = 58
-    pill_x = (width - pill_w) // 2
-    pill_y = min(y + 18, panel_y + panel.height - 210)
-    d.rounded_rectangle((pill_x, pill_y, pill_x + pill_w, pill_y + pill_h), radius=29,
-                        fill=(255, 214, 55, 245))
-    d.text((pill_x + 28, pill_y + 10), sub, font=sub_font, fill='#4b0000')
+    # No link/URL text is printed on the image.
 
     footer_y = height - 112
     d.line((50, footer_y, width - 50, footer_y), fill=(255, 255, 255, 180), width=2)
@@ -217,21 +213,22 @@ def _wrap_lines(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFo
 
 
 def _split_article_for_slides(text: str, width: int, height: int) -> tuple[ImageFont.FreeTypeFont, list[str]]:
-    """Split the complete article into at most nine readable detail-slide chunks.
-
-    We calculate chunks from actual rendered line capacity instead of a character
-    count, so Bengali text is not silently cut because glyph widths differ.
-    """
+    """Split the complete article into at most nine readable detail-slide chunks."""
     text = str(text or '').strip()
     if not text:
         return _font(32, True), ['এই খবরের বিস্তারিত ওয়েবসাইটে প্রকাশিত হয়েছে।']
 
     max_width = width - 120
-    # Try progressively smaller fonts so ordinary long articles still fit in
-    # the 9 detail slides available after the cover (10 carousel items total).
-    for size, max_lines in ((38, 25), (34, 28), (30, 31), (27, 34), (24, 38)):
+    available_height = height - 145 - 85
+    probe = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+
+    # Calculate the real number of lines that fit on a slide. The previous
+    # implementation used a fixed 38-line allowance even when 38 rendered
+    # lines could not physically fit, which caused avoidable carousel failures.
+    for size in (28, 26, 24, 22, 20, 18):
         font = _font(size, True)
-        probe = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+        line_h = font.size + 13
+        max_lines = max(1, available_height // line_h)
         all_lines = _wrap_lines(probe, text, font, max_width)
         chunks: list[str] = []
         current: list[str] = []
@@ -246,10 +243,9 @@ def _split_article_for_slides(text: str, width: int, height: int) -> tuple[Image
             return font, chunks
 
     raise ValueError(
-        'Instagram carousel cannot fit the complete article into the API limit of '
-        '10 images. Shorten the Details field in Google Sheet for this article.'
+        'Instagram carousel cannot fit the complete article into the 10-image limit. '
+        'Shorten the Details field in Google Sheet for this article.'
     )
-
 
 def create_instagram_carousel(image_path: Path, headline: str, details: str, date_text: str,
                               logo_path: Optional[Path], output_dir: Path, news_id: str,
@@ -367,8 +363,6 @@ def create_vertical_frame(image_path: Path, headline: str, date_text: str, logo_
     for line in lines:
         tw=d.textbbox((0,0),line,font=f)[2]; x=(width-tw)//2
         d.text((x+2,y+2),line,font=f,fill='#5b0000'); d.text((x,y),line,font=f,fill='white'); y+=f.size+12
-    sf=_font(34,True); sub='বিস্তারিত প্রথম কমেন্টে'; tw=d.textbbox((0,0),sub,font=sf)[2]
-    d.text(((width-tw)//2,y+40),sub,font=sf,fill='#ffe500')
     df=_font(28,True); d.text((55,height-105),date_text,font=df,fill='white')
     if logo_path and logo_path.exists():
         logo=Image.open(logo_path).convert('RGBA'); logo.thumbnail((240,90),Image.Resampling.LANCZOS)
