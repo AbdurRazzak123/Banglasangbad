@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-26T05:36:22.062447+00:00",
+  "generated_at": "2026-09-26T05:45:55.278635+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
       "platforms": {
         "facebook": {
           "status": "posted",
-          "updated_at": "2026-09-26T05:31:45.375024+00:00",
+          "updated_at": "2026-09-26T05:41:23.768903+00:00",
           "error": "POST https://graph.facebook.com/v26.0/1240194305854019_122100455385487710/comments -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:39 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AXbQ3qgYyyDQv6qXdsw3mGd'}}",
           "result": {
             "id": "1240194305854019_122100455385487710",
@@ -17,11 +17,11 @@
         },
         "instagram": {
           "status": "posted",
-          "updated_at": "2026-09-26T05:36:22.062412+00:00",
+          "updated_at": "2026-09-26T05:45:55.278604+00:00",
           "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:40 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A9JkDa4Vm7COW97_mmeG3Eo'}}",
           "result": {
-            "id": "18103613261354763",
-            "creation_id": "18108439415125017",
+            "id": "17892157731437427",
+            "creation_id": "18108451418125017",
             "mode": "single"
           }
         },
@@ -43,9 +43,9 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-26T05:31:22.332192+00:00",
+      "last_attempt_at": "2026-09-26T05:41:22.748158+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-26T05:31:22.706280+00:00",
+      "updated_at": "2026-09-26T05:41:23.103397+00:00",
       "instagram_image": "social-media/instagram/33.jpg"
     },
     "32": {
@@ -53,16 +53,16 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-26T05:26:45.285579+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AIX2WNxDrsUKUSMZCrk6TUe'}}"
+          "updated_at": "2026-09-26T05:36:54.639912+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'A2L939dNACYK4_g0yfMSiW4'}}"
         },
         "instagram": {
           "status": "posted",
-          "updated_at": "2026-09-26T05:31:22.332156+00:00",
+          "updated_at": "2026-09-26T05:41:22.748123+00:00",
           "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:38 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AmXKTNLuSf_OSg5RkGJZktE'}}",
           "result": {
-            "id": "18071859458499524",
-            "creation_id": "18108433643125017",
+            "id": "18097133618420561",
+            "creation_id": "18108445733125017",
             "mode": "single"
           }
         },
@@ -84,8 +84,8 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-26T05:26:44.283593+00:00",
-      "last_attempt_at": "2026-09-26T05:26:43.870011+00:00",
+      "updated_at": "2026-09-26T05:36:54.195815+00:00",
+      "last_attempt_at": "2026-09-26T05:36:53.796533+00:00",
       "social_card": "social-media/32.jpg",
       "instagram_image": "social-media/instagram/32.jpg"
     }
