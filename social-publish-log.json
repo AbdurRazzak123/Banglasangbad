@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-26T00:50:40.196055+00:00",
+  "generated_at": "2026-09-26T05:10:37.749721+00:00",
   "articles": {
     "33": {
       "status": "partial_failure",
@@ -58,20 +58,17 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-26T00:50:37.733887+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:37 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A0YEBsGyDS58oXmHT7nVQ1k'}}"
+          "updated_at": "2026-09-26T05:05:58.341181+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AZgqSWL9fTVvF9YNPYVf2YF'}}"
         },
         "instagram": {
-          "status": "failed",
-          "updated_at": "2026-09-26T00:50:38.198068+00:00",
+          "status": "posted",
+          "updated_at": "2026-09-26T05:10:37.749686+00:00",
           "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:38 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AmXKTNLuSf_OSg5RkGJZktE'}}",
           "result": {
-            "id": "18096363476398920",
-            "creation_id": "18107477021125017",
-            "children": [
-              "18107476835125017",
-              "18107476922125017"
-            ]
+            "id": "18623139274028277",
+            "creation_id": "18108410057125017",
+            "mode": "single"
           }
         },
         "x": {
@@ -92,13 +89,10 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-26T00:50:36.645749+00:00",
-      "last_attempt_at": "2026-09-26T00:50:35.536934+00:00",
+      "updated_at": "2026-09-26T05:05:28.640211+00:00",
+      "last_attempt_at": "2026-09-26T05:05:28.247457+00:00",
       "social_card": "social-media/32.jpg",
-      "instagram_carousel": [
-        "social-media/instagram/32/32-ig-01.jpg",
-        "social-media/instagram/32/32-ig-02.jpg"
-      ]
+      "instagram_image": "social-media/instagram/32.jpg"
     }
   }
 }
