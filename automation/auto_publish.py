@@ -34,7 +34,7 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 ROOT = Path(__file__).resolve().parents[1]
-AUTOMATION_VERSION = '2026-09-26-premium-fb-ig-v2'
+AUTOMATION_VERSION = '2026-09-26-premium-fb-ig-v3'
 STATE_FILE = ROOT / 'social-publish-state.json'
 LOG_FILE = ROOT / 'social-publish-log.json'
 NEWS_FILE = ROOT / 'news-data.json'
@@ -241,36 +241,26 @@ def meta_preflight(dry_run: bool = False) -> None:
 
 
 def facebook_publish(item, card_path, dry_run=False, prior_result=None):
-    """Publish one Facebook Page photo with only the article URL in the post text.
+    """Publish exactly one Facebook Page photo post.
 
-    The website URL is intentionally NOT posted as a separate comment. This
-    keeps the Facebook post to one image + one direct article link, matching
-    the site's social-card format. If an earlier version already created the
-    Page post but failed while adding its old comment, reuse that existing post
-    instead of creating a duplicate.
+    The article URL is the complete Facebook caption. No comment is created.
+    A previous failed result is NEVER treated as proof that a post already
+    exists; only the current API call returning a post id counts as success.
+    This prevents stale state from suppressing a required retry.
     """
     message = caption(item)
     if dry_run:
         return {'dry_run': True, 'message': message}
 
-    token = os.getenv('META_PAGE_ACCESS_TOKEN')
-    page_id = os.getenv('META_PAGE_ID')
+    token = os.getenv('META_PAGE_ACCESS_TOKEN', '').strip()
+    page_id = os.getenv('META_PAGE_ID', '').strip()
     if not token or not page_id:
         raise RuntimeError('Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN')
-
-    prior_result = prior_result or {}
-    existing_post_id = prior_result.get('post_id') or prior_result.get('id')
-    if existing_post_id:
-        return {
-            'id': existing_post_id,
-            'post_id': existing_post_id,
-            'status': 'posted',
-            'reused_existing_post': True,
-        }
 
     data = {
         'url': f'{SITE_BASE_URL}/social-media/{item["id"]}.jpg',
         'caption': message,
+        'published': 'true',
         'access_token': token,
     }
     result = request_json('POST', f'{META_BASE}/{page_id}/photos', data=data)
@@ -278,12 +268,13 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
     if not post_id:
         raise RuntimeError(f'Facebook photo publish returned no post id: {result}')
 
+    print(f'FACEBOOK PUBLISH OK: article={item["id"]}, post_id={post_id}')
     return {
         'id': post_id,
         'post_id': post_id,
         'status': 'posted',
+        'comment_created': False,
     }
-
 
 def _wait_instagram_container(container_id: str, token: str, attempts: int = 30) -> dict:
     """Wait until an Instagram child container is ready for publishing."""
@@ -803,14 +794,14 @@ def main():
                 try:
                     result = funcs[platform]()
                     result_status = str(result.get('status', '')) if isinstance(result, dict) else ''
-                    successful = args.dry_run or result_status in {'', 'posted'}
+                    successful = args.dry_run or (isinstance(result, dict) and result_status == 'posted' and bool(result.get('id') or result.get('post_id')))
                     pentry.update({
                         'status': 'dry_run' if args.dry_run else ('posted' if successful else 'failed'),
                         'updated_at': utc_now(),
                         'result': result,
                     })
                     if not successful:
-                        pentry['error'] = result.get('comment_error', 'Platform publish did not complete successfully') if isinstance(result, dict) else 'Platform publish did not complete successfully'
+                        pentry['error'] = (result.get('error') or result.get('comment_error') or 'Platform publish did not complete successfully') if isinstance(result, dict) else 'Platform publish did not complete successfully'
                 except Exception as exc:
                     pentry.update({'status':'failed','updated_at':utc_now(),'error':str(exc)})
             if requested and all(entry['platforms'].get(p,{}).get('status') in {'posted','dry_run'} for p in requested):
