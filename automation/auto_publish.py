@@ -6,7 +6,6 @@ import json
 import os
 import re
 import subprocess
-import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,27 +13,10 @@ from typing import Any
 from urllib.parse import urlencode
 
 import requests
-from PIL import Image
 
-# Load social_card reliably whether it is kept beside this file (recommended)
-# or accidentally uploaded at the repository root.
-AUTOMATION_DIR = Path(__file__).resolve().parent
-REPO_ROOT_FOR_IMPORT = AUTOMATION_DIR.parent
-for _p in (AUTOMATION_DIR, REPO_ROOT_FOR_IMPORT):
-    _ps = str(_p)
-    if _ps not in sys.path:
-        sys.path.insert(0, _ps)
-
-try:
-    from social_card import create_card, create_vertical_frame, create_instagram_carousel
-except ModuleNotFoundError as exc:
-    raise RuntimeError(
-        'social_card.py was not found. Put social_card.py in automation/ ' 
-        'beside auto_publish.py, then rerun the GitHub Action.'
-    ) from exc
+from social_card import create_card, create_vertical_frame
 
 ROOT = Path(__file__).resolve().parents[1]
-AUTOMATION_VERSION = '2026-09-26-premium-fb-ig-v2'
 STATE_FILE = ROOT / 'social-publish-state.json'
 LOG_FILE = ROOT / 'social-publish-log.json'
 NEWS_FILE = ROOT / 'news-data.json'
@@ -125,15 +107,7 @@ def download_remote_image(item: dict, dest: Path) -> Path | None:
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(r.content)
             if dest.stat().st_size > 1000:
-                try:
-                    with Image.open(dest) as probe:
-                        probe.verify()
-                    return dest
-                except Exception:
-                    try:
-                        dest.unlink()
-                    except OSError:
-                        pass
+                return dest
         except Exception:
             continue
     return None
@@ -161,254 +135,48 @@ def request_json(method, url, **kwargs):
 
 
 def caption(item: dict) -> str:
-    """Facebook post text: the exact article Details Page URL only."""
-    return news_url(str(item.get("id")))
-
-
-def instagram_caption(item: dict) -> str:
-    """Instagram caption with no website URL.
-
-    Short articles use the complete Details text directly in the caption.
-    Longer articles are published as a carousel; their complete Details text
-    is rendered across the carousel slides so no article text is silently cut.
-    """
-    headline = clean_text(item.get('headline'))
-    details = clean_text(item.get('details'))
-    category = clean_text(item.get('category'))
-    tag = f"#{re.sub(r'[^\w\u0980-\u09ff]+', '', category)} #বাংলা_সংবাদ" if category else '#বাংলা_সংবাদ'
-    return '\n\n'.join([f'📰 {headline}', details, tag]) if details else '\n\n'.join([f'📰 {headline}', tag])
-
-
-def instagram_needs_carousel(item: dict) -> bool:
-    # Instagram captions have a finite character limit. Use a carousel for
-    # longer Details fields so the complete article remains available without
-    # putting a website URL in the Instagram post.
-    return len(instagram_caption(item)) > 2200
-
-
-def instagram_carousel_caption(item: dict) -> str:
     headline = clean_text(item.get('headline'))
     category = clean_text(item.get('category'))
-    tag = f"#{re.sub(r'[^\w\u0980-\u09ff]+', '', category)} #বাংলা_সংবাদ" if category else '#বাংলা_সংবাদ'
-    return f'📰 {headline}\n\n{tag}'
-
-def meta_preflight(dry_run: bool = False) -> None:
-    """Validate the Meta Page token, Page ID, and Instagram account before any publish.
-
-    This is intentionally a read-only check. It never prints or stores the token.
-    A bad/expired token stops the run before a single article is attempted, so the
-    queue remains clean and will retry automatically after the GitHub secret is fixed.
-    """
-    if dry_run:
-        return
-    token = os.getenv('META_PAGE_ACCESS_TOKEN', '').strip()
-    page_id = os.getenv('META_PAGE_ID', '').strip()
-    ig_id = os.getenv('INSTAGRAM_BUSINESS_ACCOUNT_ID', '').strip()
-    if not token or not page_id:
-        raise RuntimeError('Meta preflight failed: META_PAGE_ID or META_PAGE_ACCESS_TOKEN is missing.')
-    if not ig_id:
-        raise RuntimeError('Meta preflight failed: INSTAGRAM_BUSINESS_ACCOUNT_ID is missing.')
-
-    try:
-        page = request_json('GET', f'{META_BASE}/{page_id}', params={
-            'fields': 'id,name,instagram_business_account',
-            'access_token': token,
-        })
-    except Exception as exc:
-        raise RuntimeError(
-            'Meta preflight failed for the Facebook Page. The Page token may be expired, invalid, or missing required Page access. ' + str(exc)
-        ) from exc
-    if str(page.get('id', '')).strip() != page_id:
-        raise RuntimeError('Meta preflight failed: META_PAGE_ID does not match the Page returned by Meta.')
-
-    linked_ig = ((page.get('instagram_business_account') or {}).get('id') or '').strip()
-    if linked_ig and linked_ig != ig_id:
-        raise RuntimeError('Meta preflight failed: INSTAGRAM_BUSINESS_ACCOUNT_ID does not match the Instagram account linked to the Page.')
-
-    try:
-        ig = request_json('GET', f'{META_BASE}/{ig_id}', params={
-            'fields': 'id,username',
-            'access_token': token,
-        })
-    except Exception as exc:
-        raise RuntimeError(
-            'Meta preflight failed for Instagram. The Page token may not have access to the configured Instagram Business account. ' + str(exc)
-        ) from exc
-    if str(ig.get('id', '')).strip() != ig_id:
-        raise RuntimeError('Meta preflight failed: Instagram account ID verification failed.')
-
-    print(f"Meta preflight OK: Page {page_id}; Instagram {ig_id}.")
+    return f'📰 {headline}\n\nবিস্তারিত: {news_url(str(item.get("id")))}\n\n#{re.sub(r"[^\w\u0980-\u09ff]+", "", category)} #বাংলা_সংবাদ'
 
 
-def facebook_publish(item, card_path, dry_run=False, prior_result=None):
-    """Publish one Facebook Page photo with only the article URL in the post text.
-
-    The website URL is intentionally NOT posted as a separate comment. This
-    keeps the Facebook post to one image + one direct article link, matching
-    the site's social-card format. If an earlier version already created the
-    Page post but failed while adding its old comment, reuse that existing post
-    instead of creating a duplicate.
-    """
+def facebook_publish(item, card_path, dry_run=False):
     message = caption(item)
     if dry_run:
         return {'dry_run': True, 'message': message}
-
     token = os.getenv('META_PAGE_ACCESS_TOKEN')
     page_id = os.getenv('META_PAGE_ID')
     if not token or not page_id:
         raise RuntimeError('Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN')
-
-    prior_result = prior_result or {}
-    existing_post_id = prior_result.get('post_id') or prior_result.get('id')
-    if existing_post_id:
-        return {
-            'id': existing_post_id,
-            'post_id': existing_post_id,
-            'status': 'posted',
-            'reused_existing_post': True,
-        }
-
-    data = {
-        'url': f'{SITE_BASE_URL}/social-media/{item["id"]}.jpg',
-        'caption': message,
-        'access_token': token,
-    }
+    data = {'url': f'{SITE_BASE_URL}/social-media/{item["id"]}.jpg', 'caption': message, 'access_token': token}
     result = request_json('POST', f'{META_BASE}/{page_id}/photos', data=data)
     post_id = result.get('post_id') or result.get('id')
-    if not post_id:
-        raise RuntimeError(f'Facebook photo publish returned no post id: {result}')
-
-    return {
-        'id': post_id,
-        'post_id': post_id,
-        'status': 'posted',
-    }
-
-
-def _wait_instagram_container(container_id: str, token: str, attempts: int = 30) -> dict:
-    """Wait until an Instagram child container is ready for publishing."""
-    last = {}
-    for attempt in range(attempts):
-        last = request_json(
-            'GET',
-            f'{META_BASE}/{container_id}',
-            params={
-                'fields': 'status_code,status',
-                'access_token': token,
-            },
-        )
-        status = str(last.get('status_code') or '').upper()
-        if status == 'FINISHED':
-            return last
-        if status in {'ERROR', 'EXPIRED'}:
-            raise RuntimeError(f'Instagram media container {container_id} failed: {last}')
-        # Instagram can take several seconds to ingest a public image.
-        time.sleep(min(10, 2 + attempt // 3))
-    raise RuntimeError(f'Instagram media container {container_id} did not reach FINISHED: {last}')
+    comment_id = None
+    if post_id:
+        try:
+            comment = request_json('POST', f'{META_BASE}/{post_id}/comments', data={'message': f'বিস্তারিত খবর: {news_url(str(item["id"]))}', 'access_token': token})
+            comment_id = comment.get('id')
+        except Exception as exc:
+            # The post is already live; surface comment failure separately.
+            return {'id': post_id, 'comment_error': str(exc), 'status': 'posted_comment_failed'}
+    return {'id': post_id, 'first_comment_id': comment_id, 'pin': 'not_supported_by_public_api_contract'}
 
 
-def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False, prior_result=None):
-    """Publish one Instagram image or a full-article carousel. No URL is posted."""
-    use_carousel = instagram_needs_carousel(item)
+def instagram_publish(item, dry_run=False):
     if dry_run:
-        return {
-            'dry_run': True,
-            'mode': 'carousel' if use_carousel else 'single',
-            'caption': instagram_carousel_caption(item) if use_carousel else instagram_caption(item),
-            'image': str(image_path) if image_path else None,
-            'carousel_images': [str(p) for p in (carousel_paths or [])],
-        }
-
+        return {'dry_run': True, 'caption': caption(item)}
     token = os.getenv('META_PAGE_ACCESS_TOKEN')
     ig_id = os.getenv('INSTAGRAM_BUSINESS_ACCOUNT_ID')
     if not token or not ig_id:
         raise RuntimeError('Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID')
-    if use_carousel:
-        paths = carousel_paths or []
-        if len(paths) < 2:
-            raise RuntimeError('Instagram carousel was required but fewer than 2 public carousel images were generated.')
-        prior_parent = (prior_result or {}).get('creation_id')
-        if prior_parent:
-            try:
-                _wait_instagram_container(prior_parent, token, attempts=36)
-                published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-                    'creation_id': prior_parent,
-                    'access_token': token,
-                })
-                published_id = published.get('id')
-                if published_id:
-                    return {'id': published_id, 'creation_id': prior_parent, 'mode': 'carousel', 'retried_existing_container': True}
-            except Exception:
-                pass
-
-        child_ids = []
-        for path in paths:
-            public_url = f'{SITE_BASE_URL}/social-media/instagram/{item["id"]}/{path.name}'
-            child = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
-                'image_url': public_url,
-                'is_carousel_item': 'true',
-                'access_token': token,
-            })
-            cid = child.get('id')
-            if not cid:
-                raise RuntimeError(f'Instagram carousel child returned no id: {child}')
-            _wait_instagram_container(cid, token, attempts=36)
-            child_ids.append(cid)
-
-        parent = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
-            'media_type': 'CAROUSEL',
-            'children': ','.join(child_ids),
-            'caption': instagram_carousel_caption(item),
-            'access_token': token,
-        })
-        parent_id = parent.get('id')
-        if not parent_id:
-            raise RuntimeError(f'Instagram carousel parent returned no id: {parent}')
-        _wait_instagram_container(parent_id, token, attempts=36)
-        published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-            'creation_id': parent_id,
-            'access_token': token,
-        })
-        published_id = published.get('id')
-        if not published_id:
-            raise RuntimeError(f'Instagram carousel publish returned no id: {published}')
-        return {'id': published_id, 'creation_id': parent_id, 'mode': 'carousel', 'children': child_ids}
-
-    if not image_path:
-        raise RuntimeError('No Instagram image was generated')
-    prior_result = prior_result or {}
-    prior_creation_id = prior_result.get('creation_id')
-    if prior_creation_id:
-        try:
-            _wait_instagram_container(prior_creation_id, token, attempts=36)
-            published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-                'creation_id': prior_creation_id,
-                'access_token': token,
-            })
-            published_id = published.get('id')
-            if published_id:
-                return {'id': published_id, 'creation_id': prior_creation_id, 'mode': 'single', 'retried_existing_container': True}
-        except Exception:
-            pass
-
-    public_url = f'{SITE_BASE_URL}/social-media/instagram/{item["id"]}.jpg'
-    container = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
-        'image_url': public_url,
-        'caption': instagram_caption(item),
-        'access_token': token,
-    })
-    creation_id = container.get('id')
+    params = {'image_url': f'{SITE_BASE_URL}/social-media/{item["id"]}.jpg', 'caption': caption(item), 'access_token': token}
+    c = request_json('POST', f'{META_BASE}/{ig_id}/media', data=params)
+    creation_id = c.get('id')
     if not creation_id:
-        raise RuntimeError(f'Instagram media container returned no id: {container}')
-    _wait_instagram_container(creation_id, token, attempts=36)
-    published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-        'creation_id': creation_id,
-        'access_token': token,
-    })
-    published_id = published.get('id')
-    if not published_id:
-        raise RuntimeError(f'Instagram publish returned no id: {published}')
-    return {'id': published_id, 'creation_id': creation_id, 'mode': 'single'}
+        raise RuntimeError(f'Instagram container creation returned no id: {c}')
+    p = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={'creation_id': creation_id, 'access_token': token})
+    return {'id': p.get('id'), 'creation_id': creation_id}
+
 
 def x_upload_image(path: Path, token: str) -> str:
     raw = path.read_bytes()
@@ -511,91 +279,22 @@ def generate_video(item, image_path: Path, video_path: Path):
 
 
 
-def configure_git_identity():
-    """Set Git identity both in the repo config and subprocess environment.
-
-    GitHub-hosted runners do not guarantee a preconfigured author identity.
-    Setting both config and environment variables makes every commit path
-    deterministic, including commits created before the workflow's final step.
-    """
-    name = 'github-actions[bot]'
-    email = '41898282+github-actions[bot]@users.noreply.github.com'
-    os.environ['GIT_AUTHOR_NAME'] = name
-    os.environ['GIT_AUTHOR_EMAIL'] = email
-    os.environ['GIT_COMMITTER_NAME'] = name
-    os.environ['GIT_COMMITTER_EMAIL'] = email
-    subprocess.run(['git', 'config', 'user.name', name], cwd=ROOT, check=True)
-    subprocess.run(['git', 'config', 'user.email', email], cwd=ROOT, check=True)
-
-
-def verify_git_identity():
-    configure_git_identity()
-    name = subprocess.check_output(['git', 'config', '--get', 'user.name'], cwd=ROOT, text=True).strip()
-    email = subprocess.check_output(['git', 'config', '--get', 'user.email'], cwd=ROOT, text=True).strip()
-    if not name or not email:
-        raise RuntimeError('Git identity verification failed: user.name/user.email is empty')
-    print(f'Git identity: {name} <{email}>')
-
-
-def git_sync_and_push(max_attempts: int = 4):
-    """Synchronize with origin/main and push without losing remote commits."""
-    verify_git_identity()
-    last_error = None
-    for attempt in range(1, max_attempts + 1):
-        try:
-            subprocess.run(['git', 'fetch', 'origin', 'main'], cwd=ROOT, check=True)
-            subprocess.run(['git', 'rebase', 'origin/main'], cwd=ROOT, check=True)
-            subprocess.run(['git', 'push', 'origin', 'HEAD:main'], cwd=ROOT, check=True)
-            return
-        except subprocess.CalledProcessError as exc:
-            last_error = exc
-            # If rebase entered a conflict, abort it before the next retry so
-            # the local commit remains intact and can be rebased again.
-            subprocess.run(['git', 'rebase', '--abort'], cwd=ROOT, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            # A concurrent Sheet sync can update main between fetch/rebase/push.
-            # Retry from the latest remote state rather than force-pushing.
-            if attempt < max_attempts:
-                time.sleep(min(10, 2 * attempt))
-                continue
-            raise last_error
-
-
-def publish_social_assets_to_pages(paths, news_id: str):
-    """Commit generated social assets and push them so GitHub Pages can serve them."""
-    rels = [Path(p).relative_to(ROOT).as_posix() for p in paths]
-    subprocess.run(['git', 'add', *rels], cwd=ROOT, check=True)
+def publish_social_card_to_pages(card_path: Path, news_id: str):
+    """Commit only the generated social card so GitHub Pages can serve it publicly."""
+    rel = card_path.relative_to(ROOT).as_posix()
+    subprocess.run(['git', 'add', rel], cwd=ROOT, check=True)
     staged = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
     if staged.returncode != 0:
         subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], cwd=ROOT, check=True)
         subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], cwd=ROOT, check=True)
-        subprocess.run(['git', 'commit', '-m', f'Create social assets for news {news_id}'], cwd=ROOT, check=True)
-        git_sync_and_push()
-
-
-def commit_social_state():
-    """Persist publisher state/log and push them safely to main."""
-    # Do this before staging/commit so no code path can reach git commit
-    # without an explicit author/committer identity.
-    verify_git_identity()
-    subprocess.run(['git', 'add', 'social-publish-state.json', 'social-publish-log.json'], cwd=ROOT, check=True)
-    if (ROOT / 'social-media').is_dir():
-        subprocess.run(['git', 'add', 'social-media'], cwd=ROOT, check=True)
-    staged = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
-    if staged.returncode == 0:
-        return False
-    # The workflow's checkout does not guarantee a preconfigured Git identity.
-    # Configure it BEFORE commit (not only before push), otherwise Git aborts
-    # with "Author identity unknown" before git_sync_and_push() is reached.
-    configure_git_identity()
-    subprocess.run(['git', 'commit', '-m', 'Update social auto-publish state'], cwd=ROOT, check=True)
-    git_sync_and_push()
-    return True
+        subprocess.run(['git', 'commit', '-m', f'Create social card for news {news_id}'], cwd=ROOT, check=True)
+        subprocess.run(['git', 'push'], cwd=ROOT, check=True)
 
 def wait_public(url: str, attempts: int = 12) -> bool:
     for i in range(attempts):
         try:
             r = requests.get(url, timeout=15, allow_redirects=True, headers={'User-Agent':'BanglasangbadSocialBot/1.0'})
-            if r.status_code == 200 and len(r.content) > 100:
+            if r.status_code == 200 and int(r.headers.get('content-length','1')) > 100:
                 return True
         except Exception:
             pass
@@ -613,69 +312,18 @@ def enabled(platform: str):
     return env_bool(f'ENABLE_{platform.upper()}', True)
 
 
-AUTO_DEFAULT_PLATFORMS = {'facebook', 'instagram'}
-TRUE_VALUES = {'yes', 'y', 'true', '1', 'on'}
-FALSE_VALUES = {'no', 'n', 'false', '0', 'off', 'disable', 'disabled'}
-
-
-def sheet_control(item: dict, key: str, default: bool = False) -> bool:
-    """Read an optional Google-Sheet publishing switch safely.
-
-    The website sync workflow normalizes news-data.json to the frontend
-    columns, so optional social-control columns may be absent. Missing/blank
-    controls therefore use the automatic defaults: Facebook and Instagram
-    are enabled; the other platforms remain disabled unless explicitly
-    enabled. Explicit NO/FALSE always disables a platform.
-    """
-    raw = item.get(key, None)
-    value = clean_text(raw).lower() if raw is not None else ''
-    if value in TRUE_VALUES:
-        return True
-    if value in FALSE_VALUES:
-        return False
-    return default
-
-
 def sheet_yes(item: dict, key: str) -> bool:
-    """Backward-compatible boolean helper using the automatic defaults."""
-    default = key in AUTO_DEFAULT_PLATFORMS or key == 'publish'
-    return sheet_control(item, key, default=default)
+    value = clean_text(item.get(key, ''))
+    return value.lower() in {'yes', 'y', 'true', '1', 'on'}
 
 
 def requested_platforms(item: dict) -> list[str]:
-    """Return platforms that should be published for this news item.
-
-    Google Sheet -> website -> social is the intended workflow. If the
-    optional social-control columns are missing/blank after news-data
-    normalization, Facebook and Instagram are automatically selected.
-    Other platforms require an explicit YES so they cannot accidentally run
-    when their credentials are empty.
-    """
-    if not sheet_control(item, 'publish', default=True):
+    # Publish must be YES before any social platform is eligible. Each platform
+    # is then independently controlled by its own Sheet column.
+    if not sheet_yes(item, 'publish'):
         return []
-    requested = []
-    for platform in PLATFORMS:
-        default = platform in AUTO_DEFAULT_PLATFORMS
-        if enabled(platform) and sheet_control(item, platform, default=default):
-            requested.append(platform)
-    return requested
+    return [p for p in PLATFORMS if enabled(p) and sheet_yes(item, p)]
 
-
-def reconcile_state(state: dict) -> None:
-    """Repair stale aggregate states without deleting platform evidence."""
-    articles = state.setdefault('articles', {})
-    for nid, entry in articles.items():
-        platforms = entry.setdefault('platforms', {})
-        for platform, pentry in platforms.items():
-            if not isinstance(pentry, dict):
-                continue
-            if pentry.get('status') == 'posted' and pentry.get('error'):
-                pentry['status'] = 'failed'
-                pentry['updated_at'] = utc_now()
-        requested = [p for p in PLATFORMS if platforms.get(p, {}).get('status') != 'not_selected']
-        if entry.get('status') == 'posted_all' and any(platforms.get(p, {}).get('status') == 'failed' for p in requested):
-            entry['status'] = 'partial_failure'
-            entry['updated_at'] = utc_now()
 
 def main():
     ap = argparse.ArgumentParser()
@@ -687,11 +335,6 @@ def main():
     state.setdefault('version',2); state.setdefault('articles',{})
     log = load_json(LOG_FILE, {'generated_at':None,'articles':{}})
     log.setdefault('articles',{})
-    reconcile_state(state)
-
-    # Validate Meta once, before touching the queue. This prevents a bad token
-    # from causing a long series of predictable per-article failures.
-    meta_preflight(args.dry_run)
 
     news = sorted(load_news(), key=lambda x: int(str(x.get('id','0')) or 0))
     candidates = []
@@ -738,29 +381,8 @@ def main():
                 raise RuntimeError(f'No usable news image for article {nid}')
 
             card = CARD_DIR / f'{nid}.jpg'
-            create_card(image_path, clean_text(item['headline']), bangla_date(item.get('date','')), ROOT/'logo.png', card, width=1200, height=1500, category=clean_text(item.get('category')))
-            # Instagram uses the same visual template, resized to its 4:5 feed format.
-            ig_card = CARD_DIR / 'instagram' / f'{nid}.jpg'
-            create_card(image_path, clean_text(item['headline']), bangla_date(item.get('date','')), ROOT/'logo.png', ig_card, width=1080, height=1350, category=clean_text(item.get('category')))
-            carousel_paths = []
-            if instagram_needs_carousel(item):
-                carousel_dir = CARD_DIR / 'instagram' / str(nid)
-                carousel_paths = create_instagram_carousel(
-                    image_path,
-                    clean_text(item.get('headline')),
-                    clean_text(item.get('details')),
-                    bangla_date(item.get('date','')),
-                    ROOT/'logo.png',
-                    carousel_dir,
-                    nid,
-                    max_slides=10,
-                )
+            create_card(image_path, clean_text(item['headline']), bangla_date(item.get('date','')), ROOT/'logo.png', card)
             entry['social_card'] = f'social-media/{nid}.jpg'
-            entry['instagram_image'] = f'social-media/instagram/{nid}.jpg'
-            if carousel_paths:
-                entry['instagram_carousel'] = [Path(p).relative_to(ROOT).as_posix() for p in carousel_paths]
-            else:
-                entry.pop('instagram_carousel', None)
             entry['updated_at'] = utc_now()
 
             requested = requested_platforms(item)
@@ -770,25 +392,14 @@ def main():
 
             # In dry-run, do not require the card to be publicly visible.
             if not args.dry_run:
-                article_url = news_url(nid)
-                if not wait_public(article_url, attempts=24):
-                    raise RuntimeError(f'News article URL is not publicly reachable yet: {article_url}')
-                asset_paths = [card, ig_card] + carousel_paths
-                # Preserve order while removing duplicates.
-                unique_asset_paths = list(dict.fromkeys(asset_paths))
-                publish_social_assets_to_pages(unique_asset_paths, nid)
-                public_urls = [f'{SITE_BASE_URL}/social-media/{nid}.jpg', f'{SITE_BASE_URL}/social-media/instagram/{nid}.jpg']
-                for public_url in public_urls:
-                    if not wait_public(public_url, attempts=24):
-                        raise RuntimeError(f'Social asset is not publicly reachable yet: {public_url}')
-                for cp in carousel_paths:
-                    public_url = f'{SITE_BASE_URL}/social-media/instagram/{nid}/{Path(cp).name}'
-                    if not wait_public(public_url, attempts=24):
-                        raise RuntimeError(f'Instagram carousel asset is not publicly reachable yet: {public_url}')
+                publish_social_card_to_pages(card, nid)
+                public_card_url = f'{SITE_BASE_URL}/social-media/{nid}.jpg'
+                if not wait_public(public_card_url, attempts=24):
+                    raise RuntimeError(f'Social card is not publicly reachable yet: {public_card_url}')
 
             funcs = {
-                'facebook': lambda: facebook_publish(item, card, args.dry_run, pentry.get('result')),
-                'instagram': lambda: instagram_publish(item, ig_card, carousel_paths, args.dry_run, pentry.get('result')),
+                'facebook': lambda: facebook_publish(item, card, args.dry_run),
+                'instagram': lambda: instagram_publish(item, args.dry_run),
                 'x': lambda: x_publish(item, card, args.dry_run),
                 'threads': lambda: threads_publish(item, args.dry_run),
                 'youtube': lambda: youtube_upload(item, video_path, args.dry_run),
@@ -802,15 +413,7 @@ def main():
                     continue
                 try:
                     result = funcs[platform]()
-                    result_status = str(result.get('status', '')) if isinstance(result, dict) else ''
-                    successful = args.dry_run or result_status in {'', 'posted'}
-                    pentry.update({
-                        'status': 'dry_run' if args.dry_run else ('posted' if successful else 'failed'),
-                        'updated_at': utc_now(),
-                        'result': result,
-                    })
-                    if not successful:
-                        pentry['error'] = result.get('comment_error', 'Platform publish did not complete successfully') if isinstance(result, dict) else 'Platform publish did not complete successfully'
+                    pentry.update({'status':'dry_run' if args.dry_run else 'posted','updated_at':utc_now(),'result':result})
                 except Exception as exc:
                     pentry.update({'status':'failed','updated_at':utc_now(),'error':str(exc)})
             if requested and all(entry['platforms'].get(p,{}).get('status') in {'posted','dry_run'} for p in requested):
@@ -823,19 +426,7 @@ def main():
 
     state['updated_at']=utc_now(); log['generated_at']=utc_now()
     save_json(STATE_FILE,state); save_json(LOG_FILE,log)
-
-    # Persist state here so the workflow's final git push is only a safety check.
-    # This avoids a second independent writer racing with the Sheet sync workflow.
-    if not args.dry_run:
-        commit_social_state()
-
-    print(json.dumps({
-        'processed':[str(x['id']) for x in candidates],
-        'dry_run':args.dry_run,
-        'total_news': len(news),
-        'candidate_count': len(candidates),
-        'latest_news_id': str(news[-1].get('id')) if news else None,
-    }, ensure_ascii=False, indent=2))
+    print(json.dumps({'processed':[str(x['id']) for x in candidates], 'dry_run':args.dry_run}, ensure_ascii=False, indent=2))
 
 if __name__ == '__main__':
     main()
