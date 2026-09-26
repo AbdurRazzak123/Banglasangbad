@@ -1,0 +1,75 @@
+বাংলা সংবাদ — Premium Facebook + Instagram Auto Publish
+==========================================================
+
+এই প্যাকেজের production social automation শুধু Facebook Page এবং Instagram Business Account-এর জন্য।
+X / Threads / YouTube এই workflow-এ বন্ধ রাখা হয়েছে, যাতে অপ্রয়োজনীয় credential বা platform failure publishing queue আটকে না দেয়।
+
+GITHUB ACTIONS SECRETS
+----------------------
+1) META_PAGE_ID
+   Facebook Page-এর numeric Page ID
+
+2) META_PAGE_ACCESS_TOKEN
+   Meta থেকে নেওয়া valid Page Access Token
+   - এই token repository file-এ রাখবে না
+   - GitHub Settings → Secrets and variables → Actions → Secrets-এ রাখবে
+
+3) INSTAGRAM_BUSINESS_ACCOUNT_ID
+   Facebook Page-এর সঙ্গে যুক্ত Instagram Business Account-এর numeric ID
+
+OPTIONAL REPOSITORY VARIABLE
+----------------------------
+META_GRAPH_VERSION = v26.0
+SITE_BASE_URL = https://abdurrazzak123.github.io/Banglasangbad
+
+AUTOMATION FLOW
+---------------
+Google Sheet
+   ↓
+GitHub Sheet Sync
+   ↓
+News Details Page: /news/ID.html
+   ↓
+Social Card generation
+   ↓
+Public URL check
+   ↓
+Meta credential preflight
+   ↓
+Facebook + Instagram publish
+   ↓
+Platform-specific state save
+
+FACEBOOK FORMAT
+---------------
+• একটি ছবি
+• মূল post text/caption-এ শুধু ওই সংবাদের Details Page URL
+• আলাদা Facebook comment-এ কোনো URL দেওয়া হয় না
+• post ID state-এ সংরক্ষণ হয়, তাই retry-তে duplicate post তৈরি না করার ব্যবস্থা আছে
+
+INSTAGRAM FORMAT
+----------------
+• কোনো website URL নেই
+• ছোট/মাঝারি article: ছবি + সম্পূর্ণ Details caption
+• দীর্ঘ article: একই branded cover + automatic carousel slides-এ সম্পূর্ণ Details
+• দীর্ঘ article silently truncate করা হয় না
+
+TOKEN SAFETY
+------------
+প্রতিটি normal publish run-এর আগে Meta preflight হয়।
+Token/Page/Instagram account validation ব্যর্থ হলে কোনো article publish করার চেষ্টা করা হয় না।
+Token secret কখনো log বা repository file-এ লেখা হয় না।
+
+RETRY / DUPLICATE SAFETY
+------------------------
+• HTTP 429/5xx হলে exponential retry
+• Instagram media container FINISHED না হওয়া পর্যন্ত অপেক্ষা
+• failed platform পরের run-এ আবার চেষ্টা করে
+• successful platform আবার publish করে না
+• Git push race হলে fetch/rebase/push retry হয়
+• generated social assets public হওয়ার আগে publish শুরু হয় না
+
+IMPORTANT
+---------
+এই ZIP token তৈরি বা refresh করে না। Meta credential-এর valid value GitHub Secret-এ দিতে হবে।
+Token invalid/expired হলে preflight স্পষ্ট error দিয়ে run থামাবে; নতুন valid token দিলে পরের scheduled/manual run-এ failed queue আবার চেষ্টা হবে।
