@@ -1,4 +1,4 @@
-name: Premium Social Auto Publish - Facebook + Instagram
+name: Social Auto Publish - Facebook Instagram X Threads YouTube
 
 on:
   # Safety net: check every 5 minutes.
@@ -52,15 +52,6 @@ jobs:
       - name: Install social automation dependencies
         run: python -m pip install --upgrade pip requests Pillow
 
-      - name: Validate Meta credentials before publishing
-        if: inputs.dry_run != true
-        env:
-          META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION || 'v26.0' }}
-          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
-          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
-          INSTAGRAM_BUSINESS_ACCOUNT_ID: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID }}
-        run: python tools/meta_preflight.py
-
       - name: Run social publisher
         env:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://abdurrazzak123.github.io/Banglasangbad' }}
@@ -68,11 +59,20 @@ jobs:
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
           META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
           INSTAGRAM_BUSINESS_ACCOUNT_ID: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          YOUTUBE_ACCESS_TOKEN: ${{ secrets.YOUTUBE_ACCESS_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PRIVACY_STATUS: ${{ vars.YOUTUBE_PRIVACY_STATUS || 'private' }}
+          AUTO_YOUTUBE_VIDEO: ${{ vars.AUTO_YOUTUBE_VIDEO || 'true' }}
           ENABLE_FACEBOOK: ${{ vars.ENABLE_FACEBOOK || 'true' }}
           ENABLE_INSTAGRAM: ${{ vars.ENABLE_INSTAGRAM || 'true' }}
-          ENABLE_X: 'false'
-          ENABLE_THREADS: 'false'
-          ENABLE_YOUTUBE: 'false'
+          ENABLE_X: ${{ vars.ENABLE_X || 'true' }}
+          ENABLE_THREADS: ${{ vars.ENABLE_THREADS || 'true' }}
+          ENABLE_YOUTUBE: ${{ vars.ENABLE_YOUTUBE || 'true' }}
         run: |
           DRY=''
           if [ "${{ inputs.dry_run }}" = "true" ]; then DRY='--dry-run'; fi
@@ -80,8 +80,17 @@ jobs:
           if [ -z "$LIMIT" ]; then LIMIT='5'; fi
           python automation/auto_publish.py $DRY --limit "$LIMIT"
 
-      - name: Verify publisher state is present
+      - name: Commit social state and generated social cards
         run: |
-          test -s social-publish-state.json
-          test -s social-publish-log.json
-          echo 'Premium publisher state verified.'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add social-publish-state.json social-publish-log.json
+          if [ -d social-media ]; then
+            git add social-media
+          fi
+          if git diff --cached --quiet; then
+            echo 'No social state/card changes.'
+          else
+            git commit -m 'Update social auto-publish state'
+            git push
+          fi
