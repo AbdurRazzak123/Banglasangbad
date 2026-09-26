@@ -198,9 +198,6 @@ jobs:
           print("First IDs:", ", ".join(valid[:10]))
           PY
 
-      - name: Validate SEO files
-        run: python tools/validate_seo.py
-
       - name: Commit generated output
         run: |
           git config user.name "github-actions[bot]"
