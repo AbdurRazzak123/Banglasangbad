@@ -5,124 +5,284 @@
   "bootstrapped_at": "2026-09-12T00:00:00Z",
   "articles": {
     "2": {
-      "status": "skipped_existing",
-      "platforms": {}
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      },
+      "last_attempt_at": "2026-09-26T09:00:23.205381+00:00",
+      "error": "No usable news image for article 2",
+      "updated_at": "2026-09-26T09:00:23.205549+00:00"
     },
     "3": {
-      "status": "skipped_existing",
-      "platforms": {}
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      },
+      "last_attempt_at": "2026-09-26T09:00:23.205584+00:00",
+      "error": "No usable news image for article 3",
+      "updated_at": "2026-09-26T09:00:23.205702+00:00"
     },
     "4": {
-      "status": "skipped_existing",
-      "platforms": {}
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      },
+      "last_attempt_at": "2026-09-26T09:00:23.205725+00:00",
+      "error": "No usable news image for article 4",
+      "updated_at": "2026-09-26T09:00:23.205831+00:00"
     },
     "5": {
       "status": "skipped_existing",
       "platforms": {}
     },
     "6": {
-      "status": "skipped_existing",
-      "platforms": {}
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      },
+      "last_attempt_at": "2026-09-26T09:00:23.205850+00:00",
+      "error": "No usable news image for article 6",
+      "updated_at": "2026-09-26T09:00:23.205958+00:00"
     },
     "7": {
-      "status": "skipped_existing",
-      "platforms": {}
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      },
+      "last_attempt_at": "2026-09-26T09:00:23.205976+00:00",
+      "error": "No usable news image for article 7",
+      "updated_at": "2026-09-26T09:00:23.206113+00:00"
     },
     "8": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "9": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "10": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "11": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "12": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "13": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "14": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "15": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "16": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "17": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "18": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "19": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "20": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "21": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "22": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "23": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "24": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "25": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "26": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "27": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "28": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "29": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "30": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "31": {
       "status": "skipped_existing",
-      "platforms": {}
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true
+      }
     },
     "32": {
       "status": "partial_failure",
@@ -135,7 +295,6 @@
         "instagram": {
           "status": "posted",
           "updated_at": "2026-09-26T07:35:57.126034+00:00",
-          "error": "Platform publish did not complete successfully",
           "result": {
             "id": "18096053264387269",
             "creation_id": "18108583505125017",
@@ -156,10 +315,7 @@
       "sheet_controls": {
         "publish": true,
         "facebook": true,
-        "instagram": true,
-        "x": false,
-        "threads": false,
-        "youtube": false
+        "instagram": true
       },
       "updated_at": "2026-09-26T07:35:43.474818+00:00",
       "last_attempt_at": "2026-09-26T07:35:43.063353+00:00",
@@ -228,10 +384,7 @@
       "sheet_controls": {
         "publish": true,
         "facebook": true,
-        "instagram": true,
-        "x": false,
-        "threads": false,
-        "youtube": false
+        "instagram": true
       },
       "last_attempt_at": "2026-09-26T06:25:04.041078+00:00",
       "social_card": "social-media/33.jpg",
@@ -239,6 +392,6 @@
       "instagram_image": "social-media/instagram/33.jpg"
     }
   },
-  "updated_at": "2026-09-26T07:35:57.126068+00:00",
+  "updated_at": "2026-09-26T09:00:23.206134+00:00",
   "automation_version": "2026-09-26-premium-fb-ig-v2"
 }
