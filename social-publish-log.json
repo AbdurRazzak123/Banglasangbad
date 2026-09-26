@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-26T09:01:47.868294+00:00",
+  "generated_at": "2026-09-26T00:50:40.196055+00:00",
   "articles": {
     "33": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-26T06:25:04.683201+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'ACLIHTqUBK0FWkbS25x-cuu'}}",
+          "updated_at": "2026-09-26T00:50:39.738059+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019_122100455385487710/comments -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:39 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AXbQ3qgYyyDQv6qXdsw3mGd'}}",
           "result": {
             "id": "1240194305854019_122100455385487710",
             "comment_error": "POST https://graph.facebook.com/v26.0/1240194305854019_122100455385487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AvfIGhc3bbyWUIYanFXqYa0'}}",
@@ -16,12 +16,15 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-26T06:29:34.705949+00:00",
-          "error": "Platform publish did not complete successfully",
+          "updated_at": "2026-09-26T00:50:40.195093+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:40 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A9JkDa4Vm7COW97_mmeG3Eo'}}",
           "result": {
-            "id": "18030289142896458",
-            "creation_id": "18108504020125017",
-            "mode": "single"
+            "id": "18446189728127717",
+            "creation_id": "18107482355125017",
+            "children": [
+              "18107482211125017",
+              "18107482295125017"
+            ]
           }
         },
         "x": {
@@ -42,28 +45,33 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-26T06:25:04.041078+00:00",
+      "last_attempt_at": "2026-09-26T00:50:38.198632+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-26T06:25:04.396221+00:00",
-      "instagram_image": "social-media/instagram/33.jpg"
+      "updated_at": "2026-09-26T00:50:38.938600+00:00",
+      "instagram_carousel": [
+        "social-media/instagram/33/33-ig-01.jpg",
+        "social-media/instagram/33/33-ig-02.jpg"
+      ]
     },
     "32": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-26T07:35:44.390404+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AmSYrI6REC4xCnBuVCRpR05'}}"
+          "updated_at": "2026-09-26T00:50:37.733887+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:37 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A0YEBsGyDS58oXmHT7nVQ1k'}}"
         },
         "instagram": {
-          "status": "posted",
-          "updated_at": "2026-09-26T07:35:57.126034+00:00",
-          "error": "Platform publish did not complete successfully",
+          "status": "failed",
+          "updated_at": "2026-09-26T00:50:38.198068+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Friday, 25-Sep-26 08:00:00 PDT. The current time is Friday, 25-Sep-26 17:50:38 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AmXKTNLuSf_OSg5RkGJZktE'}}",
           "result": {
-            "id": "18096053264387269",
-            "creation_id": "18108583505125017",
-            "mode": "single",
-            "status": "posted"
+            "id": "18096363476398920",
+            "creation_id": "18107477021125017",
+            "children": [
+              "18107476835125017",
+              "18107476922125017"
+            ]
           }
         },
         "x": {
@@ -84,70 +92,13 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-26T07:35:43.474818+00:00",
-      "last_attempt_at": "2026-09-26T07:35:43.063353+00:00",
+      "updated_at": "2026-09-26T00:50:36.645749+00:00",
+      "last_attempt_at": "2026-09-26T00:50:35.536934+00:00",
       "social_card": "social-media/32.jpg",
-      "instagram_image": "social-media/instagram/32.jpg"
-    },
-    "2": {
-      "status": "failed_preflight",
-      "platforms": {},
-      "sheet_controls": {
-        "publish": true,
-        "facebook": true,
-        "instagram": true
-      },
-      "last_attempt_at": "2026-09-26T09:01:47.868103+00:00",
-      "error": "No usable news image for article 2",
-      "updated_at": "2026-09-26T09:01:47.868257+00:00"
-    },
-    "3": {
-      "status": "failed_preflight",
-      "platforms": {},
-      "sheet_controls": {
-        "publish": true,
-        "facebook": true,
-        "instagram": true
-      },
-      "last_attempt_at": "2026-09-26T09:00:23.205584+00:00",
-      "error": "No usable news image for article 3",
-      "updated_at": "2026-09-26T09:00:23.205702+00:00"
-    },
-    "4": {
-      "status": "failed_preflight",
-      "platforms": {},
-      "sheet_controls": {
-        "publish": true,
-        "facebook": true,
-        "instagram": true
-      },
-      "last_attempt_at": "2026-09-26T09:00:23.205725+00:00",
-      "error": "No usable news image for article 4",
-      "updated_at": "2026-09-26T09:00:23.205831+00:00"
-    },
-    "6": {
-      "status": "failed_preflight",
-      "platforms": {},
-      "sheet_controls": {
-        "publish": true,
-        "facebook": true,
-        "instagram": true
-      },
-      "last_attempt_at": "2026-09-26T09:00:23.205850+00:00",
-      "error": "No usable news image for article 6",
-      "updated_at": "2026-09-26T09:00:23.205958+00:00"
-    },
-    "7": {
-      "status": "failed_preflight",
-      "platforms": {},
-      "sheet_controls": {
-        "publish": true,
-        "facebook": true,
-        "instagram": true
-      },
-      "last_attempt_at": "2026-09-26T09:00:23.205976+00:00",
-      "error": "No usable news image for article 7",
-      "updated_at": "2026-09-26T09:00:23.206113+00:00"
+      "instagram_carousel": [
+        "social-media/instagram/32/32-ig-01.jpg",
+        "social-media/instagram/32/32-ig-02.jpg"
+      ]
     }
   }
 }
