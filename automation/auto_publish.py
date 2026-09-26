@@ -16,35 +16,26 @@ from PIL import Image
 
 AUTOMATION_DIR = Path(__file__).resolve().parent
 ROOT = AUTOMATION_DIR.parent
-for _p in (AUTOMATION_DIR, ROOT):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
+for p in (AUTOMATION_DIR, ROOT):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
-try:
-    from social_card import create_card, create_vertical_frame, create_instagram_carousel
-except ModuleNotFoundError as exc:
-    raise RuntimeError(
-        "social_card.py was not found. Put social_card.py beside auto_publish.py in automation/."
-    ) from exc
+from social_card import create_card
 
-AUTOMATION_VERSION = "2026-09-26-premium-fb-ig-v4"
+AUTOMATION_VERSION = "2026-09-26-fb-ig-single-image-v5"
 STATE_FILE = ROOT / "social-publish-state.json"
 LOG_FILE = ROOT / "social-publish-log.json"
 NEWS_FILE = ROOT / "news-data.json"
 CARD_DIR = ROOT / "social-media"
-VIDEO_DIR = ROOT / "social-video"
 
 META_VERSION = os.getenv("META_GRAPH_VERSION", "v26.0")
 META_BASE = f"https://graph.facebook.com/{META_VERSION}"
-THREADS_BASE = os.getenv("THREADS_GRAPH_BASE", "https://graph.threads.net/v1.0")
 SITE_BASE_URL = os.getenv(
-    "SITE_BASE_URL",
-    "https://abdurrazzak123.github.io/Banglasangbad",
+    "SITE_BASE_URL", "https://abdurrazzak123.github.io/Banglasangbad"
 ).rstrip("/")
 
-PLATFORMS = ("facebook", "instagram", "x", "threads", "youtube")
-AUTO_DEFAULT_PLATFORMS = {"facebook", "instagram"}
-TRUE_VALUES = {"yes", "y", "true", "1", "on"}
+PLATFORMS = ("facebook", "instagram")
+TRUE_VALUES = {"yes", "y", "true", "1", "on", "enable", "enabled"}
 FALSE_VALUES = {"no", "n", "false", "0", "off", "disable", "disabled"}
 
 
@@ -69,10 +60,7 @@ def load_json(path: Path, default: Any):
 
 
 def save_json(path: Path, data: Any):
-    path.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def clean_text(value: Any) -> str:
@@ -105,20 +93,19 @@ def request_json(method: str, url: str, **kwargs):
     kwargs.setdefault("timeout", 60)
     for attempt in range(4):
         try:
-            response = requests.request(method, url, **kwargs)
-            if response.status_code in (429, 500, 502, 503, 504):
-                if attempt < 3:
-                    time.sleep(2 ** attempt)
-                    continue
-            if not response.ok:
-                try:
-                    detail = response.json()
-                except Exception:
-                    detail = response.text[:1500]
+            r = requests.request(method, url, **kwargs)
+            if r.status_code in (429, 500, 502, 503, 504) and attempt < 3:
+                time.sleep(2 ** attempt)
+                continue
+            try:
+                data = r.json()
+            except Exception:
+                data = {"raw": r.text[:1500]}
+            if not r.ok:
                 raise RuntimeError(
-                    f"{method} {url} -> HTTP {response.status_code}: {detail}"
+                    f"{method} {url} -> HTTP {r.status_code}: {data}"
                 )
-            return response.json() if response.text else {}
+            return data
         except requests.RequestException:
             if attempt == 3:
                 raise
@@ -129,14 +116,13 @@ def request_json(method: str, url: str, **kwargs):
 def local_image_for(item: dict) -> Path | None:
     for raw in item.get("images") or []:
         if raw:
-            path = ROOT / str(raw)
-            if path.exists() and path.is_file():
-                return path
-
+            p = ROOT / str(raw)
+            if p.exists() and p.is_file():
+                return p
     for ext in ("jpg", "jpeg", "png", "webp"):
-        path = ROOT / "assets" / "news" / f"{item.get('id')}-1.{ext}"
-        if path.exists():
-            return path
+        p = ROOT / "assets" / "news" / f"{item.get('id')}-1.{ext}"
+        if p.exists():
+            return p
     return None
 
 
@@ -150,32 +136,28 @@ def download_remote_image(item: dict, dest: Path) -> Path | None:
             if match else raw
         )
         try:
-            response = requests.get(
-                url,
-                timeout=30,
+            r = requests.get(
+                url, timeout=30,
                 headers={"User-Agent": "BanglasangbadSocialBot/1.0"},
             )
-            response.raise_for_status()
+            r.raise_for_status()
             dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(response.content)
+            dest.write_bytes(r.content)
             if dest.stat().st_size <= 1000:
                 continue
-            try:
-                with Image.open(dest) as probe:
-                    probe.verify()
-                return dest
-            except Exception:
-                try:
-                    dest.unlink()
-                except OSError:
-                    pass
+            with Image.open(dest) as probe:
+                probe.verify()
+            return dest
         except Exception:
-            continue
+            try:
+                if dest.exists():
+                    dest.unlink()
+            except OSError:
+                pass
     return None
 
 
 def caption(item: dict) -> str:
-    # Facebook/X/Threads: only the article URL, as requested.
     return news_url(str(item.get("id")))
 
 
@@ -184,133 +166,58 @@ def instagram_caption(item: dict) -> str:
     details = clean_text(item.get("details"))
     category = clean_text(item.get("category"))
     tag = (
-        f"#{re.sub(r'[^\w\u0980-\u09ff]+', '', category)} #বাংলা_সংবাদ"
+        f"#{re.sub(r'[^\\w\\u0980-\\u09ff]+', '', category)} #বাংলা_সংবাদ"
         if category else "#বাংলা_সংবাদ"
     )
+    # Keep the caption comfortably below common platform limits.
+    text = f"📰 {headline}"
     if details:
-        return f"📰 {headline}\n\n{details}\n\n{tag}"
-    return f"📰 {headline}\n\n{tag}"
+        text += f"\n\n{details}"
+    text += f"\n\n{tag}"
+    return text[:2100]
 
 
-def instagram_needs_carousel(item: dict) -> bool:
-    return len(instagram_caption(item)) > 2200
-
-
-def instagram_carousel_caption(item: dict) -> str:
-    headline = clean_text(item.get("headline"))
-    category = clean_text(item.get("category"))
-    tag = (
-        f"#{re.sub(r'[^\w\u0980-\u09ff]+', '', category)} #বাংলা_সংবাদ"
-        if category else "#বাংলা_সংবাদ"
-    )
-    return f"📰 {headline}\n\n{tag}"
-
-
-def meta_preflight(dry_run: bool = False) -> None:
-    if dry_run:
-        return
-
+def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
     token = os.getenv("META_PAGE_ACCESS_TOKEN", "").strip()
     page_id = os.getenv("META_PAGE_ID", "").strip()
-    ig_id = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "").strip()
-
-    if not token or not page_id:
-        raise RuntimeError(
-            "Meta preflight failed: META_PAGE_ID or META_PAGE_ACCESS_TOKEN is missing."
-        )
-    if not ig_id:
-        raise RuntimeError(
-            "Meta preflight failed: INSTAGRAM_BUSINESS_ACCOUNT_ID is missing."
-        )
-
-    page = request_json(
-        "GET",
-        f"{META_BASE}/{page_id}",
-        params={
-            "fields": "id,name,instagram_business_account",
-            "access_token": token,
-        },
-    )
-    if str(page.get("id", "")).strip() != page_id:
-        raise RuntimeError(
-            "Meta preflight failed: META_PAGE_ID does not match the Page returned by Meta."
-        )
-
-    linked_ig = ((page.get("instagram_business_account") or {}).get("id") or "").strip()
-    if linked_ig and linked_ig != ig_id:
-        raise RuntimeError(
-            "Meta preflight failed: INSTAGRAM_BUSINESS_ACCOUNT_ID does not match "
-            "the Instagram account linked to the Page."
-        )
-
-    ig = request_json(
-        "GET",
-        f"{META_BASE}/{ig_id}",
-        params={
-            "fields": "id,username",
-            "access_token": token,
-        },
-    )
-    if str(ig.get("id", "")).strip() != ig_id:
-        raise RuntimeError("Meta preflight failed: Instagram account ID verification failed.")
-
-    print(f"Meta preflight OK: Page {page_id}; Instagram {ig_id}.")
-
-
-def facebook_publish(item, card_path, dry_run=False, prior_result=None):
-    """Publish one Facebook Page photo post.
-
-    IMPORTANT:
-    - Uses the Page access token from GitHub Secrets.
-    - Never publishes a comment.
-    - Does not use the removed publish_actions permission in code.
-    """
     message = caption(item)
 
     if dry_run:
-        return {
-            "dry_run": True,
-            "message": message,
-            "status": "dry_run",
-        }
+        return {"status": "dry_run", "message": message}
 
-    token = os.getenv("META_PAGE_ACCESS_TOKEN", "").strip()
-    page_id = os.getenv("META_PAGE_ID", "").strip()
     if not token or not page_id:
         raise RuntimeError("Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN")
 
+    # Current code deliberately uses only the Page access token.
+    # No publish_actions permission is requested or referenced here.
     public_url = f"{SITE_BASE_URL}/social-media/{item['id']}.jpg"
-    print(f"FACEBOOK START: article={item['id']}")
 
-    try:
-        result = request_json(
-            "POST",
-            f"{META_BASE}/{page_id}/photos",
-            data={
-                "url": public_url,
-                "caption": message,
-                "published": "true",
-                "access_token": token,
-            },
-        )
-    except Exception as exc:
-        print(f"FACEBOOK FAILED: article={item['id']}: {exc}")
-        raise
+    print(f"FACEBOOK START: article={item['id']}")
+    result = request_json(
+        "POST",
+        f"{META_BASE}/{page_id}/photos",
+        data={
+            "url": public_url,
+            "caption": message,
+            "published": "true",
+            "access_token": token,
+        },
+    )
 
     post_id = result.get("post_id") or result.get("id")
     if not post_id:
-        raise RuntimeError(f"Facebook photo publish returned no post id: {result}")
+        raise RuntimeError(f"Facebook returned no post id: {result}")
 
     print(f"FACEBOOK PUBLISH OK: article={item['id']}, post_id={post_id}")
     return {
+        "status": "posted",
         "id": post_id,
         "post_id": post_id,
-        "status": "posted",
         "comment_created": False,
     }
 
 
-def _wait_instagram_container(container_id: str, token: str, attempts: int = 36):
+def wait_instagram_container(container_id: str, token: str, attempts: int = 36):
     last = {}
     for attempt in range(attempts):
         last = request_json(
@@ -334,118 +241,27 @@ def _wait_instagram_container(container_id: str, token: str, attempts: int = 36)
     )
 
 
-def instagram_publish(
-    item,
-    image_path=None,
-    carousel_paths=None,
-    dry_run=False,
-    prior_result=None,
-):
-    """Publish one Instagram image or a full-article carousel.
-
-    The API returning an id is treated as success and explicitly returned with
-    status='posted'. This fixes the old state bug where Instagram actually
-    returned an id but the runner marked it as failed because status was absent.
-    """
-    use_carousel = instagram_needs_carousel(item)
+def instagram_publish(item: dict, image_path: Path | None, dry_run: bool = False):
+    token = os.getenv("META_PAGE_ACCESS_TOKEN", "").strip()
+    ig_id = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "").strip()
 
     if dry_run:
         return {
-            "dry_run": True,
-            "mode": "carousel" if use_carousel else "single",
-            "caption": (
-                instagram_carousel_caption(item)
-                if use_carousel else instagram_caption(item)
-            ),
             "status": "dry_run",
+            "mode": "single",
+            "caption": instagram_caption(item),
         }
 
-    token = os.getenv("META_PAGE_ACCESS_TOKEN", "").strip()
-    ig_id = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "").strip()
     if not token or not ig_id:
         raise RuntimeError(
             "Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID"
         )
-
-    print(f"INSTAGRAM START: article={item['id']}")
-
-    if use_carousel:
-        paths = carousel_paths or []
-        if len(paths) < 2:
-            raise RuntimeError(
-                "Instagram carousel was required but fewer than 2 images were generated."
-            )
-
-        child_ids = []
-        for path in paths:
-            public_url = (
-                f"{SITE_BASE_URL}/social-media/instagram/"
-                f"{item['id']}/{path.name}"
-            )
-            child = request_json(
-                "POST",
-                f"{META_BASE}/{ig_id}/media",
-                data={
-                    "image_url": public_url,
-                    "is_carousel_item": "true",
-                    "access_token": token,
-                },
-            )
-            cid = child.get("id")
-            if not cid:
-                raise RuntimeError(
-                    f"Instagram carousel child returned no id: {child}"
-                )
-            _wait_instagram_container(cid, token)
-            child_ids.append(cid)
-
-        parent = request_json(
-            "POST",
-            f"{META_BASE}/{ig_id}/media",
-            data={
-                "media_type": "CAROUSEL",
-                "children": ",".join(child_ids),
-                "caption": instagram_carousel_caption(item),
-                "access_token": token,
-            },
-        )
-        parent_id = parent.get("id")
-        if not parent_id:
-            raise RuntimeError(
-                f"Instagram carousel parent returned no id: {parent}"
-            )
-
-        _wait_instagram_container(parent_id, token)
-
-        published = request_json(
-            "POST",
-            f"{META_BASE}/{ig_id}/media_publish",
-            data={
-                "creation_id": parent_id,
-                "access_token": token,
-            },
-        )
-        published_id = published.get("id")
-        if not published_id:
-            raise RuntimeError(
-                f"Instagram carousel publish returned no id: {published}"
-            )
-
-        print(
-            f"INSTAGRAM PUBLISH OK: article={item['id']}, post_id={published_id}"
-        )
-        return {
-            "id": published_id,
-            "creation_id": parent_id,
-            "mode": "carousel",
-            "children": child_ids,
-            "status": "posted",
-        }
-
     if not image_path:
         raise RuntimeError("No Instagram image was generated")
 
     public_url = f"{SITE_BASE_URL}/social-media/instagram/{item['id']}.jpg"
+
+    print(f"INSTAGRAM START: article={item['id']}")
     container = request_json(
         "POST",
         f"{META_BASE}/{ig_id}/media",
@@ -457,11 +273,9 @@ def instagram_publish(
     )
     creation_id = container.get("id")
     if not creation_id:
-        raise RuntimeError(
-            f"Instagram media container returned no id: {container}"
-        )
+        raise RuntimeError(f"Instagram media container returned no id: {container}")
 
-    _wait_instagram_container(creation_id, token)
+    wait_instagram_container(creation_id, token)
 
     published = request_json(
         "POST",
@@ -473,166 +287,15 @@ def instagram_publish(
     )
     published_id = published.get("id")
     if not published_id:
-        raise RuntimeError(
-            f"Instagram publish returned no id: {published}"
-        )
+        raise RuntimeError(f"Instagram publish returned no id: {published}")
 
-    print(
-        f"INSTAGRAM PUBLISH OK: article={item['id']}, post_id={published_id}"
-    )
+    print(f"INSTAGRAM PUBLISH OK: article={item['id']}, post_id={published_id}")
     return {
+        "status": "posted",
         "id": published_id,
         "creation_id": creation_id,
         "mode": "single",
-        "status": "posted",
     }
-
-
-def x_publish(item, card_path, dry_run=False):
-    # Kept disabled by default; existing X implementation can be restored later.
-    if dry_run:
-        return {"dry_run": True, "text": caption(item), "status": "dry_run"}
-    raise RuntimeError("X publishing is disabled in this premium FB/Instagram build.")
-
-
-def threads_publish(item, dry_run=False):
-    if dry_run:
-        return {"dry_run": True, "text": caption(item), "status": "dry_run"}
-    raise RuntimeError("Threads publishing is disabled until explicitly enabled.")
-
-
-def youtube_upload(item, video_path: Path, dry_run=False):
-    if dry_run:
-        return {"dry_run": True, "video": str(video_path), "status": "dry_run"}
-    raise RuntimeError("YouTube publishing is disabled until explicitly enabled.")
-
-
-def generate_video(item, image_path: Path, video_path: Path):
-    frame = VIDEO_DIR / f"{item['id']}-frame.jpg"
-    create_vertical_frame(
-        image_path,
-        clean_text(item.get("headline")),
-        bangla_date(item.get("date", "")),
-        ROOT / "logo.png",
-        frame,
-    )
-    video_path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        "ffmpeg", "-y", "-loop", "1", "-i", str(frame),
-        "-vf",
-        "scale=1080:1920:force_original_aspect_ratio=decrease,"
-        "pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
-        "-t", "12", "-r", "30", "-c:v", "libx264",
-        "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-        str(video_path),
-    ]
-    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    try:
-        frame.unlink()
-    except OSError:
-        pass
-
-
-def configure_git_identity():
-    name = "github-actions[bot]"
-    email = "41898282+github-actions[bot]@users.noreply.github.com"
-    os.environ["GIT_AUTHOR_NAME"] = name
-    os.environ["GIT_AUTHOR_EMAIL"] = email
-    os.environ["GIT_COMMITTER_NAME"] = name
-    os.environ["GIT_COMMITTER_EMAIL"] = email
-    subprocess.run(["git", "config", "user.name", name], cwd=ROOT, check=True)
-    subprocess.run(["git", "config", "user.email", email], cwd=ROOT, check=True)
-
-
-def verify_git_identity():
-    configure_git_identity()
-    name = subprocess.check_output(
-        ["git", "config", "--get", "user.name"], cwd=ROOT, text=True
-    ).strip()
-    email = subprocess.check_output(
-        ["git", "config", "--get", "user.email"], cwd=ROOT, text=True
-    ).strip()
-    if not name or not email:
-        raise RuntimeError("Git identity verification failed")
-    print(f"Git identity: {name} <{email}>")
-
-
-def git_sync_and_push(max_attempts: int = 4):
-    verify_git_identity()
-    for attempt in range(1, max_attempts + 1):
-        try:
-            subprocess.run(["git", "fetch", "origin", "main"], cwd=ROOT, check=True)
-            subprocess.run(["git", "rebase", "origin/main"], cwd=ROOT, check=True)
-            subprocess.run(
-                ["git", "push", "origin", "HEAD:main"], cwd=ROOT, check=True
-            )
-            return
-        except subprocess.CalledProcessError:
-            subprocess.run(
-                ["git", "rebase", "--abort"],
-                cwd=ROOT,
-                check=False,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            if attempt == max_attempts:
-                raise
-            time.sleep(min(10, 2 * attempt))
-
-
-def publish_social_assets_to_pages(paths, news_id: str):
-    rels = [Path(p).relative_to(ROOT).as_posix() for p in paths]
-    subprocess.run(["git", "add", *rels], cwd=ROOT, check=True)
-    staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT)
-    if staged.returncode != 0:
-        configure_git_identity()
-        subprocess.run(
-            ["git", "commit", "-m", f"Create social assets for news {news_id}"],
-            cwd=ROOT,
-            check=True,
-        )
-        git_sync_and_push()
-
-
-def commit_social_state():
-    verify_git_identity()
-    subprocess.run(
-        ["git", "add", "social-publish-state.json", "social-publish-log.json"],
-        cwd=ROOT,
-        check=True,
-    )
-    if (ROOT / "social-media").is_dir():
-        subprocess.run(["git", "add", "social-media"], cwd=ROOT, check=True)
-
-    staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT)
-    if staged.returncode == 0:
-        return False
-
-    configure_git_identity()
-    subprocess.run(
-        ["git", "commit", "-m", "Update social auto-publish state"],
-        cwd=ROOT,
-        check=True,
-    )
-    git_sync_and_push()
-    return True
-
-
-def wait_public(url: str, attempts: int = 24) -> bool:
-    for i in range(attempts):
-        try:
-            response = requests.get(
-                url,
-                timeout=15,
-                allow_redirects=True,
-                headers={"User-Agent": "BanglasangbadSocialBot/1.0"},
-            )
-            if response.status_code == 200 and len(response.content) > 100:
-                return True
-        except Exception:
-            pass
-        time.sleep(min(10, 2 + i))
-    return False
 
 
 def load_news():
@@ -640,11 +303,7 @@ def load_news():
     return data.get("news") or []
 
 
-def enabled(platform: str):
-    return env_bool(f"ENABLE_{platform.upper()}", True)
-
-
-def sheet_control(item: dict, key: str, default: bool = False) -> bool:
+def sheet_control(item: dict, key: str, default: bool) -> bool:
     raw = item.get(key)
     value = clean_text(raw).lower() if raw is not None else ""
     if value in TRUE_VALUES:
@@ -654,47 +313,111 @@ def sheet_control(item: dict, key: str, default: bool = False) -> bool:
     return default
 
 
-def sheet_yes(item: dict, key: str) -> bool:
-    return sheet_control(
-        item,
-        key,
-        default=(key in AUTO_DEFAULT_PLATFORMS or key == "publish"),
-    )
-
-
 def requested_platforms(item: dict) -> list[str]:
-    if not sheet_control(item, "publish", default=True):
+    if not sheet_control(item, "publish", True):
         return []
-
-    requested = []
-    for platform in PLATFORMS:
-        default = platform in AUTO_DEFAULT_PLATFORMS
-        if enabled(platform) and sheet_control(item, platform, default=default):
-            requested.append(platform)
-    return requested
+    out = []
+    for p in PLATFORMS:
+        env_default = env_bool(f"ENABLE_{p.upper()}", True)
+        if env_default and sheet_control(item, p, True):
+            out.append(p)
+    return out
 
 
 def reconcile_state(state: dict):
-    articles = state.setdefault("articles", {})
-    for _, entry in articles.items():
+    # Never convert a successful post to failed just because an old error
+    # field remained in the JSON. A posted status is authoritative.
+    for entry in state.setdefault("articles", {}).values():
         platforms = entry.setdefault("platforms", {})
-        for _, pentry in platforms.items():
+        for pentry in platforms.values():
             if not isinstance(pentry, dict):
                 continue
-            if pentry.get("status") == "posted" and pentry.get("error"):
-                pentry["status"] = "failed"
-                pentry["updated_at"] = utc_now()
-
+            if pentry.get("status") == "posted":
+                pentry.pop("error", None)
         requested = [
             p for p in PLATFORMS
             if platforms.get(p, {}).get("status") != "not_selected"
         ]
-        if entry.get("status") == "posted_all" and any(
+        if requested and all(
+            platforms.get(p, {}).get("status") == "posted"
+            for p in requested
+        ):
+            entry["status"] = "posted_all"
+        elif any(
             platforms.get(p, {}).get("status") == "failed"
             for p in requested
         ):
             entry["status"] = "partial_failure"
-            entry["updated_at"] = utc_now()
+
+
+def configure_git_identity():
+    name = "github-actions[bot]"
+    email = "41898282+github-actions[bot]@users.noreply.github.com"
+    subprocess.run(["git", "config", "user.name", name], cwd=ROOT, check=True)
+    subprocess.run(["git", "config", "user.email", email], cwd=ROOT, check=True)
+
+
+def git_sync_and_push(max_attempts: int = 4):
+    configure_git_identity()
+    for attempt in range(1, max_attempts + 1):
+        try:
+            subprocess.run(["git", "fetch", "origin", "main"], cwd=ROOT, check=True)
+            subprocess.run(["git", "rebase", "origin/main"], cwd=ROOT, check=True)
+            subprocess.run(["git", "push", "origin", "HEAD:main"], cwd=ROOT, check=True)
+            return
+        except subprocess.CalledProcessError:
+            subprocess.run(
+                ["git", "rebase", "--abort"], cwd=ROOT, check=False,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+            if attempt == max_attempts:
+                raise
+            time.sleep(min(10, 2 * attempt))
+
+
+def publish_social_assets_to_pages(paths, news_id: str):
+    rels = [Path(p).relative_to(ROOT).as_posix() for p in paths]
+    subprocess.run(["git", "add", *rels], cwd=ROOT, check=True)
+    if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode != 0:
+        configure_git_identity()
+        subprocess.run(
+            ["git", "commit", "-m", f"Create social assets for news {news_id}"],
+            cwd=ROOT, check=True
+        )
+        git_sync_and_push()
+
+
+def commit_social_state():
+    configure_git_identity()
+    subprocess.run(
+        ["git", "add", "social-publish-state.json", "social-publish-log.json"],
+        cwd=ROOT, check=True
+    )
+    if (ROOT / "social-media").is_dir():
+        subprocess.run(["git", "add", "social-media"], cwd=ROOT, check=True)
+    if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode == 0:
+        return False
+    subprocess.run(
+        ["git", "commit", "-m", "Update social auto-publish state"],
+        cwd=ROOT, check=True
+    )
+    git_sync_and_push()
+    return True
+
+
+def wait_public(url: str, attempts: int = 24) -> bool:
+    for i in range(attempts):
+        try:
+            r = requests.get(
+                url, timeout=15, allow_redirects=True,
+                headers={"User-Agent": "BanglasangbadSocialBot/1.0"}
+            )
+            if r.status_code == 200 and len(r.content) > 100:
+                return True
+        except Exception:
+            pass
+        time.sleep(min(10, 2 + i))
+    return False
 
 
 def main():
@@ -703,61 +426,52 @@ def main():
     ap.add_argument("--limit", type=int, default=5)
     args = ap.parse_args()
 
-    state = load_json(
-        STATE_FILE,
-        {"version": 3, "articles": {}},
-    )
-    state.setdefault("version", 3)
+    state = load_json(STATE_FILE, {"version": 5, "articles": {}})
+    state.setdefault("version", 5)
     state.setdefault("articles", {})
-
     log = load_json(LOG_FILE, {"generated_at": None, "articles": {}})
     log.setdefault("articles", {})
 
     reconcile_state(state)
-    meta_preflight(args.dry_run)
+
+    if not args.dry_run:
+        # Basic credential presence check. The workflow runs the full preflight too.
+        if not os.getenv("META_PAGE_ACCESS_TOKEN", "").strip():
+            raise RuntimeError("META_PAGE_ACCESS_TOKEN is missing")
+        if not os.getenv("META_PAGE_ID", "").strip():
+            raise RuntimeError("META_PAGE_ID is missing")
+        if not os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "").strip():
+            raise RuntimeError("INSTAGRAM_BUSINESS_ACCOUNT_ID is missing")
 
     news = sorted(
         load_news(),
-        key=lambda x: int(str(x.get("id", "0")) or 0),
+        key=lambda x: int(str(x.get("id", "0")) or 0)
     )
 
     candidates = []
-
     for item in news:
         nid = str(item.get("id", "")).strip()
         if not nid or not clean_text(item.get("headline")):
             continue
 
         entry = state["articles"].setdefault(
-            nid,
-            {"status": "pending", "platforms": {}},
+            nid, {"status": "pending", "platforms": {}}
         )
-
-        if entry.get("status") == "skipped_existing":
-            continue
-
         requested = requested_platforms(item)
 
         entry["sheet_controls"] = {
-            "publish": sheet_yes(item, "publish"),
-            "facebook": sheet_yes(item, "facebook"),
-            "instagram": sheet_yes(item, "instagram"),
-            "x": sheet_yes(item, "x"),
-            "threads": sheet_yes(item, "threads"),
-            "youtube": sheet_yes(item, "youtube"),
+            "publish": sheet_control(item, "publish", True),
+            "facebook": sheet_control(item, "facebook", True),
+            "instagram": sheet_control(item, "instagram", True),
         }
 
         if not requested:
-            entry["status"] = (
-                "waiting_sheet_publish"
-                if not sheet_yes(item, "publish")
-                else "no_social_platform_selected"
-            )
+            entry["status"] = "waiting_sheet_publish"
             entry["updated_at"] = utc_now()
             continue
 
         if all(
-            entry.get("platforms", {}).get(p, {}).get("status") == "posted"
+            entry["platforms"].get(p, {}).get("status") == "posted"
             for p in requested
         ):
             entry["status"] = "posted_all"
@@ -765,21 +479,21 @@ def main():
 
         candidates.append(item)
 
-    candidates = candidates[: max(1, args.limit)]
+    candidates = candidates[:max(1, args.limit)]
 
     for item in candidates:
         nid = str(item["id"])
         entry = state["articles"].setdefault(
-            nid,
-            {"status": "pending", "platforms": {}},
+            nid, {"status": "pending", "platforms": {}}
         )
         entry["last_attempt_at"] = utc_now()
 
         try:
             image_path = local_image_for(item)
             if not image_path:
-                temp = ROOT / ".social-tmp" / f"{nid}.jpg"
-                image_path = download_remote_image(item, temp)
+                image_path = download_remote_image(
+                    item, ROOT / ".social-tmp" / f"{nid}.jpg"
+                )
             if not image_path:
                 raise RuntimeError(f"No usable news image for article {nid}")
 
@@ -807,115 +521,68 @@ def main():
                 category=clean_text(item.get("category")),
             )
 
-            carousel_paths = []
-            if instagram_needs_carousel(item):
-                carousel_dir = CARD_DIR / "instagram" / nid
-                carousel_paths = create_instagram_carousel(
-                    image_path,
-                    clean_text(item.get("headline")),
-                    clean_text(item.get("details")),
-                    bangla_date(item.get("date", "")),
-                    ROOT / "logo.png",
-                    carousel_dir,
-                    nid,
-                    max_slides=10,
-                )
-
             entry["social_card"] = f"social-media/{nid}.jpg"
             entry["instagram_image"] = f"social-media/instagram/{nid}.jpg"
-
-            if carousel_paths:
-                entry["instagram_carousel"] = [
-                    Path(p).relative_to(ROOT).as_posix()
-                    for p in carousel_paths
-                ]
-            else:
-                entry.pop("instagram_carousel", None)
-
             entry["updated_at"] = utc_now()
+
             requested = requested_platforms(item)
 
             if not args.dry_run:
                 article_url = news_url(nid)
                 if not wait_public(article_url):
                     raise RuntimeError(
-                        f"News article URL is not publicly reachable yet: {article_url}"
+                        f"News article URL is not publicly reachable: {article_url}"
                     )
 
-                assets = list(dict.fromkeys([card, ig_card] + carousel_paths))
+                assets = [card, ig_card]
                 publish_social_assets_to_pages(assets, nid)
 
-                urls = [
+                for url in (
                     f"{SITE_BASE_URL}/social-media/{nid}.jpg",
                     f"{SITE_BASE_URL}/social-media/instagram/{nid}.jpg",
-                ]
-                for url in urls:
+                ):
                     if not wait_public(url):
                         raise RuntimeError(
-                            f"Social asset is not publicly reachable yet: {url}"
-                        )
-
-                for cp in carousel_paths:
-                    url = (
-                        f"{SITE_BASE_URL}/social-media/instagram/"
-                        f"{nid}/{Path(cp).name}"
-                    )
-                    if not wait_public(url):
-                        raise RuntimeError(
-                            f"Instagram carousel asset is not publicly reachable yet: {url}"
+                            f"Social asset is not publicly reachable: {url}"
                         )
 
             funcs = {
-                "facebook": lambda pentry: facebook_publish(
-                    item, card, args.dry_run, pentry.get("result")
-                ),
-                "instagram": lambda pentry: instagram_publish(
-                    item, ig_card, carousel_paths, args.dry_run, pentry.get("result")
-                ),
-                "x": lambda pentry: x_publish(item, card, args.dry_run),
-                "threads": lambda pentry: threads_publish(item, args.dry_run),
-                "youtube": lambda pentry: youtube_upload(
-                    item, VIDEO_DIR / f"{nid}.mp4", args.dry_run
-                ),
+                "facebook": lambda: facebook_publish(item, card, args.dry_run),
+                "instagram": lambda: instagram_publish(item, ig_card, args.dry_run),
             }
 
             for platform in PLATFORMS:
                 if platform not in requested:
-                    entry["platforms"].setdefault(
-                        platform, {"status": "not_selected"}
-                    )
+                    entry["platforms"].setdefault(platform, {"status": "not_selected"})
                     continue
 
                 pentry = entry["platforms"].setdefault(platform, {})
                 if pentry.get("status") == "posted":
+                    pentry.pop("error", None)
                     continue
 
                 try:
-                    result = funcs[platform](pentry)
-                    success = (
-                        args.dry_run
-                        or (
-                            isinstance(result, dict)
-                            and result.get("status") == "posted"
-                            and bool(result.get("id") or result.get("post_id"))
-                        )
+                    result = funcs[platform]()
+                    success = args.dry_run or (
+                        isinstance(result, dict)
+                        and result.get("status") == "posted"
+                        and bool(result.get("id") or result.get("post_id"))
                     )
 
-                    pentry.update({
-                        "status": "dry_run" if args.dry_run else (
-                            "posted" if success else "failed"
-                        ),
-                        "updated_at": utc_now(),
-                        "result": result,
-                    })
-
-                    if not success:
-                        pentry["error"] = (
-                            result.get("error", "Platform publish did not complete successfully")
-                            if isinstance(result, dict)
-                            else "Platform publish did not complete successfully"
-                        )
-
+                    if success:
+                        pentry.clear()
+                        pentry.update({
+                            "status": "dry_run" if args.dry_run else "posted",
+                            "updated_at": utc_now(),
+                            "result": result,
+                        })
+                    else:
+                        pentry.update({
+                            "status": "failed",
+                            "updated_at": utc_now(),
+                            "result": result,
+                            "error": "Platform publish did not complete successfully",
+                        })
                 except Exception as exc:
                     pentry.update({
                         "status": "failed",
@@ -924,11 +591,11 @@ def main():
                     })
 
             if requested and all(
-                entry["platforms"].get(p, {}).get("status")
-                in {"posted", "dry_run"}
+                entry["platforms"].get(p, {}).get("status") in {"posted", "dry_run"}
                 for p in requested
             ):
                 entry["status"] = "dry_run" if args.dry_run else "posted_all"
+                entry.pop("error", None)
             else:
                 entry["status"] = "partial_failure"
 
@@ -937,7 +604,7 @@ def main():
             entry["error"] = str(exc)
             entry["updated_at"] = utc_now()
 
-        log["articles"][nid] = entry
+        log["articles"][nid] = json.loads(json.dumps(entry, ensure_ascii=False))
 
     state["updated_at"] = utc_now()
     log["generated_at"] = utc_now()
@@ -947,20 +614,14 @@ def main():
     if not args.dry_run:
         commit_social_state()
 
-    print(
-        json.dumps(
-            {
-                "processed": [str(x["id"]) for x in candidates],
-                "dry_run": args.dry_run,
-                "total_news": len(news),
-                "candidate_count": len(candidates),
-                "latest_news_id": str(news[-1].get("id")) if news else None,
-                "automation_version": AUTOMATION_VERSION,
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-    )
+    print(json.dumps({
+        "processed": [str(x["id"]) for x in candidates],
+        "dry_run": args.dry_run,
+        "total_news": len(news),
+        "candidate_count": len(candidates),
+        "latest_news_id": str(news[-1].get("id")) if news else None,
+        "automation_version": AUTOMATION_VERSION,
+    }, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
