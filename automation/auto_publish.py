@@ -239,15 +239,7 @@ def meta_preflight(dry_run: bool = False) -> None:
 
     print(f"Meta preflight OK: Page {page_id}; Instagram {ig_id}.")
 
-
 def facebook_publish(item, card_path, dry_run=False, prior_result=None):
-    """Publish exactly one Facebook Page photo post.
-
-    The article URL is the complete Facebook caption. No comment is created.
-    A previous failed result is NEVER treated as proof that a post already
-    exists; only the current API call returning a post id counts as success.
-    This prevents stale state from suppressing a required retry.
-    """
     message = caption(item)
     if dry_run:
         return {'dry_run': True, 'message': message}
@@ -257,16 +249,27 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
     if not token or not page_id:
         raise RuntimeError('Missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN')
 
-    data = {
-        'url': f'{SITE_BASE_URL}/social-media/{item["id"]}.jpg',
-        'caption': message,
-        'published': 'true',
-        'access_token': token,
-    }
-    result = request_json('POST', f'{META_BASE}/{page_id}/photos', data=data)
+    print(f'FACEBOOK START: article={item["id"]}, page={page_id}')
+    public_url = f'{SITE_BASE_URL}/social-media/{item["id"]}.jpg'
+
+    try:
+        result = request_json(
+            'POST',
+            f'{META_BASE}/{page_id}/photos',
+            data={
+                'url': public_url,
+                'caption': message,
+                'published': 'true',
+                'access_token': token,
+            },
+        )
+    except Exception as exc:
+        print(f'FACEBOOK FAILED: article={item["id"]}: {exc}')
+        raise
+
     post_id = result.get('post_id') or result.get('id')
     if not post_id:
-        raise RuntimeError(f'Facebook photo publish returned no post id: {result}')
+        raise RuntimeError(f'Facebook publish returned no post id: {result}')
 
     print(f'FACEBOOK PUBLISH OK: article={item["id"]}, post_id={post_id}')
     return {
@@ -275,6 +278,8 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
         'status': 'posted',
         'comment_created': False,
     }
+
+
 
 def _wait_instagram_container(container_id: str, token: str, attempts: int = 30) -> dict:
     """Wait until an Instagram child container is ready for publishing."""
@@ -297,40 +302,27 @@ def _wait_instagram_container(container_id: str, token: str, attempts: int = 30)
         time.sleep(min(10, 2 + attempt // 3))
     raise RuntimeError(f'Instagram media container {container_id} did not reach FINISHED: {last}')
 
-
 def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False, prior_result=None):
-    """Publish one Instagram image or a full-article carousel. No URL is posted."""
     use_carousel = instagram_needs_carousel(item)
+
     if dry_run:
         return {
             'dry_run': True,
             'mode': 'carousel' if use_carousel else 'single',
             'caption': instagram_carousel_caption(item) if use_carousel else instagram_caption(item),
-            'image': str(image_path) if image_path else None,
-            'carousel_images': [str(p) for p in (carousel_paths or [])],
         }
 
-    token = os.getenv('META_PAGE_ACCESS_TOKEN')
-    ig_id = os.getenv('INSTAGRAM_BUSINESS_ACCOUNT_ID')
+    token = os.getenv('META_PAGE_ACCESS_TOKEN', '').strip()
+    ig_id = os.getenv('INSTAGRAM_BUSINESS_ACCOUNT_ID', '').strip()
     if not token or not ig_id:
         raise RuntimeError('Missing META_PAGE_ACCESS_TOKEN or INSTAGRAM_BUSINESS_ACCOUNT_ID')
+
+    print(f'INSTAGRAM START: article={item["id"]}, account={ig_id}')
+
     if use_carousel:
         paths = carousel_paths or []
         if len(paths) < 2:
-            raise RuntimeError('Instagram carousel was required but fewer than 2 public carousel images were generated.')
-        prior_parent = (prior_result or {}).get('creation_id')
-        if prior_parent:
-            try:
-                _wait_instagram_container(prior_parent, token, attempts=36)
-                published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-                    'creation_id': prior_parent,
-                    'access_token': token,
-                })
-                published_id = published.get('id')
-                if published_id:
-                    return {'id': published_id, 'creation_id': prior_parent, 'mode': 'carousel', 'retried_existing_container': True}
-            except Exception:
-                pass
+            raise RuntimeError('Instagram carousel requires at least 2 images')
 
         child_ids = []
         for path in paths:
@@ -355,7 +347,9 @@ def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False,
         parent_id = parent.get('id')
         if not parent_id:
             raise RuntimeError(f'Instagram carousel parent returned no id: {parent}')
+
         _wait_instagram_container(parent_id, token, attempts=36)
+
         published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
             'creation_id': parent_id,
             'access_token': token,
@@ -363,24 +357,18 @@ def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False,
         published_id = published.get('id')
         if not published_id:
             raise RuntimeError(f'Instagram carousel publish returned no id: {published}')
-        return {'id': published_id, 'creation_id': parent_id, 'mode': 'carousel', 'children': child_ids}
+
+        print(f'INSTAGRAM PUBLISH OK: article={item["id"]}, post_id={published_id}')
+        return {
+            'id': published_id,
+            'creation_id': parent_id,
+            'mode': 'carousel',
+            'children': child_ids,
+            'status': 'posted',
+        }
 
     if not image_path:
         raise RuntimeError('No Instagram image was generated')
-    prior_result = prior_result or {}
-    prior_creation_id = prior_result.get('creation_id')
-    if prior_creation_id:
-        try:
-            _wait_instagram_container(prior_creation_id, token, attempts=36)
-            published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
-                'creation_id': prior_creation_id,
-                'access_token': token,
-            })
-            published_id = published.get('id')
-            if published_id:
-                return {'id': published_id, 'creation_id': prior_creation_id, 'mode': 'single', 'retried_existing_container': True}
-        except Exception:
-            pass
 
     public_url = f'{SITE_BASE_URL}/social-media/instagram/{item["id"]}.jpg'
     container = request_json('POST', f'{META_BASE}/{ig_id}/media', data={
@@ -391,7 +379,9 @@ def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False,
     creation_id = container.get('id')
     if not creation_id:
         raise RuntimeError(f'Instagram media container returned no id: {container}')
+
     _wait_instagram_container(creation_id, token, attempts=36)
+
     published = request_json('POST', f'{META_BASE}/{ig_id}/media_publish', data={
         'creation_id': creation_id,
         'access_token': token,
@@ -399,34 +389,15 @@ def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False,
     published_id = published.get('id')
     if not published_id:
         raise RuntimeError(f'Instagram publish returned no id: {published}')
-    return {'id': published_id, 'creation_id': creation_id, 'mode': 'single'}
 
-def x_upload_image(path: Path, token: str) -> str:
-    raw = path.read_bytes()
-    # X's v2 media upload supports the INIT/APPEND/FINALIZE flow; use it even for images
-    # so the same reliable uploader can later handle larger video media.
-    init = request_json('POST', 'https://api.x.com/2/media/upload', headers={'Authorization': f'Bearer {token}'}, files={
-        'command': (None, 'INIT'), 'media_type': (None, 'image/jpeg'), 'total_bytes': (None, str(len(raw))), 'media_category': (None, 'tweet_image')
-    })
-    mid = (init.get('data') or {}).get('id')
-    if not mid:
-        raise RuntimeError(f'X INIT returned no media id: {init}')
-    request_json('POST', 'https://api.x.com/2/media/upload', headers={'Authorization': f'Bearer {token}'}, files={
-        'command': (None, 'APPEND'), 'media_id': (None, mid), 'segment_index': (None, '0'), 'media': ('social.jpg', raw, 'image/jpeg')
-    })
-    fin = request_json('POST', 'https://api.x.com/2/media/upload', headers={'Authorization': f'Bearer {token}'}, files={
-        'command': (None, 'FINALIZE'), 'media_id': (None, mid)
-    })
-    info = (fin.get('data') or {}).get('processing_info')
-    if info:
-        for _ in range(30):
-            state = info.get('state')
-            if state == 'succeeded': break
-            if state == 'failed': raise RuntimeError(f'X media processing failed: {fin}')
-            time.sleep(int(info.get('check_after_secs', 2)))
-            status = request_json('GET', 'https://api.x.com/2/media/upload', params={'command':'STATUS','media_id':mid}, headers={'Authorization': f'Bearer {token}'})
-            info = (status.get('data') or {}).get('processing_info', {})
-    return mid
+    print(f'INSTAGRAM PUBLISH OK: article={item["id"]}, post_id={published_id}')
+    return {
+        'id': published_id,
+        'creation_id': creation_id,
+        'mode': 'single',
+        'status': 'posted',
+    }
+
 
 
 def x_publish(item, card_path, dry_run=False):
