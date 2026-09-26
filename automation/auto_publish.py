@@ -279,29 +279,6 @@ def facebook_publish(item, card_path, dry_run=False, prior_result=None):
         'comment_created': False,
     }
 
-
-
-def _wait_instagram_container(container_id: str, token: str, attempts: int = 30) -> dict:
-    """Wait until an Instagram child container is ready for publishing."""
-    last = {}
-    for attempt in range(attempts):
-        last = request_json(
-            'GET',
-            f'{META_BASE}/{container_id}',
-            params={
-                'fields': 'status_code,status',
-                'access_token': token,
-            },
-        )
-        status = str(last.get('status_code') or '').upper()
-        if status == 'FINISHED':
-            return last
-        if status in {'ERROR', 'EXPIRED'}:
-            raise RuntimeError(f'Instagram media container {container_id} failed: {last}')
-        # Instagram can take several seconds to ingest a public image.
-        time.sleep(min(10, 2 + attempt // 3))
-    raise RuntimeError(f'Instagram media container {container_id} did not reach FINISHED: {last}')
-
 def instagram_publish(item, image_path=None, carousel_paths=None, dry_run=False, prior_result=None):
     use_carousel = instagram_needs_carousel(item)
 
