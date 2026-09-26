@@ -129,17 +129,18 @@
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-26T06:42:40.016425+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AqKXyCovpeZhf_zGjWXdWsR'}}"
+          "updated_at": "2026-09-26T07:35:44.390404+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AmSYrI6REC4xCnBuVCRpR05'}}"
         },
         "instagram": {
-          "status": "failed",
-          "updated_at": "2026-09-26T06:47:18.888076+00:00",
+          "status": "posted",
+          "updated_at": "2026-09-26T07:35:57.126034+00:00",
           "error": "Platform publish did not complete successfully",
           "result": {
-            "id": "18116989267770775",
-            "creation_id": "18108525215125017",
-            "mode": "single"
+            "id": "18096053264387269",
+            "creation_id": "18108583505125017",
+            "mode": "single",
+            "status": "posted"
           }
         },
         "x": {
@@ -160,8 +161,8 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-26T06:42:38.338107+00:00",
-      "last_attempt_at": "2026-09-26T06:42:37.946707+00:00",
+      "updated_at": "2026-09-26T07:35:43.474818+00:00",
+      "last_attempt_at": "2026-09-26T07:35:43.063353+00:00",
       "social_card": "social-media/32.jpg",
       "instagram_image": "social-media/instagram/32.jpg"
     },
@@ -238,6 +239,6 @@
       "instagram_image": "social-media/instagram/33.jpg"
     }
   },
-  "updated_at": "2026-09-26T06:47:18.888107+00:00",
+  "updated_at": "2026-09-26T07:35:57.126068+00:00",
   "automation_version": "2026-09-26-premium-fb-ig-v2"
 }
