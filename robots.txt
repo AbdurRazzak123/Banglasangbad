@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /tools/
-Disallow: /assets/*.html
 
 Sitemap: https://abdurrazzak123.github.io/Banglasangbad/sitemap.xml
 Sitemap: https://abdurrazzak123.github.io/Banglasangbad/news-sitemap.xml
