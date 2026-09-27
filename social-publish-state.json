@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-09-27T08:10:18.485273+00:00"
+      "updated_at": "2026-09-27T09:00:46.799620+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -294,7 +294,51 @@
       "last_attempt_at": "2026-09-27T04:44:34.381953+00:00",
       "social_card": "social-media/35.jpg",
       "updated_at": "2026-09-27T04:44:34.553968+00:00"
+    },
+    "36": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-09-27T09:01:22.361959+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122102341581487710",
+            "image_url": "https://abdurrazzak123.github.io/Banglasangbad/social-media/36.jpg"
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-09-27T09:01:30.414889+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17999268251814103",
+            "creation_id": "18110343776125017",
+            "image_url": "https://abdurrazzak123.github.io/Banglasangbad/social-media/36.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-09-27T09:00:48.447788+00:00",
+      "social_card": "social-media/36.jpg",
+      "updated_at": "2026-09-27T09:00:48.665966+00:00"
     }
   },
-  "updated_at": "2026-09-27T08:10:18.485346+00:00"
+  "updated_at": "2026-09-27T09:01:30.414918+00:00"
 }
