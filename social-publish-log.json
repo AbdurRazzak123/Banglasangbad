@@ -1,13 +1,18 @@
 {
-  "generated_at": "2026-09-27T04:30:59.062734+00:00",
+  "generated_at": "2026-09-27T04:44:38.690468+00:00",
   "articles": {
     "33": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
-          "status": "failed",
-          "updated_at": "2026-09-27T04:30:45.310822+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'ArHxthr9HSbpp3ipH8uaxU3'}}"
+          "status": "posted",
+          "updated_at": "2026-09-27T04:44:30.444735+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'ArHxthr9HSbpp3ipH8uaxU3'}}",
+          "result": {
+            "id": "1240194305854019_122102150139487710",
+            "comment_error": "POST https://graph.facebook.com/v26.0/1240194305854019_122102150139487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AZ60qqbkZnBufAGjEknNJkq'}}",
+            "status": "posted_comment_failed"
+          }
         },
         "instagram": {
           "status": "posted",
@@ -36,17 +41,22 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-27T04:30:44.642825+00:00",
+      "last_attempt_at": "2026-09-27T04:44:25.231160+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-27T04:30:44.801514+00:00"
+      "updated_at": "2026-09-27T04:44:25.388353+00:00"
     },
     "34": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
-          "status": "failed",
-          "updated_at": "2026-09-27T04:30:52.837835+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AlczXrgb0P4WkxNuJ0FckHT'}}"
+          "status": "posted",
+          "updated_at": "2026-09-27T04:44:34.381925+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AlczXrgb0P4WkxNuJ0FckHT'}}",
+          "result": {
+            "id": "1240194305854019_122102150217487710",
+            "comment_error": "POST https://graph.facebook.com/v26.0/1240194305854019_122102150217487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AAbL1qSjMI0nqpoNf__1hh6'}}",
+            "status": "posted_comment_failed"
+          }
         },
         "instagram": {
           "status": "posted",
@@ -75,17 +85,22 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-27T04:30:52.402326+00:00",
+      "last_attempt_at": "2026-09-27T04:44:30.444768+00:00",
       "social_card": "social-media/34.jpg",
-      "updated_at": "2026-09-27T04:30:52.566948+00:00"
+      "updated_at": "2026-09-27T04:44:30.608292+00:00"
     },
     "35": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
-          "status": "failed",
-          "updated_at": "2026-09-27T04:30:59.062022+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AglQSHkOmxBDVhVGFyv7hbg'}}"
+          "status": "posted",
+          "updated_at": "2026-09-27T04:44:38.690417+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AglQSHkOmxBDVhVGFyv7hbg'}}",
+          "result": {
+            "id": "1240194305854019_122102150307487710",
+            "comment_error": "POST https://graph.facebook.com/v26.0/1240194305854019_122102150307487710/comments -> HTTP 403: {'error': {'message': '(#200) You do not have sufficient permissions to perform this action', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'An5RS0A0Kd92YjxL70U8c7E'}}",
+            "status": "posted_comment_failed"
+          }
         },
         "instagram": {
           "status": "posted",
@@ -114,9 +129,9 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-27T04:30:58.678934+00:00",
+      "last_attempt_at": "2026-09-27T04:44:34.381953+00:00",
       "social_card": "social-media/35.jpg",
-      "updated_at": "2026-09-27T04:30:58.854426+00:00"
+      "updated_at": "2026-09-27T04:44:34.553968+00:00"
     }
   }
 }
