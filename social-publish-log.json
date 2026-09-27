@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T09:01:30.414922+00:00",
+  "generated_at": "2026-09-27T11:48:35.115247+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -181,10 +181,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 5,
-    "candidate_count": 1,
-    "processed": [
-      "36"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -341,20 +339,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "36",
+        "headline": "জাতিসংঘের ৮১তম অধিবেশন শেষে দেশে ফিরেছেন প্রধানমন্ত্রী তারেক রহমান",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
