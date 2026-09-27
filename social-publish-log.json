@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T07:36:54.076907+00:00",
+  "generated_at": "2026-09-27T08:10:18.485348+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -133,5 +133,170 @@
       "social_card": "social-media/35.jpg",
       "updated_at": "2026-09-27T04:44:34.553968+00:00"
     }
+  },
+  "last_run": {
+    "dry_run": false,
+    "limit": 1,
+    "candidate_count": 0,
+    "processed": [],
+    "skipped": [
+      {
+        "id": "2",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "3",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "4",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "6",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "7",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "8",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "9",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "10",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "11",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "12",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "13",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "14",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "15",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "16",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "17",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "18",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "19",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "20",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "21",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "22",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "23",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "24",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "25",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "26",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "27",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "28",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "29",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "30",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "31",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "32",
+        "headline": "রাশিয়া-ইউক্রেন যুদ্ধ: জ্বালানি অবকাঠামোতে হামলা না করার বিষয়ে আংশিক সম্মতি",
+        "reason": "publish is not YES",
+        "sheet": {
+          "publish": false,
+          "facebook": false,
+          "instagram": false,
+          "x": false,
+          "threads": false,
+          "youtube": false
+        }
+      },
+      {
+        "id": "33",
+        "headline": "বিমানের বহরে যুক্ত হচ্ছে আরও ১১টি বোয়িং উড়োজাহাজ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "34",
+        "headline": "শিরোনাম: ফ্যাসিবাদের সঙ্গে যোগাযোগ বা তথ্য পাচার করলে পুলিশ সদস্যদের বিরুদ্ধে রাষ্ট্রদ্রোহ মামলা: স্বরাষ্ট্রমন্ত্রী",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "35",
+        "headline": "বেসামরিক পারমাণবিক শক্তিতে বাংলাদেশ-যুক্তরাষ্ট্র নতুন অধ্যায়: স্বাক্ষর হলো ঐতিহাসিক সমঝোতা স্মারক",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      }
+    ],
+    "meta_preflight": null
   }
 }
