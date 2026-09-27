@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-09-27T04:05:06.896012+00:00",
+  "generated_at": "2026-09-27T04:06:12.899824+00:00",
   "articles": {
     "33": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-27T04:05:05.918725+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:05:05 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AT-K2DZPvjiwQZV6yS0sxt6'}}"
+          "updated_at": "2026-09-27T04:06:11.852805+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:06:11 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AaZvyvEoitAqyYIrZb_GUmY'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-27T04:05:05.971753+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:05:05 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AR-t0gSVd7_zYeSic9v0s5i'}}"
+          "updated_at": "2026-09-27T04:06:12.005989+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:06:11 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AWSKcy4vuq25ndu3BJ5xcrv'}}"
         },
         "x": {
           "status": "not_selected"
@@ -32,22 +32,22 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-27T04:05:05.324276+00:00",
+      "last_attempt_at": "2026-09-27T04:06:11.003904+00:00",
       "social_card": "social-media/33.jpg",
-      "updated_at": "2026-09-27T04:05:05.483527+00:00"
+      "updated_at": "2026-09-27T04:06:11.169096+00:00"
     },
     "34": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-27T04:05:06.375949+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:05:06 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AqPFT1sMddFP_8c4d6YVl3S'}}"
+          "updated_at": "2026-09-27T04:06:12.357745+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:06:12 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'APRJJZovd_iWSmlgK6UCtCW'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-27T04:05:06.430476+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:05:06 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AuRGEAQC5xRpePFFlCBCw9y'}}"
+          "updated_at": "2026-09-27T04:06:12.467401+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:06:12 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AXnmnGPjyFaabi5pCgdNlxn'}}"
         },
         "x": {
           "status": "not_selected"
@@ -67,22 +67,22 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-27T04:05:05.972187+00:00",
+      "last_attempt_at": "2026-09-27T04:06:12.006361+00:00",
       "social_card": "social-media/34.jpg",
-      "updated_at": "2026-09-27T04:05:06.150114+00:00"
+      "updated_at": "2026-09-27T04:06:12.176989+00:00"
     },
     "35": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-09-27T04:05:06.841753+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:05:06 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'ABlSd-QduNFSUxbLLte0khg'}}"
+          "updated_at": "2026-09-27T04:06:12.806440+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:06:12 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'ADUbOZe_YG4cv7J54pIsPAZ'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-09-27T04:05:06.895583+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:05:06 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AFsaI1PWHAgFM5aG48LnU5s'}}"
+          "updated_at": "2026-09-27T04:06:12.899412+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 26-Sep-26 08:00:00 PDT. The current time is Saturday, 26-Sep-26 21:06:12 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AkJ6INA5DjvpN7tBg9fxNOw'}}"
         },
         "x": {
           "status": "not_selected"
@@ -102,9 +102,9 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-09-27T04:05:06.430968+00:00",
+      "last_attempt_at": "2026-09-27T04:06:12.467868+00:00",
       "social_card": "social-media/35.jpg",
-      "updated_at": "2026-09-27T04:05:06.605950+00:00"
+      "updated_at": "2026-09-27T04:06:12.642286+00:00"
     }
   }
 }
