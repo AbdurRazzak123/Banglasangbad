@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-29T10:56:41.503785+00:00",
+  "generated_at": "2026-09-29T13:27:11.860375+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -269,10 +269,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 5,
-    "candidate_count": 1,
-    "processed": [
-      "38"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -447,20 +445,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "38",
+        "headline": "অস্ট্রেলিয়াকে শুরুতেই চমকে দিল ব্রাজিল, ২ মিনিটে ভান্দেরসনের গোল",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
