@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-29T08:30:31.998335+00:00",
+  "generated_at": "2026-09-29T10:44:56.805486+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -225,10 +225,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 5,
-    "candidate_count": 1,
-    "processed": [
-      "37"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -394,20 +392,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "37",
+        "headline": "আগারগাঁওয়ে ফের ফুটপাত উচ্ছেদ অভিযান, ‘ভাইরাল মিজানের’ হোটেলেও অভিযান",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
