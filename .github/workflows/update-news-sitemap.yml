@@ -1,25 +1,33 @@
 name: Sync Google Sheet to GitHub
 
 on:
-  workflow_dispatch:
+  # Backup: GitHub checks every 5 minutes.
+  # GitHub documents that scheduled runs can be delayed during high load,
+  # so the event-driven repository_dispatch below is the preferred path.
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: '*/5 * * * *'
+
+  # Preferred path: Google Apps Script sends event_type=news_updated
+  # after the Google Sheet data is successfully updated.
   repository_dispatch:
     types: [news_updated]
+
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: sync-sheet-to-github
+  group: sync-google-sheet
   cancel-in-progress: false
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -27,208 +35,36 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-
-      - name: Preflight Google Sheet
-        env:
-          NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
-          NEWS_SHEET_NAME: Bangla News
-        run: python tools/news_preflight.py
+          python -m pip install requests
 
       - name: Generate static news
         env:
-          NEWS_SHEET_ID: 1gX73WskIs3D-8IcyPJ24NT0xn1KIEJSjMXOF9nCQqTg
-          NEWS_SHEET_NAME: Bangla News
-          SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad/
-        run: python tools/generate_static_news.py
-
-      - name: Convert news-data.json to website format
+          SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
+          python generate_static_news.py
 
-          path = Path("news-data.json")
-          data = json.loads(path.read_text(encoding="utf-8"))
-
-          # The generator keeps the reliable source records in data["news"].
-          # Rebuild table.rows in the Google Visualization format expected by
-          # the existing website JavaScript.
-          source_news = data.get("news", [])
-          converted = []
-
-          if source_news:
-              for item in source_news:
-                  if not isinstance(item, dict):
-                      continue
-
-                  news_id = str(item.get("id", "")).strip()
-                  headline = str(item.get("headline", "")).strip()
-                  if not news_id or not headline:
-                      continue
-
-                  image_urls = item.get("image_urls", []) or []
-                  if not isinstance(image_urls, list):
-                      image_urls = []
-
-                  image1 = str(image_urls[0]).strip() if len(image_urls) > 0 else ""
-                  image2 = str(image_urls[1]).strip() if len(image_urls) > 1 else ""
-                  image3 = str(image_urls[2]).strip() if len(image_urls) > 2 else ""
-
-                  values = [
-                      news_id,
-                      str(item.get("category", "")),
-                      headline,
-                      str(item.get("details", "")),
-                      image1,
-                      str(item.get("date", "")),
-                      image2,
-                      image3,
-                      str(item.get("video", "")),
-                      str(item.get("keyword", "")),
-                  ]
-
-                  converted.append({"c": [{"v": v} for v in values]})
-          else:
-              # Backward-compatible fallback if a future generator only writes
-              # table.rows as ordinary dictionaries.
-              rows = data.get("table", {}).get("rows", [])
-              for row in rows:
-                  if not isinstance(row, dict):
-                      continue
-
-                  if "c" in row:
-                      cells = row.get("c", [])
-                      def cell_value(index):
-                          if index >= len(cells) or not cells[index]:
-                              return ""
-                          return str(cells[index].get("v", "")).strip()
-
-                      if cell_value(0) and cell_value(2):
-                          converted.append(row)
-                      continue
-
-                  values = [
-                      row.get("ID", ""),
-                      row.get("Category", ""),
-                      row.get("Headline", ""),
-                      row.get("Details", ""),
-                      row.get("Image-1", ""),
-                      row.get("Date", ""),
-                      row.get("Image-2", ""),
-                      row.get("Image-3", ""),
-                      row.get("Video", ""),
-                      row.get("Keyword", ""),
-                  ]
-
-                  if str(values[0]).strip() and str(values[2]).strip():
-                      converted.append({"c": [{"v": str(v)} for v in values]})
-
-          if not converted:
-              raise SystemExit(
-                  "ERROR: No valid news rows were produced. "
-                  "Each row must contain both ID and Headline."
-              )
-
-          data.setdefault("table", {})
-          data["table"]["rows"] = converted
-
-          # Keep column metadata compatible with the current frontend.
-          data["table"]["columns"] = [
-              "ID", "Category", "Headline", "Details", "Image-1",
-              "Date", "Image-2", "Image-3", "Video", "Keyword"
-          ]
-
-          path.write_text(
-              json.dumps(data, ensure_ascii=False, indent=2),
-              encoding="utf-8"
-          )
-
-          print(f"SUCCESS: converted {len(converted)} valid news rows.")
-          print("First IDs:", ", ".join(
-              str(r["c"][0].get("v", "")) for r in converted[:10]
-          ))
-          PY
-
-      - name: Validate generated data and pages
+      - name: Check generated files
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
+          git status --short
 
-          data = json.loads(Path("news-data.json").read_text(encoding="utf-8"))
-          rows = data.get("table", {}).get("rows", [])
-
-          def value(cell):
-              if not isinstance(cell, dict):
-                  return ""
-              return str(cell.get("v", "")).strip()
-
-          valid = []
-          for row in rows:
-              cells = row.get("c", []) if isinstance(row, dict) else []
-              news_id = value(cells[0]) if len(cells) > 0 else ""
-              headline = value(cells[2]) if len(cells) > 2 else ""
-              if news_id and headline:
-                  valid.append(news_id)
-
-          if not valid:
-              print("ERROR: news-data.json contains no valid ID + Headline rows.")
-              print("First row:", rows[0] if rows else "NO ROWS")
-              raise SystemExit(1)
-
-          pages = {p.stem for p in Path("news").glob("*.html")}
-          missing = [x for x in valid if x not in pages]
-          if missing:
-              raise SystemExit(
-                  "ERROR: missing detail pages: " + ", ".join(missing[:20])
-              )
-
-          for required in ("sitemap.xml", "news-sitemap.xml", "ads-data.json"):
-              target = Path(required)
-              if not target.is_file() or target.stat().st_size == 0:
-                  raise SystemExit(f"ERROR: missing/empty {required}")
-
-          print(f"SUCCESS: {len(valid)} valid news rows and {len(pages)} detail pages.")
-          print("First IDs:", ", ".join(valid[:10]))
-          PY
-
-      - name: Commit generated output
+      - name: Commit website/news updates
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          git add \
-            news \
-            assets/news \
-            news-data.json \
-            ads-data.json \
-            sitemap.xml \
-            news-sitemap.xml \
-            index.html \
-            home.html \
-            national.html \
-            politics.html \
-            international.html \
-            economy.html \
-            sports.html \
-            entertainment.html \
-            technology.html \
-            more.html \
-            about.html \
-            contact.html \
-            privacy.html \
-            disclaimer.html \
-            advertise.html
+          git add news-data.json
+          git add news
+          git add index.html
+          git add sitemap.xml
 
           if git diff --cached --quiet; then
-            echo "No generated changes."
+            echo 'No website/news changes to commit.'
           else
-            git commit -m "Sync Google Sheet news"
+            git commit -m 'Sync Google Sheet news to website'
             git push
           fi
