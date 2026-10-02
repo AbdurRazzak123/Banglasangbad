@@ -46,7 +46,15 @@ jobs:
         env:
           SITE_BASE_URL: https://abdurrazzak123.github.io/Banglasangbad
         run: |
-          python generate_static_news.py
+          SCRIPT_PATH="$(find . -type f -name 'generate_static_news.py' -print -quit)"
+          if [ -z "$SCRIPT_PATH" ]; then
+            echo "ERROR: generate_static_news.py was not found anywhere in the repository."
+            echo "Possible generator files:"
+            find . -type f -name '*generate*static*news*.py' -print || true
+            exit 1
+          fi
+          echo "Using generator: $SCRIPT_PATH"
+          python "$SCRIPT_PATH"
 
       - name: Check generated files
         run: |
