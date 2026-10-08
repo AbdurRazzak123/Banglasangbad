@@ -21,7 +21,7 @@ on:
       limit:
         description: 'Maximum new/failed articles to process in this run'
         required: false
-        default: '5'
+        default: '20'
         type: string
 
 
@@ -169,7 +169,7 @@ jobs:
           LIMIT='${{ inputs.limit }}'
 
           if [ -z "$LIMIT" ]; then
-            LIMIT='5'
+            LIMIT='20'
           fi
 
           echo "=============================================="
