@@ -128,6 +128,11 @@ jobs:
         env:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://abdurrazzak123.github.io/Banglasangbad' }}
 
+          # Social images are published through raw.githubusercontent.com after the
+          # card commit, so Meta does not have to wait for GitHub Pages deployment.
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.event.repository.default_branch || github.ref_name }}
+
           META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION || 'v26.0' }}
 
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
