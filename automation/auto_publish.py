@@ -35,12 +35,14 @@ GITHUB_REPOSITORY = os.getenv("GITHUB_REPOSITORY", "abdurrazzak123/Banglasangbad
 GITHUB_REF_NAME = os.getenv("GITHUB_REF_NAME", "main")
 
 
-def social_card_url(news_id: str) -> str:
-    """Return the raw GitHub image URL so Meta does not have to wait for GitHub Pages."""
-    return (
-        f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/"
-        f"{GITHUB_REF_NAME}/social-media/{news_id}.jpg"
+def social_card_url(news_id: str, platform: str = "facebook") -> str:
+    """Return the raw GitHub image URL used by Meta."""
+    rel = (
+        f"social-media/{news_id}.jpg"
+        if platform.lower() == "facebook"
+        else f"social-media/instagram/{news_id}.jpg"
     )
+    return f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/{GITHUB_REF_NAME}/{rel}"
 
 
 def utc_now() -> str:
@@ -163,15 +165,29 @@ def download_remote_image(item: dict, dest: Path) -> Path | None:
     return None
 
 
-def caption(item: dict, include_url: bool = True) -> str:
+def caption(item: dict, include_url: bool = True, full_details: bool = False) -> str:
     headline = clean_text(item.get("headline"))
     category = clean_text(item.get("category"))
+    details = str(item.get("details") or "").strip()
     tag = re.sub(r"[^\w\u0980-\u09ff]+", "", category)
+
+    # Instagram captions are limited to 2,200 characters. Keep the headline and
+    # a meaningful portion of the article while always preserving the news link.
+    if full_details and details:
+        link = f"বিস্তারিত: {news_url(str(item.get('id')))}"
+        hashtags = f"#{tag} #বাংলা_সংবাদ"
+        fixed = len(f"📰 {headline}\n\n{link}\n\n{hashtags}")
+        available = max(500, 2200 - fixed - 12)
+        if len(details) > available:
+            details = details[:available].rsplit(" ", 1)[0].rstrip("।,;: ") + "…"
+
     parts = [f"📰 {headline}"]
+    if full_details and details:
+        parts.append(details)
     if include_url:
         parts.append(f"বিস্তারিত: {news_url(str(item.get('id')))}")
     parts.append(f"#{tag} #বাংলা_সংবাদ")
-    return "\n\n".join(parts)
+    return "\n\n".join(p for p in parts if p)
 
 
 def article_link_comment(item: dict) -> str:
@@ -273,7 +289,7 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
     if not page_id:
         raise RuntimeError("Missing META_PAGE_ID")
 
-    image_url = social_card_url(str(item["id"]))
+    image_url = social_card_url(str(item["id"]), "facebook")
 
     result = request_json(
         "POST",
@@ -313,7 +329,8 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
 
 
 def instagram_publish(item: dict, dry_run: bool = False):
-    text = caption(item, include_url=False)
+    # Instagram carries the full article in the caption; no automatic comment is created.
+    text = caption(item, include_url=True, full_details=True)
     if dry_run:
         return {"status": "dry_run", "caption": text}
 
@@ -325,7 +342,7 @@ def instagram_publish(item: dict, dry_run: bool = False):
     if not ig_id:
         raise RuntimeError("Missing INSTAGRAM_BUSINESS_ACCOUNT_ID")
 
-    image_url = f"{SITE_BASE_URL}/social-media/{item['id']}.jpg"
+    image_url = social_card_url(str(item["id"]), "instagram")
 
     container = request_json(
         "POST",
@@ -343,6 +360,33 @@ def instagram_publish(item: dict, dry_run: bool = False):
             f"Instagram container creation returned no id: {container}"
         )
 
+    # Meta may need time to fetch/process the public image before publishing.
+    # Poll the container instead of publishing immediately.
+    last_status = {}
+    for attempt in range(15):
+        try:
+            last_status = request_json(
+                "GET",
+                f"{META_BASE}/{creation_id}",
+                params={
+                    "fields": "id,status_code,status",
+                    "access_token": token,
+                },
+            )
+        except Exception as exc:
+            last_status = {"status": "poll_error", "error": str(exc)}
+
+        status_code = str(last_status.get("status_code") or "").upper()
+        status = str(last_status.get("status") or "").upper()
+        if status_code == "FINISHED" or status == "FINISHED":
+            break
+        if status_code in {"ERROR", "EXPIRED"} or status in {"ERROR", "EXPIRED"}:
+            raise RuntimeError(f"Instagram media container failed: {last_status}")
+        if attempt < 14:
+            time.sleep(2)
+    else:
+        raise RuntimeError(f"Instagram media container was not ready: {last_status}")
+
     published = request_json(
         "POST",
         f"{META_BASE}/{ig_id}/media_publish",
@@ -358,26 +402,11 @@ def instagram_publish(item: dict, dry_run: bool = False):
             f"Instagram publish returned no id: {published}"
         )
 
-    comment = {"status": "not_attempted"}
-    try:
-        comment_result = request_json(
-            "POST",
-            f"{META_BASE}/{post_id}/comments",
-            data={
-                "message": article_link_comment(item),
-                "access_token": token,
-            },
-        )
-        comment = {"status": "posted", "id": comment_result.get("id")}
-    except Exception as exc:
-        comment = {"status": "failed", "error": str(exc)}
-
     return {
         "status": "posted",
         "id": post_id,
         "creation_id": creation_id,
         "image_url": image_url,
-        "link_comment": comment,
     }
 
 
@@ -490,7 +519,7 @@ def threads_publish(item: dict, dry_run: bool = False):
     if not token:
         raise RuntimeError("Missing THREADS_ACCESS_TOKEN")
 
-    image_url = f"{SITE_BASE_URL}/social-media/{item['id']}.jpg"
+    image_url = social_card_url(str(item["id"]))
 
     container = request_json(
         "POST",
@@ -744,7 +773,7 @@ def publish_social_card_to_pages(
         )
 
 
-def wait_public(url: str, attempts: int = 12) -> bool:
+def wait_public(url: str, attempts: int = 15) -> bool:
     for i in range(attempts):
         try:
             r = requests.get(
@@ -757,7 +786,7 @@ def wait_public(url: str, attempts: int = 12) -> bool:
                 return True
         except Exception:
             pass
-        time.sleep(min(10, 2 + i))
+        time.sleep(2)
     return False
 
 
@@ -788,7 +817,7 @@ def requested_platforms(item: dict) -> list[str]:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--limit", type=int, default=5)
+    ap.add_argument("--limit", type=int, default=20)
     args = ap.parse_args()
 
     state = load_json(
@@ -932,17 +961,22 @@ def main():
                     f"No usable news image for article {nid}"
                 )
 
-            card = CARD_DIR / f"{nid}.jpg"
+            headline_text = clean_text(item["headline"])
+            date_text = bangla_date(item.get("date", ""))
+            fb_card = CARD_DIR / f"{nid}.jpg"
+            ig_card = CARD_DIR / "instagram" / f"{nid}.jpg"
+
             create_card(
-                image_path,
-                clean_text(item["headline"]),
-                bangla_date(item.get("date", "")),
-                ROOT / "logo.png",
-                card,
-                category=clean_text(item.get("category", "")),
+                image_path, headline_text, date_text, ROOT / "logo.png", fb_card,
+                category=clean_text(item.get("category", "")), platform="facebook",
+            )
+            create_card(
+                image_path, headline_text, date_text, ROOT / "logo.png", ig_card,
+                category=clean_text(item.get("category", "")), platform="instagram",
             )
 
             entry["social_card"] = f"social-media/{nid}.jpg"
+            entry["instagram_social_card"] = f"social-media/instagram/{nid}.jpg"
             entry["updated_at"] = utc_now()
 
             requested = requested_platforms(item)
@@ -956,25 +990,30 @@ def main():
                 generate_video(item, image_path, video_path)
 
             if not args.dry_run:
-                publish_social_card_to_pages(card, nid)
+                publish_social_card_to_pages(fb_card, nid)
+                publish_social_card_to_pages(ig_card, nid)
 
-                public_card_url = social_card_url(nid)
+                public_card_url = social_card_url(nid, "facebook")
+                public_ig_card_url = social_card_url(nid, "instagram")
 
-                if not wait_public(public_card_url, attempts=18):
+                if not wait_public(public_card_url, attempts=15):
                     raise RuntimeError(
-                        f"Social card is not publicly reachable yet: "
-                        f"{public_card_url}"
+                        f"Facebook social card is not publicly reachable yet: {public_card_url}"
+                    )
+                if not wait_public(public_ig_card_url, attempts=15):
+                    raise RuntimeError(
+                        f"Instagram social card is not publicly reachable yet: {public_ig_card_url}"
                     )
 
             funcs = {
                 "facebook": lambda: facebook_publish(
-                    item, card, args.dry_run
+                    item, fb_card, args.dry_run
                 ),
                 "instagram": lambda: instagram_publish(
                     item, args.dry_run
                 ),
                 "x": lambda: x_publish(
-                    item, card, args.dry_run
+                    item, fb_card, args.dry_run
                 ),
                 "threads": lambda: threads_publish(
                     item, args.dry_run
