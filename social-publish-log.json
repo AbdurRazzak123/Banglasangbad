@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T13:46:24.524825+00:00",
+  "generated_at": "2026-10-08T14:16:02.468822+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -495,15 +495,63 @@
       "social_card": "social-media/43.jpg",
       "instagram_social_card": "social-media/instagram/43.jpg",
       "updated_at": "2026-10-08T13:45:58.696110+00:00"
+    },
+    "44": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-08T14:15:55.295975+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122110685847487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/44.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122110685847487710_1385872376864042"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-08T14:16:02.468795+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18140574553721211",
+            "creation_id": "18114303980125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/44.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-08T14:15:38.191275+00:00",
+      "social_card": "social-media/44.jpg",
+      "instagram_social_card": "social-media/instagram/44.jpg",
+      "updated_at": "2026-10-08T14:15:38.662168+00:00"
     }
   },
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 2,
+    "candidate_count": 1,
     "processed": [
-      "42",
-      "43"
+      "44"
     ],
     "skipped": [
       {
@@ -710,6 +758,24 @@
       {
         "id": "41",
         "headline": "বরিশাল কারাগারে ফাঁসির দণ্ডপ্রাপ্ত কয়েদির মৃত্যু",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "42",
+        "headline": "বিমান বাংলাদেশ এয়ারলাইন্স ১০টি Airbus উড়োজাহাজের অর্ডার নিশ্চিত করেছে",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "43",
+        "headline": "প্রতিশোধের রাজনীতি গণতন্ত্রের বিকাশ বাধাগ্রস্ত করে: রাষ্ট্রপতি",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
