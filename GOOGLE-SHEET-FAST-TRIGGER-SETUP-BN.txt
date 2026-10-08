@@ -1,0 +1,51 @@
+# বাংলা সংবাদ — Fast Google Sheet → GitHub Trigger
+
+বর্তমান ZIP-এ GitHub Sync-এর ৫ মিনিটের safety-net আছে। আরও দ্রুত করার জন্য এই Apps Script ব্যবহার করলে Google Sheet-এ নতুন/পরিবর্তন হলেই GitHub-এর `news_updated` repository_dispatch পাঠানো হবে। GitHub-এর repository_dispatch workflow event external system থেকে workflow চালাতে পারে।
+
+## ১) GitHub token তৈরি
+
+GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens থেকে শুধু `abdurrazzak123/Banglasangbad` repository-এর জন্য একটি token তৈরি করুন।
+
+এই token-এর দরকার:
+- Repository access: শুধু `Banglasangbad`
+- Repository permissions → Contents: **Read and write**
+
+GitHub-এর বর্তমান REST API documentation অনুযায়ী repository dispatch-এর জন্য fine-grained token-এ Contents: write দরকার।
+
+## ২) Google Sheet Apps Script
+
+Google Sheet → Extensions → Apps Script → নতুন script file-এ `GOOGLE-SHEET-FAST-TRIGGER.gs`-এর code paste করুন।
+
+তারপর Project Settings → Script Properties-এ:
+
+Name:
+`GITHUB_TOKEN`
+
+Value:
+আপনার GitHub fine-grained token
+
+Token-টি এই repository-তে বা public Sheet cell-এ রাখবেন না।
+
+## ৩) Trigger install
+
+Apps Script editor থেকে function হিসেবে:
+`installBanglaSangbadTriggers`
+
+select করে **Run** করুন এবং Google authorization দিন। একবার করলেই হবে।
+
+এতে:
+- Sheet edit → GitHub dispatch
+- Form submit → GitHub dispatch
+
+দুটিই চালু হবে। ১৫ সেকেন্ডের debounce আছে যাতে একসাথে অনেক cell edit করলে GitHub-এ অতিরিক্ত run না হয়।
+
+## ৪) Safety-net
+
+Apps Script trigger কাজ না করলেও GitHub workflow-এর ৫ মিনিটের schedule থাকবে। তাই pipeline বন্ধ হয়ে যাবে না।
+
+## ৫) ফলাফল
+
+নতুন নিউজের জন্য লক্ষ্য হবে:
+Google Sheet → GitHub Sync → Website → Social Auto Publish
+
+সাধারণ অবস্থায় এটি ৫ মিনিটের অনেক আগেই শুরু হবে। তবে GitHub Actions বা GitHub Pages-এর platform-side queue/deployment delay হলে exact ৫ মিনিটের hard guarantee করা যায় না।
