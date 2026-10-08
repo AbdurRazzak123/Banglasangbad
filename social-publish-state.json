@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-08T12:29:28.804012+00:00"
+      "updated_at": "2026-10-08T13:45:45.771750+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -560,7 +560,7 @@
       "updated_at": "2026-10-08T10:53:11.815489+00:00"
     },
     "42": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
           "status": "posted",
@@ -576,9 +576,15 @@
           }
         },
         "instagram": {
-          "status": "failed",
-          "updated_at": "2026-10-08T12:29:42.393912+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Only photo or video can be accepted as media type.', 'type': 'OAuthException', 'code': 9004, 'error_subcode': 2207052, 'is_transient': False, 'error_user_title': \"Media download has failed. The media URI doesn't meet our requirements.\", 'error_user_msg': 'The media could not be fetched from this URI: https://abdurrazzak123.github.io/Banglasangbad/social-media/42.jpg.Please check the limitations section in our development document for more information: https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media#creating', 'fbtrace_id': 'AkJHBuUd7VKu5rWVTOU13al'}}"
+          "status": "posted",
+          "updated_at": "2026-10-08T13:45:58.236366+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Only photo or video can be accepted as media type.', 'type': 'OAuthException', 'code': 9004, 'error_subcode': 2207052, 'is_transient': False, 'error_user_title': \"Media download has failed. The media URI doesn't meet our requirements.\", 'error_user_msg': 'The media could not be fetched from this URI: https://abdurrazzak123.github.io/Banglasangbad/social-media/42.jpg.Please check the limitations section in our development document for more information: https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media#creating', 'fbtrace_id': 'AkJHBuUd7VKu5rWVTOU13al'}}",
+          "result": {
+            "status": "posted",
+            "id": "18445636522193066",
+            "creation_id": "18114297029125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/42.jpg"
+          }
         },
         "x": {
           "status": "not_selected"
@@ -598,10 +604,60 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-08T12:29:29.713264+00:00",
+      "last_attempt_at": "2026-10-08T13:45:46.865589+00:00",
       "social_card": "social-media/42.jpg",
-      "updated_at": "2026-10-08T12:29:29.874508+00:00"
+      "updated_at": "2026-10-08T13:45:47.250665+00:00",
+      "instagram_social_card": "social-media/instagram/42.jpg"
+    },
+    "43": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-08T13:46:17.650616+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122110676799487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/43.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122110676799487710_4506935259618982"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-08T13:46:24.524796+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18026621621698325",
+            "creation_id": "18114297170125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/43.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-08T13:45:58.236400+00:00",
+      "social_card": "social-media/43.jpg",
+      "instagram_social_card": "social-media/instagram/43.jpg",
+      "updated_at": "2026-10-08T13:45:58.696110+00:00"
     }
   },
-  "updated_at": "2026-10-08T12:29:42.394600+00:00"
+  "updated_at": "2026-10-08T13:46:24.524821+00:00"
 }
