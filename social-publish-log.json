@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T14:16:02.468822+00:00",
+  "generated_at": "2026-10-08T14:28:45.142953+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -544,6 +544,55 @@
       "social_card": "social-media/44.jpg",
       "instagram_social_card": "social-media/instagram/44.jpg",
       "updated_at": "2026-10-08T14:15:38.662168+00:00"
+    },
+    "45": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-08T14:28:30.716827+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122110689741487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/45.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122110689741487710_27545265605149389"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-08T14:28:45.142923+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18154669246522665",
+            "creation_id": "18114307202125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/45.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-08T14:28:08.228927+00:00",
+      "social_card": "social-media/45.jpg",
+      "instagram_social_card": "social-media/instagram/45.jpg",
+      "updated_at": "2026-10-08T14:28:08.571498+00:00"
     }
   },
   "last_run": {
@@ -551,7 +600,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "44"
+      "45"
     ],
     "skipped": [
       {
@@ -776,6 +825,15 @@
       {
         "id": "43",
         "headline": "প্রতিশোধের রাজনীতি গণতন্ত্রের বিকাশ বাধাগ্রস্ত করে: রাষ্ট্রপতি",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "44",
+        "headline": "নানা পাটেকরের মৃত্যুতে অমিত শাহের শোক, ‘অপূরণীয় ক্ষতি’ বললেন",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
