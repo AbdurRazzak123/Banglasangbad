@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T14:28:45.142953+00:00",
+  "generated_at": "2026-10-08T16:46:04.944973+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -598,10 +598,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "45"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -839,20 +837,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "45",
+        "headline": "ককরোচ জনতা পার্টির বিক্ষোভে ধ্রুব রাঠি-প্রকাশ রাজ, বেঙ্গালুরুতে SIR বাতিলের দাবি",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
