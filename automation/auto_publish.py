@@ -31,6 +31,17 @@ SITE_BASE_URL = os.getenv(
 
 PLATFORMS = ("facebook", "instagram", "x", "threads", "youtube")
 
+GITHUB_REPOSITORY = os.getenv("GITHUB_REPOSITORY", "abdurrazzak123/Banglasangbad")
+GITHUB_REF_NAME = os.getenv("GITHUB_REF_NAME", "main")
+
+
+def social_card_url(news_id: str) -> str:
+    """Return the raw GitHub image URL so Meta does not have to wait for GitHub Pages."""
+    return (
+        f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/"
+        f"{GITHUB_REF_NAME}/social-media/{news_id}.jpg"
+    )
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -152,15 +163,19 @@ def download_remote_image(item: dict, dest: Path) -> Path | None:
     return None
 
 
-def caption(item: dict) -> str:
+def caption(item: dict, include_url: bool = True) -> str:
     headline = clean_text(item.get("headline"))
     category = clean_text(item.get("category"))
     tag = re.sub(r"[^\w\u0980-\u09ff]+", "", category)
-    return (
-        f"📰 {headline}\n\n"
-        f"বিস্তারিত: {news_url(str(item.get('id')))}\n\n"
-        f"#{tag} #বাংলা_সংবাদ"
-    )
+    parts = [f"📰 {headline}"]
+    if include_url:
+        parts.append(f"বিস্তারিত: {news_url(str(item.get('id')))}")
+    parts.append(f"#{tag} #বাংলা_সংবাদ")
+    return "\n\n".join(parts)
+
+
+def article_link_comment(item: dict) -> str:
+    return f"বিস্তারিত খবর: {news_url(str(item.get('id')))}"
 
 
 def meta_preflight() -> dict:
@@ -246,7 +261,7 @@ def meta_preflight() -> dict:
 
 
 def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
-    message = caption(item)
+    message = caption(item, include_url=False)
     if dry_run:
         return {"status": "dry_run", "message": message}
 
@@ -258,7 +273,7 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
     if not page_id:
         raise RuntimeError("Missing META_PAGE_ID")
 
-    image_url = f"{SITE_BASE_URL}/social-media/{item['id']}.jpg"
+    image_url = social_card_url(str(item["id"]))
 
     result = request_json(
         "POST",
@@ -274,15 +289,31 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
     if not post_id:
         raise RuntimeError(f"Facebook returned no post id: {result}")
 
+    comment = {"status": "not_attempted"}
+    try:
+        comment_result = request_json(
+            "POST",
+            f"{META_BASE}/{post_id}/comments",
+            data={
+                "message": article_link_comment(item),
+                "access_token": token,
+            },
+        )
+        comment = {"status": "posted", "id": comment_result.get("id")}
+    except Exception as exc:
+        # The post itself is successful even if comment permission is missing.
+        comment = {"status": "failed", "error": str(exc)}
+
     return {
         "status": "posted",
         "id": post_id,
         "image_url": image_url,
+        "link_comment": comment,
     }
 
 
 def instagram_publish(item: dict, dry_run: bool = False):
-    text = caption(item)
+    text = caption(item, include_url=False)
     if dry_run:
         return {"status": "dry_run", "caption": text}
 
@@ -327,11 +358,26 @@ def instagram_publish(item: dict, dry_run: bool = False):
             f"Instagram publish returned no id: {published}"
         )
 
+    comment = {"status": "not_attempted"}
+    try:
+        comment_result = request_json(
+            "POST",
+            f"{META_BASE}/{post_id}/comments",
+            data={
+                "message": article_link_comment(item),
+                "access_token": token,
+            },
+        )
+        comment = {"status": "posted", "id": comment_result.get("id")}
+    except Exception as exc:
+        comment = {"status": "failed", "error": str(exc)}
+
     return {
         "status": "posted",
         "id": post_id,
         "creation_id": creation_id,
         "image_url": image_url,
+        "link_comment": comment,
     }
 
 
@@ -893,6 +939,7 @@ def main():
                 bangla_date(item.get("date", "")),
                 ROOT / "logo.png",
                 card,
+                category=clean_text(item.get("category", "")),
             )
 
             entry["social_card"] = f"social-media/{nid}.jpg"
@@ -911,11 +958,9 @@ def main():
             if not args.dry_run:
                 publish_social_card_to_pages(card, nid)
 
-                public_card_url = (
-                    f"{SITE_BASE_URL}/social-media/{nid}.jpg"
-                )
+                public_card_url = social_card_url(nid)
 
-                if not wait_public(public_card_url, attempts=24):
+                if not wait_public(public_card_url, attempts=18):
                     raise RuntimeError(
                         f"Social card is not publicly reachable yet: "
                         f"{public_card_url}"

@@ -57,109 +57,86 @@ def _paste_cover(base: Image.Image, image: Image.Image, box: tuple[int, int, int
     base.paste(fitted, (x1, y1))
 
 
-def _add_logo(canvas: Image.Image, logo_path: Optional[Path], max_size=(250, 90), margin=34):
-    """Place the brand mark in a premium top-right badge.
+def _add_logo(canvas: Image.Image, logo_path: Optional[Path], max_size=(310, 105), margin=28):
+    """Place the transparent brand logo directly on the photo.
 
-    The logo is deliberately kept away from the headline/footer area so the
-    social card has one consistent brand position on Facebook and Instagram.
+    No white/black badge is added: the uploaded transparent logo is composited
+    as-is so it remains clean on Facebook and Instagram images.
     """
     if not logo_path or not logo_path.exists():
         return
+
     logo = Image.open(logo_path).convert('RGBA')
     logo.thumbnail(max_size, Image.Resampling.LANCZOS)
-    pad_x, pad_y = 18, 12
-    x = canvas.width - logo.width - margin
+    x = margin
     y = margin
 
-    # Soft shadow + translucent white badge for readability over any photo.
-    shadow = Image.new('RGBA', (logo.width + pad_x * 2 + 10, logo.height + pad_y * 2 + 10), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shadow)
-    sd.rounded_rectangle(
-        (6, 7, shadow.width - 2, shadow.height - 2),
-        radius=22,
-        fill=(0, 0, 0, 75),
-    )
-    canvas.alpha_composite(shadow, (x - pad_x + 3, y - pad_y + 5))
-
-    badge = Image.new('RGBA', (logo.width + pad_x * 2, logo.height + pad_y * 2), (0, 0, 0, 0))
-    bd = ImageDraw.Draw(badge)
-    bd.rounded_rectangle(
-        (0, 0, badge.width - 1, badge.height - 1),
-        radius=20,
-        fill=(255, 255, 255, 232),
-        outline=(255, 255, 255, 255),
-        width=2,
-    )
-    badge.alpha_composite(logo, (pad_x, pad_y))
-    canvas.alpha_composite(badge, (x - pad_x, y - pad_y))
+    # A very soft shadow around the transparent mark keeps it readable without
+    # creating a visible background box.
+    shadow = Image.new('RGBA', logo.size, (0, 0, 0, 0))
+    shadow.alpha_composite(logo, (0, 3))
+    shadow_alpha = shadow.getchannel('A').point(lambda a: int(a * 0.35))
+    shadow.putalpha(shadow_alpha)
+    canvas.alpha_composite(shadow, (x + 3, y + 4))
+    canvas.alpha_composite(logo, (x, y))
 
 
 def create_card(image_path: Path, headline: str, date_text: str, logo_path: Optional[Path], output: Path,
-                width: int = 1200, height: int = 1500, category: str = '') -> Path:
-    """Create the main Facebook/website social card in a premium news style."""
+                width: int = 1200, height: int = 630, category: str = '') -> Path:
+    """Create a 1200x630 social-safe news card for Facebook/Instagram."""
     image = Image.open(image_path).convert('RGB')
-    canvas = Image.new('RGBA', (width, height), '#f4f4f4')
-    photo_h = int(height * 0.64)
-    _paste_cover(canvas, image, (0, 0, width, photo_h))
-    _add_logo(canvas, logo_path, (260, 95), 34)
+    canvas = Image.new('RGBA', (width, height), '#111111')
+    _paste_cover(canvas, image, (0, 0, width, height))
+    _add_logo(canvas, logo_path, (310, 105), 28)
 
-    # A subtle bottom fade makes the transition into the editorial panel feel
-    # deliberate while keeping the photo dominant.
-    fade_h = 170
-    overlay = Image.new('RGBA', (width, fade_h), (0, 0, 0, 0))
+    # Dark bottom gradient keeps Bengali headline text readable while leaving
+    # the original photo visible.
+    gradient_h = 300
+    overlay = Image.new('RGBA', (width, gradient_h), (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
-    for yy in range(fade_h):
-        alpha = int(150 * (yy / max(1, fade_h - 1)))
+    for yy in range(gradient_h):
+        t = yy / max(1, gradient_h - 1)
+        alpha = int(205 * (t ** 1.4))
         od.line((0, yy, width, yy), fill=(0, 0, 0, alpha))
-    canvas.alpha_composite(overlay, (0, photo_h - fade_h))
-
-    panel_y = photo_h
-    panel = Image.new('RGBA', (width, height - panel_y), (0, 0, 0, 0))
-    pd = ImageDraw.Draw(panel)
-    for y in range(panel.height):
-        t = y / max(1, panel.height - 1)
-        r = int(120 - 25 * t)
-        g = int(10 + 8 * t)
-        b = int(18 + 8 * t)
-        pd.line((0, y, width, y), fill=(r, g, b, 255))
-    canvas.alpha_composite(panel, (0, panel_y))
+    canvas.alpha_composite(overlay, (0, height - gradient_h))
 
     d = ImageDraw.Draw(canvas)
-    d.rectangle((0, panel_y, width, panel_y + 7), fill=(255, 255, 255, 255))
-
-    # Category-style kicker gives the card a polished newsroom hierarchy.
-    # The social card itself contains NO website URL; the Facebook post carries
-    # the article URL separately, while Instagram uses the caption for the
-    # complete article text.
-    kicker_font = _font(25, True)
-    category_map = {'national': 'জাতীয়', 'politics': 'রাজনীতি', 'international': 'আন্তর্জাতিক', 'economy': 'অর্থনীতি', 'sports': 'খেলাধুলা', 'entertainment': 'বিনোদন', 'technology': 'প্রযুক্তি'}
+    category_map = {
+        'national': 'জাতীয়', 'politics': 'রাজনীতি',
+        'international': 'আন্তর্জাতিক', 'economy': 'অর্থনীতি',
+        'sports': 'খেলাধুলা', 'entertainment': 'বিনোদন',
+        'technology': 'প্রযুক্তি'
+    }
     raw_category = str(category or '').strip()
     kicker = category_map.get(raw_category.lower(), raw_category) or 'সর্বশেষ খবর'
-    kb = d.textbbox((0, 0), kicker, font=kicker_font)
-    d.text(((width - (kb[2] - kb[0])) // 2, panel_y + 34), kicker, font=kicker_font, fill='#f7d66a')
 
-    headline_font, lines = _fit_text(d, headline, width - 130, 4, 66, 30)
-    line_h = headline_font.size + 13
-    y = panel_y + 92
+    kicker_font = _font(24, True)
+    kb = d.textbbox((0, 0), kicker, font=kicker_font)
+    kicker_y = height - 246
+    d.text(((width - (kb[2] - kb[0])) // 2, kicker_y), kicker,
+           font=kicker_font, fill='#f7d66a')
+
+    headline_font, lines = _fit_text(d, headline, width - 110, 3, 54, 30)
+    line_h = headline_font.size + 9
+    total_h = len(lines) * line_h
+    y = height - 178 - total_h // 2
     for line in lines:
         bbox = d.textbbox((0, 0), line, font=headline_font)
         tw = bbox[2] - bbox[0]
         x = (width - tw) // 2
-        # Very small shadow improves Bengali text separation without looking like an outline.
-        d.text((x + 2, y + 3), line, font=headline_font, fill=(45, 0, 0, 180))
+        d.text((x + 2, y + 2), line, font=headline_font, fill=(0, 0, 0, 180))
         d.text((x, y), line, font=headline_font, fill='white')
         y += line_h
 
-    # No link/URL text is printed on the image.
-
-    footer_y = height - 112
-    d.line((50, footer_y, width - 50, footer_y), fill=(255, 255, 255, 180), width=2)
-    date_font = _font(25, True)
-    d.text((55, footer_y + 28), date_text, font=date_font, fill='white')
-    source_font = _font(23, True)
+    footer_y = height - 46
+    d.line((42, footer_y - 10, width - 42, footer_y - 10), fill=(255, 255, 255, 150), width=1)
+    date_font = _font(21, True)
+    d.text((45, footer_y), date_text, font=date_font, fill='white')
+    source_font = _font(21, True)
     source = 'বাংলা সংবাদ'
     sbx = d.textbbox((0, 0), source, font=source_font)
-    d.text((width - (sbx[2] - sbx[0]) - 55, footer_y + 29), source, font=source_font, fill='#f7d66a')
+    d.text((width - (sbx[2] - sbx[0]) - 45, footer_y), source,
+           font=source_font, fill='#f7d66a')
 
     output.parent.mkdir(parents=True, exist_ok=True)
     canvas.convert('RGB').save(output, quality=94, optimize=True, progressive=True)
