@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T10:53:51.549307+00:00",
+  "generated_at": "2026-10-08T12:17:26.991098+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -401,10 +401,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 5,
-    "candidate_count": 1,
-    "processed": [
-      "41"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -606,20 +604,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "41",
+        "headline": "বরিশাল কারাগারে ফাঁসির দণ্ডপ্রাপ্ত কয়েদির মৃত্যু",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
