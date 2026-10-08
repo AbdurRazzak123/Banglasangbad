@@ -962,6 +962,31 @@
       "images": [
         "assets/news/41-1.png"
       ]
+    },
+    {
+      "id": "42",
+      "category": "জাতীয়",
+      "headline": "বিমান বাংলাদেশ এয়ারলাইন্স ১০টি Airbus উড়োজাহাজের অর্ডার নিশ্চিত করেছে",
+      "details": "বিমান বাংলাদেশ এয়ারলাইন্স ১০টি Airbus উড়োজাহাজ কেনার অর্ডার নিশ্চিত করেছে। চুক্তিতে চারটি A350-900 এবং ছয়টি A321neo উড়োজাহাজ রয়েছে",
+      "date": "2026-10-08",
+      "video": "",
+      "keyword": "",
+      "publish": "YES",
+      "facebook": "YES",
+      "instagram": "YES",
+      "x": "NO",
+      "threads": "NO",
+      "youtube": "NO",
+      "social_status": "Pending",
+      "posted_time": "",
+      "image_urls": [
+        "https://drive.google.com/file/d/16yE5FFvMPK1X56GbRnPr5VfisD87-HZw/view?usp=sharing",
+        "",
+        ""
+      ],
+      "images": [
+        "assets/news/42-1.jpg"
+      ]
     }
   ],
   "table": {
@@ -2303,8 +2328,42 @@
             "v": ""
           }
         ]
+      },
+      {
+        "c": [
+          {
+            "v": "42"
+          },
+          {
+            "v": "জাতীয়"
+          },
+          {
+            "v": "বিমান বাংলাদেশ এয়ারলাইন্স ১০টি Airbus উড়োজাহাজের অর্ডার নিশ্চিত করেছে"
+          },
+          {
+            "v": "বিমান বাংলাদেশ এয়ারলাইন্স ১০টি Airbus উড়োজাহাজ কেনার অর্ডার নিশ্চিত করেছে। চুক্তিতে চারটি A350-900 এবং ছয়টি A321neo উড়োজাহাজ রয়েছে"
+          },
+          {
+            "v": "https://drive.google.com/file/d/16yE5FFvMPK1X56GbRnPr5VfisD87-HZw/view?usp=sharing"
+          },
+          {
+            "v": "2026-10-08"
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          }
+        ]
       }
     ]
   },
-  "updated_at": "2026-10-08T12:18:34.961058Z"
+  "updated_at": "2026-10-08T12:28:46.012886Z"
 }
