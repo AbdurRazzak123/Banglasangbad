@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T15:22:37.014716+00:00",
+  "generated_at": "2026-10-09T19:39:31.905014+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -745,10 +745,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "48"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -1013,20 +1011,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "48",
+        "headline": "ভারতীয় পাইলট স্মিতকে বীরত্বের সম্মান দেবে ইজরায়েল",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
