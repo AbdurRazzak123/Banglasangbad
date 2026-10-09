@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T02:55:31.373734+00:00",
+  "generated_at": "2026-10-09T07:29:40.671204+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -647,10 +647,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "46"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -897,20 +895,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "46",
+        "headline": "গণতন্ত্র রক্ষায় সরকার বদলের ডাক প্রিয়াঙ্কার, ‘ভোট চুরি’ নিয়ে কমিশনের সঙ্গে বৈঠক চান ৩০০ সাংসদ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
