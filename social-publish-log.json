@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T14:33:56.710579+00:00",
+  "generated_at": "2026-10-09T14:53:54.650796+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -642,13 +642,64 @@
       "social_card": "social-media/46.jpg",
       "instagram_social_card": "social-media/instagram/46.jpg",
       "updated_at": "2026-10-09T02:55:03.010315+00:00"
+    },
+    "47": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-09T14:53:37.121400+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111180061487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/47.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111180061487710_1443934811037641"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-09T14:53:54.650769+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17949808071316904",
+            "creation_id": "18114516914125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/47.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-09T14:53:11.793484+00:00",
+      "social_card": "social-media/47.jpg",
+      "instagram_social_card": "social-media/instagram/47.jpg",
+      "updated_at": "2026-10-09T14:53:12.271061+00:00"
     }
   },
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 0,
-    "processed": [],
+    "candidate_count": 1,
+    "processed": [
+      "47"
+    ],
     "skipped": [
       {
         "id": "2",
@@ -906,6 +957,18 @@
         ]
       }
     ],
-    "meta_preflight": null
+    "meta_preflight": {
+      "status": "ok",
+      "facebook": {
+        "status": "ok",
+        "id": "1240194305854019",
+        "name": "বাংলা সংবাদ"
+      },
+      "instagram": {
+        "status": "ok",
+        "id": "17841433750507793",
+        "username": "banglasangbad2026"
+      }
+    }
   }
 }
