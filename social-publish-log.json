@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T14:53:54.650796+00:00",
+  "generated_at": "2026-10-09T15:22:37.014716+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -691,6 +691,55 @@
       "social_card": "social-media/47.jpg",
       "instagram_social_card": "social-media/instagram/47.jpg",
       "updated_at": "2026-10-09T14:53:12.271061+00:00"
+    },
+    "48": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-09T15:22:28.365476+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111188149487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/48.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111188149487710_4685188375060602"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-09T15:22:37.014690+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18116102222083644",
+            "creation_id": "18114522779125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/48.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-09T15:22:13.651818+00:00",
+      "social_card": "social-media/48.jpg",
+      "instagram_social_card": "social-media/instagram/48.jpg",
+      "updated_at": "2026-10-09T15:22:14.106769+00:00"
     }
   },
   "last_run": {
@@ -698,7 +747,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "47"
+      "48"
     ],
     "skipped": [
       {
@@ -950,6 +999,15 @@
       {
         "id": "46",
         "headline": "গণতন্ত্র রক্ষায় সরকার বদলের ডাক প্রিয়াঙ্কার, ‘ভোট চুরি’ নিয়ে কমিশনের সঙ্গে বৈঠক চান ৩০০ সাংসদ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "47",
+        "headline": "দিল্লির বিক্ষোভের আগে ১০ হাজার মানুষ আটক, দাবি CJP-র",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",

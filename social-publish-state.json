@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-09T14:53:08.025090+00:00"
+      "updated_at": "2026-10-09T15:22:12.956004+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -853,7 +853,56 @@
       "social_card": "social-media/47.jpg",
       "instagram_social_card": "social-media/instagram/47.jpg",
       "updated_at": "2026-10-09T14:53:12.271061+00:00"
+    },
+    "48": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-09T15:22:28.365476+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111188149487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/48.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111188149487710_4685188375060602"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-09T15:22:37.014690+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18116102222083644",
+            "creation_id": "18114522779125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/48.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-09T15:22:13.651818+00:00",
+      "social_card": "social-media/48.jpg",
+      "instagram_social_card": "social-media/instagram/48.jpg",
+      "updated_at": "2026-10-09T15:22:14.106769+00:00"
     }
   },
-  "updated_at": "2026-10-09T14:53:54.650793+00:00"
+  "updated_at": "2026-10-09T15:22:37.014713+00:00"
 }
