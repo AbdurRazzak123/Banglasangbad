@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-10T12:50:59.121200+00:00",
+  "generated_at": "2026-10-10T14:49:30.557069+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -794,10 +794,8 @@
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "49"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -1071,20 +1069,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "49",
+        "headline": "সংযুক্ত আরব আমিরাতে আফগানিস্তান ও জিম্বাবুয়েকে নিয়ে অনুষ্ঠেয় ত্রিদেশীয় ওয়ানডে সিরিজের জন্য ১৬ সদস্যের চূড়ান্ত স্কোয়াড ঘোষণা করেছে বাংলাদেশ ক্রিকেট বোর্ড (বিসিবি)।",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
