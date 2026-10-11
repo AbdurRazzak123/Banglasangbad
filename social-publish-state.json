@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-11T06:56:12.872348+00:00"
+      "updated_at": "2026-10-11T07:50:25.086270+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -951,7 +951,48 @@
       "social_card": "social-media/49.jpg",
       "instagram_social_card": "social-media/instagram/49.jpg",
       "updated_at": "2026-10-10T12:50:36.259322+00:00"
+    },
+    "50": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-10-11T07:50:28.887542+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AVzr1-gqMFitWuDvIBNfakd'}}"
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-11T07:50:39.620241+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18118081762770760",
+            "creation_id": "18114913046125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/50.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-11T07:50:25.725720+00:00",
+      "social_card": "social-media/50.jpg",
+      "instagram_social_card": "social-media/instagram/50.jpg",
+      "updated_at": "2026-10-11T07:50:26.117712+00:00"
     }
   },
-  "updated_at": "2026-10-11T06:56:12.872585+00:00"
+  "updated_at": "2026-10-11T07:50:39.620267+00:00"
 }
