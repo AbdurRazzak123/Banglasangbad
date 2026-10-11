@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-11T08:58:48.350347+00:00"
+      "updated_at": "2026-10-11T09:56:37.698056+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -1052,12 +1052,21 @@
       "updated_at": "2026-10-11T08:31:47.747422+00:00"
     },
     "52": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
-          "status": "failed",
-          "updated_at": "2026-10-11T08:58:52.970831+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'Anubao8JIgqrIopgafeSw34'}}"
+          "status": "posted",
+          "updated_at": "2026-10-11T09:56:49.607844+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'Anubao8JIgqrIopgafeSw34'}}",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111930061487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/52.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111930061487710_2112660049639547"
+            }
+          }
         },
         "instagram": {
           "status": "posted",
@@ -1087,19 +1096,28 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-11T08:58:49.048958+00:00",
+      "last_attempt_at": "2026-10-11T09:56:38.764392+00:00",
       "error": "No usable news image for article 52",
-      "updated_at": "2026-10-11T08:58:49.527367+00:00",
+      "updated_at": "2026-10-11T09:56:39.236167+00:00",
       "social_card": "social-media/52.jpg",
       "instagram_social_card": "social-media/instagram/52.jpg"
     },
     "53": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
-          "status": "failed",
-          "updated_at": "2026-10-11T08:59:08.106517+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'Akz2rGWv5zWQc1rHfIjnufD'}}"
+          "status": "posted",
+          "updated_at": "2026-10-11T09:56:59.013339+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'Akz2rGWv5zWQc1rHfIjnufD'}}",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111930187487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/53.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111930187487710_1562037435606443"
+            }
+          }
         },
         "instagram": {
           "status": "posted",
@@ -1129,11 +1147,60 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-11T08:59:04.151430+00:00",
+      "last_attempt_at": "2026-10-11T09:56:49.607878+00:00",
       "social_card": "social-media/53.jpg",
       "instagram_social_card": "social-media/instagram/53.jpg",
-      "updated_at": "2026-10-11T08:59:04.624462+00:00"
+      "updated_at": "2026-10-11T09:56:50.073962+00:00"
+    },
+    "54": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-11T09:57:12.958341+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111930517487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/54.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111930517487710_1010202135445799"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-11T09:57:22.303675+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18028483586693210",
+            "creation_id": "18114932798125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/54.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-11T09:56:59.013395+00:00",
+      "social_card": "social-media/54.jpg",
+      "instagram_social_card": "social-media/instagram/54.jpg",
+      "updated_at": "2026-10-11T09:56:59.689655+00:00"
     }
   },
-  "updated_at": "2026-10-11T08:59:20.315251+00:00"
+  "updated_at": "2026-10-11T09:57:22.303700+00:00"
 }
