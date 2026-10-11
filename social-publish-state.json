@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-11T07:50:25.086270+00:00"
+      "updated_at": "2026-10-11T08:31:24.558960+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -953,12 +953,21 @@
       "updated_at": "2026-10-10T12:50:36.259322+00:00"
     },
     "50": {
-      "status": "partial_failure",
+      "status": "posted_all",
       "platforms": {
         "facebook": {
-          "status": "failed",
-          "updated_at": "2026-10-11T07:50:28.887542+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AVzr1-gqMFitWuDvIBNfakd'}}"
+          "status": "posted",
+          "updated_at": "2026-10-11T08:31:47.544795+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'AVzr1-gqMFitWuDvIBNfakd'}}",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111906811487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/50.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111906811487710_26758034777227516"
+            }
+          }
         },
         "instagram": {
           "status": "posted",
@@ -988,11 +997,60 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-11T07:50:25.725720+00:00",
+      "last_attempt_at": "2026-10-11T08:31:25.749394+00:00",
       "social_card": "social-media/50.jpg",
       "instagram_social_card": "social-media/instagram/50.jpg",
-      "updated_at": "2026-10-11T07:50:26.117712+00:00"
+      "updated_at": "2026-10-11T08:31:25.971255+00:00"
+    },
+    "51": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-11T08:31:57.850104+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122111907063487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/51.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122111907063487710_1333869403147019"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-11T08:32:06.303953+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18633760660043674",
+            "creation_id": "18114921107125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/51.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-11T08:31:47.544824+00:00",
+      "social_card": "social-media/51.jpg",
+      "instagram_social_card": "social-media/instagram/51.jpg",
+      "updated_at": "2026-10-11T08:31:47.747422+00:00"
     }
   },
-  "updated_at": "2026-10-11T07:50:39.620267+00:00"
+  "updated_at": "2026-10-11T08:32:06.303969+00:00"
 }
