@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-11T08:32:06.303972+00:00",
+  "generated_at": "2026-10-11T08:49:41.109091+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -888,15 +888,29 @@
       "social_card": "social-media/51.jpg",
       "instagram_social_card": "social-media/instagram/51.jpg",
       "updated_at": "2026-10-11T08:31:47.747422+00:00"
+    },
+    "52": {
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-11T08:49:41.108922+00:00",
+      "error": "No usable news image for article 52",
+      "updated_at": "2026-10-11T08:49:41.109086+00:00"
     }
   },
   "last_run": {
     "dry_run": false,
     "limit": 20,
-    "candidate_count": 2,
+    "candidate_count": 1,
     "processed": [
-      "50",
-      "51"
+      "52"
     ],
     "skipped": [
       {
@@ -1175,6 +1189,24 @@
       {
         "id": "49",
         "headline": "সংযুক্ত আরব আমিরাতে আফগানিস্তান ও জিম্বাবুয়েকে নিয়ে অনুষ্ঠেয় ত্রিদেশীয় ওয়ানডে সিরিজের জন্য ১৬ সদস্যের চূড়ান্ত স্কোয়াড ঘোষণা করেছে বাংলাদেশ ক্রিকেট বোর্ড (বিসিবি)।",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "50",
+        "headline": "টেস্ট ক্রিকেটে ইতিহাস গড়লেন হাসান মাহমুদ, বাংলাদেশের প্রথম পেসার হিসেবে হ্যাটট্রিক",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "51",
+        "headline": "হাসানের হ্যাটট্রিকে ইতিহাস, আফগানিস্তান অলআউট ২৪০ রানে",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
