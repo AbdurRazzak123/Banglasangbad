@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-11T08:49:40.642958+00:00"
+      "updated_at": "2026-10-11T08:58:48.350347+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -1052,8 +1052,33 @@
       "updated_at": "2026-10-11T08:31:47.747422+00:00"
     },
     "52": {
-      "status": "failed_preflight",
-      "platforms": {},
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-10-11T08:58:52.970831+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'Anubao8JIgqrIopgafeSw34'}}"
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-11T08:59:04.151399+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17972663646169532",
+            "creation_id": "18114925145125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/52.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
       "sheet_controls": {
         "publish": true,
         "facebook": true,
@@ -1062,10 +1087,53 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-11T08:49:41.108922+00:00",
+      "last_attempt_at": "2026-10-11T08:58:49.048958+00:00",
       "error": "No usable news image for article 52",
-      "updated_at": "2026-10-11T08:49:41.109086+00:00"
+      "updated_at": "2026-10-11T08:58:49.527367+00:00",
+      "social_card": "social-media/52.jpg",
+      "instagram_social_card": "social-media/instagram/52.jpg"
+    },
+    "53": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-10-11T08:59:08.106517+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'Akz2rGWv5zWQc1rHfIjnufD'}}"
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-11T08:59:20.315225+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18118922764958784",
+            "creation_id": "18114925211125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/53.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-11T08:59:04.151430+00:00",
+      "social_card": "social-media/53.jpg",
+      "instagram_social_card": "social-media/instagram/53.jpg",
+      "updated_at": "2026-10-11T08:59:04.624462+00:00"
     }
   },
-  "updated_at": "2026-10-11T08:49:41.109090+00:00"
+  "updated_at": "2026-10-11T08:59:20.315251+00:00"
 }
