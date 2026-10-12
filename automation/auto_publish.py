@@ -277,7 +277,9 @@ def meta_preflight() -> dict:
 
 
 def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
-    message = caption(item, include_url=False)
+    # Keep the article link in the main caption so readers can open the news
+    # even if Facebook rejects the optional follow-up comment.
+    message = caption(item, include_url=True)
     if dry_run:
         return {"status": "dry_run", "message": message}
 
@@ -301,15 +303,19 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
         },
     )
 
-    post_id = result.get("post_id") or result.get("id")
-    if not post_id:
-        raise RuntimeError(f"Facebook returned no post id: {result}")
+    # The /photos edge can return a photo ID and, depending on the response,
+    # a separate feed post ID. Do not label the photo ID as a verified post ID.
+    photo_id = result.get("id")
+    post_id = result.get("post_id")
+    if not photo_id and not post_id:
+        raise RuntimeError(f"Facebook returned no photo/post id: {result}")
 
+    comment_target = post_id or photo_id
     comment = {"status": "not_attempted"}
     try:
         comment_result = request_json(
             "POST",
-            f"{META_BASE}/{post_id}/comments",
+            f"{META_BASE}/{comment_target}/comments",
             data={
                 "message": article_link_comment(item),
                 "access_token": token,
@@ -317,12 +323,16 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
         )
         comment = {"status": "posted", "id": comment_result.get("id")}
     except Exception as exc:
-        # The post itself is successful even if comment permission is missing.
+        # A comment failure is recorded separately; it does not undo a photo
+        # that Meta has already accepted. The article URL remains in the caption.
         comment = {"status": "failed", "error": str(exc)}
 
     return {
         "status": "posted",
-        "id": post_id,
+        # Preserve `id` for compatibility with existing log readers.
+        "id": post_id or photo_id,
+        "post_id": post_id,
+        "photo_id": photo_id,
         "image_url": image_url,
         "link_comment": comment,
     }
@@ -1050,6 +1060,9 @@ def main():
                         "updated_at": utc_now(),
                         "result": result,
                     })
+                    # A fresh successful attempt supersedes stale error text
+                    # left by older versions of the publisher.
+                    pentry.pop("error", None)
                 except Exception as exc:
                     pentry.update({
                         "status": "failed",
