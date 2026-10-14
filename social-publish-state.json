@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-14T10:28:32.614029+00:00"
+      "updated_at": "2026-10-14T11:57:43.961041+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -1219,8 +1219,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:28:45.798625+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AVyeuTkPisSwqE4W55QXR7N'}}"
+          "updated_at": "2026-10-14T11:57:54.985782+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AYUE-rAKwcMHQBP-_nUVaTr'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1240,10 +1240,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:28:33.269138+00:00",
+      "last_attempt_at": "2026-10-14T11:57:44.547650+00:00",
       "social_card": "social-media/55.jpg",
       "instagram_social_card": "social-media/instagram/55.jpg",
-      "updated_at": "2026-10-14T10:28:33.632332+00:00"
+      "updated_at": "2026-10-14T11:57:45.028347+00:00"
     },
     "56": {
       "status": "partial_failure",
@@ -1263,8 +1263,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:28:54.596504+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AqYUnCEoXorUrWxLmzrvslj'}}"
+          "updated_at": "2026-10-14T11:58:04.069297+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'APyexGyrtuj_4KWhYTDYIP7'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1284,10 +1284,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:28:45.799425+00:00",
+      "last_attempt_at": "2026-10-14T11:57:54.986509+00:00",
       "social_card": "social-media/56.jpg",
       "instagram_social_card": "social-media/instagram/56.jpg",
-      "updated_at": "2026-10-14T10:28:46.037794+00:00"
+      "updated_at": "2026-10-14T11:57:55.321406+00:00"
     },
     "57": {
       "status": "partial_failure",
@@ -1308,8 +1308,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:05.709744+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AFrnyhRlusQQr77DriZKsb0'}}"
+          "updated_at": "2026-10-14T11:58:15.079129+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'ASsHYaxWWVg-sUYPQXiCeyq'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1329,10 +1329,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:28:54.597275+00:00",
+      "last_attempt_at": "2026-10-14T11:58:04.070183+00:00",
       "social_card": "social-media/57.jpg",
       "instagram_social_card": "social-media/instagram/57.jpg",
-      "updated_at": "2026-10-14T10:28:54.931802+00:00"
+      "updated_at": "2026-10-14T11:58:04.519394+00:00"
     },
     "58": {
       "status": "partial_failure",
@@ -1352,8 +1352,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:14.386619+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AQIizqgn85TxpHMCDW4GOSY'}}"
+          "updated_at": "2026-10-14T11:58:26.878127+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'An9fhQWEmMZJivKgqTNfEUr'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1373,10 +1373,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:05.710645+00:00",
+      "last_attempt_at": "2026-10-14T11:58:15.079882+00:00",
       "social_card": "social-media/58.jpg",
       "instagram_social_card": "social-media/instagram/58.jpg",
-      "updated_at": "2026-10-14T10:29:06.052616+00:00"
+      "updated_at": "2026-10-14T11:58:15.536809+00:00"
     },
     "59": {
       "status": "partial_failure",
@@ -1398,8 +1398,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:25.405241+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AnffkHyp2857x2L7RPQbIbS'}}"
+          "updated_at": "2026-10-14T11:58:38.409395+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AtSNMg73PJkyscMHDOo3rMD'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1419,10 +1419,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:14.387372+00:00",
+      "last_attempt_at": "2026-10-14T11:58:26.878874+00:00",
       "social_card": "social-media/59.jpg",
       "instagram_social_card": "social-media/instagram/59.jpg",
-      "updated_at": "2026-10-14T10:29:14.722187+00:00"
+      "updated_at": "2026-10-14T11:58:27.334377+00:00"
     },
     "60": {
       "status": "partial_failure",
@@ -1432,8 +1432,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:34.909238+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AVco8DMD_hPfmo7K4DtYgZ7'}}"
+          "updated_at": "2026-10-14T11:58:48.228386+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'ACsv1RFbUosfBH0--yXdTP8'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1453,10 +1453,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:25.406023+00:00",
+      "last_attempt_at": "2026-10-14T11:58:38.410176+00:00",
       "social_card": "social-media/60.jpg",
       "instagram_social_card": "social-media/instagram/60.jpg",
-      "updated_at": "2026-10-14T10:29:25.739019+00:00"
+      "updated_at": "2026-10-14T11:58:38.864614+00:00"
     },
     "61": {
       "status": "partial_failure",
@@ -1478,8 +1478,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:42.916730+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AVblPUBnVpaTg_lm5FdLzSm'}}"
+          "updated_at": "2026-10-14T11:58:57.863351+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'A3PXLQpq21hVPmXdc14T-1n'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1499,10 +1499,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:34.910163+00:00",
+      "last_attempt_at": "2026-10-14T11:58:48.229143+00:00",
       "social_card": "social-media/61.jpg",
       "instagram_social_card": "social-media/instagram/61.jpg",
-      "updated_at": "2026-10-14T10:29:35.245689+00:00"
+      "updated_at": "2026-10-14T11:58:48.686003+00:00"
     },
     "62": {
       "status": "partial_failure",
@@ -1524,8 +1524,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:51.784997+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'A7dWBe_SiOrmOH1HcqKvdcC'}}"
+          "updated_at": "2026-10-14T11:59:08.859591+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'A9vpNTuChG-aKQVDCnyJqyH'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1545,10 +1545,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:42.917515+00:00",
+      "last_attempt_at": "2026-10-14T11:58:57.864166+00:00",
       "social_card": "social-media/62.jpg",
       "instagram_social_card": "social-media/instagram/62.jpg",
-      "updated_at": "2026-10-14T10:29:43.258542+00:00"
+      "updated_at": "2026-10-14T11:58:58.329635+00:00"
     },
     "63": {
       "status": "partial_failure",
@@ -1570,8 +1570,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:29:59.960450+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AHyOWmnY_88hVIb1eYoEB8O'}}"
+          "updated_at": "2026-10-14T11:59:20.168782+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AgUQ8XkR1x2XjCQkWHy5pRO'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1591,23 +1591,23 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:51.785761+00:00",
+      "last_attempt_at": "2026-10-14T11:59:08.860290+00:00",
       "social_card": "social-media/63.jpg",
       "instagram_social_card": "social-media/instagram/63.jpg",
-      "updated_at": "2026-10-14T10:29:52.108928+00:00"
+      "updated_at": "2026-10-14T11:59:09.297389+00:00"
     },
     "64": {
       "status": "partial_failure",
       "platforms": {
         "facebook": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:30:01.317336+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'ANBiLf_jP9YelZrTy5iG-a6'}}"
+          "updated_at": "2026-10-14T11:59:21.429072+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 403: {'error': {'message': '(#200) The permission(s) publish_actions are not available. It has been deprecated. If you want to provide a way for your app users to share content to Facebook, we encourage you to use our Sharing products instead.', 'type': 'OAuthException', 'code': 200, 'fbtrace_id': 'A5xouu7gv913IWtJ7WTgPA5'}}"
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-14T10:30:12.276277+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'AyxbTmJFquWw9zMpPL74Io_'}}"
+          "updated_at": "2026-10-14T11:59:30.657061+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'Action is blocked', 'error_user_msg': \"We restrict certain activity to protect our community. Tell us if you think that we've made a mistake.\", 'fbtrace_id': 'A0bQsuDMIGHLMnwXd511dxx'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1627,11 +1627,11 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-14T10:29:59.961164+00:00",
+      "last_attempt_at": "2026-10-14T11:59:20.169506+00:00",
       "social_card": "social-media/64.jpg",
       "instagram_social_card": "social-media/instagram/64.jpg",
-      "updated_at": "2026-10-14T10:30:00.293211+00:00"
+      "updated_at": "2026-10-14T11:59:20.625445+00:00"
     }
   },
-  "updated_at": "2026-10-14T10:30:12.277065+00:00"
+  "updated_at": "2026-10-14T11:59:30.657845+00:00"
 }
