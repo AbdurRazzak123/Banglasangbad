@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-15T12:29:00.448633+00:00"
+      "updated_at": "2026-10-15T14:31:23.196041+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -1219,8 +1219,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:29:09.389980+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'APQa8sFi8E674HjKTYKp97m'}}"
+          "updated_at": "2026-10-15T14:31:24.590132+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:24 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AxZ2x15QLZHA20LW9Qdx62t'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1240,10 +1240,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:01.245900+00:00",
+      "last_attempt_at": "2026-10-15T14:31:23.323928+00:00",
       "social_card": "social-media/55.jpg",
       "instagram_social_card": "social-media/instagram/55.jpg",
-      "updated_at": "2026-10-15T12:29:01.596533+00:00"
+      "updated_at": "2026-10-15T14:31:23.842884+00:00"
     },
     "56": {
       "status": "partial_failure",
@@ -1263,8 +1263,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:29:18.317369+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AcS8J5S8KH9_vMlqIMIA0kt'}}"
+          "updated_at": "2026-10-15T14:31:25.383340+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:25 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AX50M4WlFzKYWpS7J3MS6ln'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1284,10 +1284,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:09.390727+00:00",
+      "last_attempt_at": "2026-10-15T14:31:24.590692+00:00",
       "social_card": "social-media/56.jpg",
       "instagram_social_card": "social-media/instagram/56.jpg",
-      "updated_at": "2026-10-15T12:29:09.658480+00:00"
+      "updated_at": "2026-10-15T14:31:24.962991+00:00"
     },
     "57": {
       "status": "partial_failure",
@@ -1308,8 +1308,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:29:29.448417+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AJqfLjEGAMFG4c9pDCzrtAR'}}"
+          "updated_at": "2026-10-15T14:31:26.252754+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:26 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AoTaerLTM0nunaRILDh8QwS'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1329,10 +1329,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:18.318125+00:00",
+      "last_attempt_at": "2026-10-15T14:31:25.384003+00:00",
       "social_card": "social-media/57.jpg",
       "instagram_social_card": "social-media/instagram/57.jpg",
-      "updated_at": "2026-10-15T12:29:18.649764+00:00"
+      "updated_at": "2026-10-15T14:31:25.873747+00:00"
     },
     "58": {
       "status": "partial_failure",
@@ -1352,8 +1352,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:29:36.984683+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AluKPKHCmMeQZoPpYH_PuHX'}}"
+          "updated_at": "2026-10-15T14:31:27.139295+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:27 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AfFdc1Rev91J9b0pU0xcO9S'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1373,10 +1373,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:29.449108+00:00",
+      "last_attempt_at": "2026-10-15T14:31:26.253249+00:00",
       "social_card": "social-media/58.jpg",
       "instagram_social_card": "social-media/instagram/58.jpg",
-      "updated_at": "2026-10-15T12:29:29.792014+00:00"
+      "updated_at": "2026-10-15T14:31:26.755049+00:00"
     },
     "59": {
       "status": "partial_failure",
@@ -1398,8 +1398,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:29:46.259864+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AD8QuxCFxv9Ua3ulWPsxRQl'}}"
+          "updated_at": "2026-10-15T14:31:28.038576+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:28 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AEdXNugHI_YQb0LwTL6ewxE'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1419,10 +1419,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:36.985471+00:00",
+      "last_attempt_at": "2026-10-15T14:31:27.139901+00:00",
       "social_card": "social-media/59.jpg",
       "instagram_social_card": "social-media/instagram/59.jpg",
-      "updated_at": "2026-10-15T12:29:37.323383+00:00"
+      "updated_at": "2026-10-15T14:31:27.637766+00:00"
     },
     "60": {
       "status": "partial_failure",
@@ -1432,8 +1432,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:29:56.542925+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AkU7M5RKdJ-WJmn3cDAX-NZ'}}"
+          "updated_at": "2026-10-15T14:31:28.920194+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:28 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AvpGa2kSjKa1Kb0t8ngpx6R'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1453,10 +1453,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:46.260597+00:00",
+      "last_attempt_at": "2026-10-15T14:31:28.039100+00:00",
       "social_card": "social-media/60.jpg",
       "instagram_social_card": "social-media/instagram/60.jpg",
-      "updated_at": "2026-10-15T12:29:46.609880+00:00"
+      "updated_at": "2026-10-15T14:31:28.535981+00:00"
     },
     "61": {
       "status": "partial_failure",
@@ -1478,8 +1478,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:30:06.596544+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AFlRDxUXBuXSX9hVH2OYEPT'}}"
+          "updated_at": "2026-10-15T14:31:29.825512+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:29 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AymavyP9FansAfvbMwWERip'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1499,10 +1499,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:29:56.543425+00:00",
+      "last_attempt_at": "2026-10-15T14:31:28.920805+00:00",
       "social_card": "social-media/61.jpg",
       "instagram_social_card": "social-media/instagram/61.jpg",
-      "updated_at": "2026-10-15T12:29:56.881207+00:00"
+      "updated_at": "2026-10-15T14:31:29.422722+00:00"
     },
     "62": {
       "status": "partial_failure",
@@ -1524,8 +1524,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:30:14.758201+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'ASdm9QSRV2kKoIXxnzQox0G'}}"
+          "updated_at": "2026-10-15T14:31:30.767744+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:30 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AJW5EuVddl8bTP1ApENUtql'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1545,10 +1545,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:30:06.597312+00:00",
+      "last_attempt_at": "2026-10-15T14:31:29.826138+00:00",
       "social_card": "social-media/62.jpg",
       "instagram_social_card": "social-media/instagram/62.jpg",
-      "updated_at": "2026-10-15T12:30:06.941707+00:00"
+      "updated_at": "2026-10-15T14:31:30.335612+00:00"
     },
     "63": {
       "status": "partial_failure",
@@ -1570,8 +1570,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:30:26.072577+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'A8ELvvPzDjYrQ3PPDTyEr9I'}}"
+          "updated_at": "2026-10-15T14:31:31.635271+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:31 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AjKkq6iS8RBef1xA7sxFxog'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1591,10 +1591,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:30:14.759043+00:00",
+      "last_attempt_at": "2026-10-15T14:31:30.768519+00:00",
       "social_card": "social-media/63.jpg",
       "instagram_social_card": "social-media/instagram/63.jpg",
-      "updated_at": "2026-10-15T12:30:15.087899+00:00"
+      "updated_at": "2026-10-15T14:31:31.253559+00:00"
     },
     "64": {
       "status": "partial_failure",
@@ -1616,8 +1616,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:30:36.060490+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AxLJYx6Ty1HsnaYgS7oa5Rm'}}"
+          "updated_at": "2026-10-15T14:31:32.549393+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:32 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'A_wWYsAxVYxTNE_sKL0dtPt'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1637,10 +1637,10 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:30:26.073355+00:00",
+      "last_attempt_at": "2026-10-15T14:31:31.636130+00:00",
       "social_card": "social-media/64.jpg",
       "instagram_social_card": "social-media/instagram/64.jpg",
-      "updated_at": "2026-10-15T12:30:26.463741+00:00"
+      "updated_at": "2026-10-15T14:31:32.136829+00:00"
     },
     "65": {
       "status": "partial_failure",
@@ -1662,8 +1662,8 @@
         },
         "instagram": {
           "status": "failed",
-          "updated_at": "2026-10-15T12:31:08.306670+00:00",
-          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AwdqpvCumcV1tC9ONqf1Yi_'}}"
+          "updated_at": "2026-10-15T14:31:33.594468+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Thursday, 15-Oct-26 07:00:00 PDT. The current time is Thursday, 15-Oct-26 07:31:33 PDT.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AR-vjHkZhSsJNQ9CH_7icMw'}}"
         },
         "x": {
           "status": "not_selected"
@@ -1683,11 +1683,11 @@
         "threads": false,
         "youtube": false
       },
-      "last_attempt_at": "2026-10-15T12:30:36.061385+00:00",
+      "last_attempt_at": "2026-10-15T14:31:32.549974+00:00",
       "social_card": "social-media/65.jpg",
       "instagram_social_card": "social-media/instagram/65.jpg",
-      "updated_at": "2026-10-15T12:30:36.444986+00:00"
+      "updated_at": "2026-10-15T14:31:33.067166+00:00"
     }
   },
-  "updated_at": "2026-10-15T12:31:08.307438+00:00"
+  "updated_at": "2026-10-15T14:31:33.595100+00:00"
 }
