@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-18T13:47:44.451245+00:00",
+  "generated_at": "2026-10-18T15:12:18.887656+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -1939,35 +1939,342 @@
       "social_card": "social-media/74.jpg",
       "instagram_social_card": "social-media/instagram/74.jpg",
       "updated_at": "2026-10-18T13:47:34.648007+00:00"
+    },
+    "78": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:10:55.219979+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114318433487710",
+            "post_id": "1240194305854019_122114318433487710",
+            "photo_id": "122114318409487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/78.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114318433487710_985062243926916"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:11:02.155339+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AIIwdE6MXrR9WNPZYkP80S6'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-18T15:10:39.127554+00:00",
+      "social_card": "social-media/78.jpg",
+      "instagram_social_card": "social-media/instagram/78.jpg",
+      "updated_at": "2026-10-18T15:10:39.498828+00:00"
+    },
+    "77": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:11:16.043554+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114318703487710",
+            "post_id": "1240194305854019_122114318703487710",
+            "photo_id": "122114318673487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/77.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114318703487710_1562348639257709"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:11:22.881833+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'Ab6U4eXDc4dyt3jCg2SNq0A'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-18T15:11:02.156270+00:00",
+      "social_card": "social-media/77.jpg",
+      "instagram_social_card": "social-media/instagram/77.jpg",
+      "updated_at": "2026-10-18T15:11:02.670421+00:00"
+    },
+    "76": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:11:37.369211+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114318937487710",
+            "post_id": "1240194305854019_122114318937487710",
+            "photo_id": "122114318907487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/76.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114318937487710_4514684852107485"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:11:46.995935+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AF4Jp-Uj8ebIbyRtJ8b5dQQ'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-18T15:11:22.882721+00:00",
+      "social_card": "social-media/76.jpg",
+      "instagram_social_card": "social-media/instagram/76.jpg",
+      "updated_at": "2026-10-18T15:11:23.250873+00:00"
+    },
+    "75": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:12:08.171517+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114319207487710",
+            "post_id": "1240194305854019_122114319207487710",
+            "photo_id": "122114319177487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/75.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114319207487710_2296445217845205"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:12:18.886830+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AapqE3RK6F5xkf32IVTY6R9'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-18T15:11:46.996672+00:00",
+      "social_card": "social-media/75.jpg",
+      "instagram_social_card": "social-media/instagram/75.jpg",
+      "updated_at": "2026-10-18T15:11:47.387991+00:00"
     }
   },
   "last_run": {
     "dry_run": false,
+    "retry_failed": false,
     "limit": 20,
-    "candidate_count": 20,
+    "candidate_count": 4,
     "processed": [
-      "55",
-      "56",
-      "57",
-      "58",
-      "59",
-      "60",
-      "61",
-      "62",
-      "63",
-      "64",
-      "65",
-      "66",
-      "67",
-      "68",
-      "69",
-      "70",
-      "71",
-      "72",
-      "73",
-      "74"
+      "78",
+      "77",
+      "76",
+      "75"
     ],
     "skipped": [
+      {
+        "id": "2",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "3",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "4",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "6",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "7",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "8",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "9",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "10",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "11",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "12",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "13",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "14",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "15",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "16",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "17",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "18",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "19",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "20",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "21",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "22",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "23",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "24",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "25",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "26",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "27",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "28",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "29",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "30",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "31",
+        "reason": "skipped_existing"
+      },
+      {
+        "id": "32",
+        "headline": "রাশিয়া-ইউক্রেন যুদ্ধ: জ্বালানি অবকাঠামোতে হামলা না করার বিষয়ে আংশিক সম্মতি",
+        "reason": "publish is not YES",
+        "sheet": {
+          "publish": false,
+          "facebook": false,
+          "instagram": false,
+          "x": false,
+          "threads": false,
+          "youtube": false
+        }
+      },
+      {
+        "id": "33",
+        "headline": "বিমানের বহরে যুক্ত হচ্ছে আরও ১১টি বোয়িং উড়োজাহাজ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
       {
         "id": "34",
         "headline": "শিরোনাম: ফ্যাসিবাদের সঙ্গে যোগাযোগ বা তথ্য পাচার করলে পুলিশ সদস্যদের বিরুদ্ধে রাষ্ট্রদ্রোহ মামলা: স্বরাষ্ট্রমন্ত্রী",
@@ -1980,6 +2287,96 @@
       {
         "id": "35",
         "headline": "বেসামরিক পারমাণবিক শক্তিতে বাংলাদেশ-যুক্তরাষ্ট্র নতুন অধ্যায়: স্বাক্ষর হলো ঐতিহাসিক সমঝোতা স্মারক",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "36",
+        "headline": "জাতিসংঘের ৮১তম অধিবেশন শেষে দেশে ফিরেছেন প্রধানমন্ত্রী তারেক রহমান",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "37",
+        "headline": "আগারগাঁওয়ে ফের ফুটপাত উচ্ছেদ অভিযান, ‘ভাইরাল মিজানের’ হোটেলেও অভিযান",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "38",
+        "headline": "অস্ট্রেলিয়াকে শুরুতেই চমকে দিল ব্রাজিল, ২ মিনিটে ভান্দেরসনের গোল",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "39",
+        "headline": "২০ ইউনিট বিদ্যুৎ ব্যবহার, বিল ২৯ হাজার টাকা—মাগুরায় নতুন করে প্রশ্ন",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "40",
+        "headline": "সেপ্টেম্বরে বাংলাদেশের পণ্য রপ্তানি আয় বেড়েছে ৮.৫৪ শতাংশ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "41",
+        "headline": "বরিশাল কারাগারে ফাঁসির দণ্ডপ্রাপ্ত কয়েদির মৃত্যু",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "42",
+        "headline": "বিমান বাংলাদেশ এয়ারলাইন্স ১০টি Airbus উড়োজাহাজের অর্ডার নিশ্চিত করেছে",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "43",
+        "headline": "প্রতিশোধের রাজনীতি গণতন্ত্রের বিকাশ বাধাগ্রস্ত করে: রাষ্ট্রপতি",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "44",
+        "headline": "নানা পাটেকরের মৃত্যুতে অমিত শাহের শোক, ‘অপূরণীয় ক্ষতি’ বললেন",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "45",
+        "headline": "ককরোচ জনতা পার্টির বিক্ষোভে ধ্রুব রাঠি-প্রকাশ রাজ, বেঙ্গালুরুতে SIR বাতিলের দাবি",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
@@ -2062,6 +2459,185 @@
         "id": "54",
         "headline": "আটক হওয়ার পর রাতে মুক্ত ধ্রুব রাঠি, দিল্লিতে নির্বাচন কমিশনপ্রধানের পদত্যাগ দাবিতে বিক্ষোভ ঘিরে উত্তেজনা",
         "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "55",
+        "headline": "পানামায় ৭.৭ মাত্রার শক্তিশালী ভূমিকম্প, জরুরি অবস্থা ঘোষণা",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "56",
+        "headline": "আফগানিস্তানের বিপক্ষে জয়ের স্বপ্ন দেখছে বাংলাদেশ, চতুর্থ দিনে বড় লক্ষ্য",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "57",
+        "headline": "অস্ট্রেলিয়ার বিপক্ষে সেঞ্চুরি করেও হারল বাংলাদেশ, সিরিজ অস্ট্রেলিয়ার",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "58",
+        "headline": "পাকিস্তানকে হারিয়ে ত্রিদেশীয় সিরিজের ফাইনালে বাংলাদেশের মেয়েরা",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "59",
+        "headline": "মোদির পুতুল হাতে রাহুল গান্ধী, SIR ইস্যুতে সুপ্রিম কোর্টের পথে বিরোধীরা",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "60",
+        "headline": "নিউজিল্যান্ডের বিপক্ষে ওয়ানডে সিরিজে ভারতীয় দলে ফিরতে পারেন মোহাম্মদ শামি",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "instagram"
+        ]
+      },
+      {
+        "id": "61",
+        "headline": "বিশ্ব অর্থনীতির অস্থিরতায় চাপে বাংলাদেশ, প্রবৃদ্ধি নিয়ে আইএমএফের সতর্কতা",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "62",
+        "headline": "দিল্লিতে যন্তর মন্তরে ঢুকে বিক্ষোভ, ককক্রোচ জনতা পার্টির দুই নেতা আটক",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "63",
+        "headline": "‘এমপির ছেলে-মেয়ে, শ্যালিকাও সারের ডিলার হয়েছে’—হাসনাত আবদুল্লাহ",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "64",
+        "headline": "অর্থনৈতিক স্থিতিশীলতা ফেরাতে বাংলাদেশকে সহযোগিতার আশ্বাস যুক্তরাষ্ট্রের",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "65",
+        "headline": "শিক্ষার্থীদের বৃত্তির তথ্য ও ব্যাংক হিসাব সংশোধনে চালু হলো এমআইএস সফটওয়্যার",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "66",
+        "headline": "যাত্রীসংকটে পিংক বাস, প্রতিদিন ৬০ হাজার টাকা লোকসানের দাবি!",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "67",
+        "headline": "সাফ খেলতে বাংলাদেশে আসছেন রোনান সুলিভান, জাতীয় দলে নতুন আশার আলো",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "68",
+        "headline": "বাংলা মোটরে এনসিপির কার্যালয়ের সামনে তিনটি ককটেল নিক্ষেপ, বিস্ফোরণ একটি",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "69",
+        "headline": "ওয়াল্টনের ঝোড়ো ৮৭ রানে ফাইনালে ওয়েস্ট ইন্ডিজ, বিদায় অস্ট্রেলিয়ার",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "70",
+        "headline": "হরমুজ প্রণালি নিয়ে যুক্তরাষ্ট্রের জবাবে সন্তুষ্ট নয় ইরান, বাড়ছে উত্তেজনা",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "71",
+        "headline": "শিক্ষার্থীদের গায়ে হাত তোলার অধিকার কে দিল পুলিশকে? দিল্লিতে পুলিশের ভূমিকা নিয়ে তীব্র প্রশ্ন",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "72",
+        "headline": "কক্সবাজারে রিসোর্টে ভয়াবহ আগুন, একই পরিবারের ৮ জনসহ নিহত ১০",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "73",
+        "headline": "বাংলাদেশে গরুর মাংস খাওয়া নিয়ে ভারতের মিডিয়ার এত মাতামাতি কেন? সংবাদমাধ্যমের নিরপেক্ষতা নিয়ে প্রশ্ন",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "74",
+        "headline": "সরকারি কোয়ার্টারে সাবলেট নিয়ে প্রধানমন্ত্রীর প্রশ্ন, ‘আইনগতভাবে অনুমোদন না থাকলে রাখছেন কেন?’",
+        "reason": "previously attempted; automatic retry blocked for safety",
         "platforms": [
           "facebook",
           "instagram"

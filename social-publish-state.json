@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-17T11:01:26.311256+00:00"
+      "updated_at": "2026-10-18T15:10:37.378079+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -2103,8 +2103,38 @@
       "updated_at": "2026-10-18T13:47:34.648007+00:00"
     },
     "75": {
-      "status": "pending",
-      "platforms": {},
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:12:08.171517+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114319207487710",
+            "post_id": "1240194305854019_122114319207487710",
+            "photo_id": "122114319177487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/75.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114319207487710_2296445217845205"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:12:18.886830+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AapqE3RK6F5xkf32IVTY6R9'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
       "sheet_controls": {
         "publish": true,
         "facebook": true,
@@ -2112,11 +2142,45 @@
         "x": false,
         "threads": false,
         "youtube": false
-      }
+      },
+      "last_attempt_at": "2026-10-18T15:11:46.996672+00:00",
+      "social_card": "social-media/75.jpg",
+      "instagram_social_card": "social-media/instagram/75.jpg",
+      "updated_at": "2026-10-18T15:11:47.387991+00:00"
     },
     "76": {
-      "status": "pending",
-      "platforms": {},
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:11:37.369211+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114318937487710",
+            "post_id": "1240194305854019_122114318937487710",
+            "photo_id": "122114318907487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/76.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114318937487710_4514684852107485"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:11:46.995935+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AF4Jp-Uj8ebIbyRtJ8b5dQQ'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
       "sheet_controls": {
         "publish": true,
         "facebook": true,
@@ -2124,11 +2188,45 @@
         "x": false,
         "threads": false,
         "youtube": false
-      }
+      },
+      "last_attempt_at": "2026-10-18T15:11:22.882721+00:00",
+      "social_card": "social-media/76.jpg",
+      "instagram_social_card": "social-media/instagram/76.jpg",
+      "updated_at": "2026-10-18T15:11:23.250873+00:00"
     },
     "77": {
-      "status": "pending",
-      "platforms": {},
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:11:16.043554+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114318703487710",
+            "post_id": "1240194305854019_122114318703487710",
+            "photo_id": "122114318673487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/77.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114318703487710_1562348639257709"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:11:22.881833+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'Ab6U4eXDc4dyt3jCg2SNq0A'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
       "sheet_controls": {
         "publish": true,
         "facebook": true,
@@ -2136,8 +2234,58 @@
         "x": false,
         "threads": false,
         "youtube": false
-      }
+      },
+      "last_attempt_at": "2026-10-18T15:11:02.156270+00:00",
+      "social_card": "social-media/77.jpg",
+      "instagram_social_card": "social-media/instagram/77.jpg",
+      "updated_at": "2026-10-18T15:11:02.670421+00:00"
+    },
+    "78": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-18T15:10:55.219979+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114318433487710",
+            "post_id": "1240194305854019_122114318433487710",
+            "photo_id": "122114318409487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/78.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114318433487710_985062243926916"
+            }
+          }
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-10-18T15:11:02.155339+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media_publish -> HTTP 403: {'error': {'message': 'Application request limit reached', 'type': 'OAuthException', 'is_transient': False, 'code': 4, 'error_subcode': 2207051, 'error_user_title': 'action is blocked', 'error_user_msg': 'We restrict certain activity to protect our community. Tell us if you think we made a mistake.', 'fbtrace_id': 'AIIwdE6MXrR9WNPZYkP80S6'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-18T15:10:39.127554+00:00",
+      "social_card": "social-media/78.jpg",
+      "instagram_social_card": "social-media/instagram/78.jpg",
+      "updated_at": "2026-10-18T15:10:39.498828+00:00"
     }
   },
-  "updated_at": "2026-10-18T13:47:44.451239+00:00"
+  "updated_at": "2026-10-18T15:12:18.887650+00:00"
 }
