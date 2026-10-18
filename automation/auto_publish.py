@@ -100,11 +100,24 @@ def news_url(news_id: str) -> str:
 
 
 def request_json(method: str, url: str, **kwargs):
+    """Make a Graph/API request without risking duplicate publishing.
+
+    GET requests are safe to retry on transient failures. Do not automatically
+    retry POST requests: Meta may have accepted a publish request even when the
+    client receives a timeout/5xx response, and retrying can create duplicate
+    posts. A failed POST is recorded for deliberate review/retry instead.
+    """
     kwargs.setdefault("timeout", 60)
-    for attempt in range(4):
+    method = method.upper()
+    attempts = 4 if method == "GET" else 1
+    for attempt in range(attempts):
         try:
             r = requests.request(method, url, **kwargs)
-            if r.status_code in (429, 500, 502, 503, 504) and attempt < 3:
+            if (
+                method == "GET"
+                and r.status_code in (429, 500, 502, 503, 504)
+                and attempt < attempts - 1
+            ):
                 time.sleep(2 ** attempt)
                 continue
             if not r.ok:
@@ -117,7 +130,7 @@ def request_json(method: str, url: str, **kwargs):
                 )
             return r.json() if r.text else {}
         except requests.RequestException:
-            if attempt == 3:
+            if attempt >= attempts - 1:
                 raise
             time.sleep(2 ** attempt)
     raise RuntimeError("Request failed")
@@ -293,15 +306,37 @@ def facebook_publish(item: dict, card_path: Path, dry_run: bool = False):
 
     image_url = social_card_url(str(item["id"]), "facebook")
 
-    result = request_json(
-        "POST",
-        f"{META_BASE}/{page_id}/photos",
-        data={
-            "url": image_url,
-            "caption": message,
-            "access_token": token,
-        },
-    )
+    try:
+        result = request_json(
+            "POST",
+            f"{META_BASE}/{page_id}/photos",
+            data={
+                "url": image_url,
+                "caption": message,
+                "published": "true",
+                "access_token": token,
+            },
+        )
+    except Exception as exc:
+        detail = str(exc)
+        lowered = detail.lower()
+        if "publish_actions" in lowered:
+            raise RuntimeError(
+                "Facebook Page photo publishing was rejected because Meta reports "
+                "the deprecated publish_actions permission. This code does not send "
+                "that permission; check that META_PAGE_ACCESS_TOKEN is a current Page "
+                "access token and the connected app/token has pages_manage_posts, "
+                "pages_read_engagement, pages_show_list, and the Page CREATE_CONTENT "
+                "task. Re-save the correct Page token in GitHub Secrets. Original error: "
+                + detail
+            ) from exc
+        if "invalid oauth access token" in lowered or "code': 190" in lowered or '"code": 190' in lowered:
+            raise RuntimeError(
+                "Facebook rejected META_PAGE_ACCESS_TOKEN (invalid/expired token). "
+                "Verify the latest Page access token is saved in the GitHub Secret "
+                "META_PAGE_ACCESS_TOKEN. Original error: " + detail
+            ) from exc
+        raise
 
     # The /photos edge can return a photo ID and, depending on the response,
     # a separate feed post ID. Do not label the photo ID as a verified post ID.
@@ -373,7 +408,9 @@ def instagram_publish(item: dict, dry_run: bool = False):
     # Meta may need time to fetch/process the public image before publishing.
     # Poll the container instead of publishing immediately.
     last_status = {}
-    for attempt in range(15):
+    # Give Meta up to about two minutes to finish fetching/processing the image.
+    # A container that is not explicitly FINISHED is never published.
+    for attempt in range(60):
         try:
             last_status = request_json(
                 "GET",
@@ -392,7 +429,7 @@ def instagram_publish(item: dict, dry_run: bool = False):
             break
         if status_code in {"ERROR", "EXPIRED"} or status in {"ERROR", "EXPIRED"}:
             raise RuntimeError(f"Instagram media container failed: {last_status}")
-        if attempt < 14:
+        if attempt < 59:
             time.sleep(2)
     else:
         raise RuntimeError(f"Instagram media container was not ready: {last_status}")
@@ -828,6 +865,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--limit", type=int, default=20)
+    ap.add_argument(
+        "--retry-failed",
+        action="store_true",
+        help="Explicitly retry previously attempted articles with failed platforms.",
+    )
     args = ap.parse_args()
 
     state = load_json(
@@ -928,8 +970,32 @@ def main():
             })
             continue
 
+        # SAFETY: never automatically retry an article that has already been
+        # attempted. Previously failed Instagram posts can become publishable
+        # after a token/permission change; retrying every five minutes caused
+        # a backlog of old news to be published in a burst. Retries now require
+        # an explicit --retry-failed run by the operator.
+        previously_attempted = bool(entry.get("last_attempt_at")) or any(
+            isinstance(pentry, dict)
+            and pentry.get("status") in {"posted", "failed", "dry_run"}
+            for pentry in entry.get("platforms", {}).values()
+        ) or entry.get("status") in {
+            "partial_failure", "failed_preflight", "posted_all", "dry_run"
+        }
+        if previously_attempted and not args.retry_failed:
+            skipped.append({
+                "id": nid,
+                "headline": headline,
+                "reason": "previously attempted; automatic retry blocked for safety",
+                "platforms": requested,
+            })
+            continue
+
         candidates.append(item)
 
+    # Prefer the newest eligible article IDs first; never let a backlog of
+    # older unattempted items crowd out the latest news.
+    candidates.sort(key=lambda x: int(str(x.get("id", "0")) or 0), reverse=True)
     candidates = candidates[:max(args.limit, 0)]
 
     meta_check = None
@@ -1092,6 +1158,7 @@ def main():
     log["generated_at"] = utc_now()
     log["last_run"] = {
         "dry_run": args.dry_run,
+        "retry_failed": args.retry_failed,
         "limit": args.limit,
         "candidate_count": len(candidates),
         "processed": processed,
@@ -1108,6 +1175,7 @@ def main():
         "skipped_count": len(skipped),
         "skipped": skipped,
         "dry_run": args.dry_run,
+        "retry_failed": args.retry_failed,
         "limit": args.limit,
         "meta_preflight": meta_check,
         "message": (
