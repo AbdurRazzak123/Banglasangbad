@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-18T15:12:18.887656+00:00",
+  "generated_at": "2026-10-18T16:33:35.829368+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2129,13 +2129,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 4,
-    "processed": [
-      "78",
-      "77",
-      "76",
-      "75"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -2642,20 +2637,44 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "75",
+        "headline": "খামেনিকে ‘প্রধানমন্ত্রী’ বলার ভুল, মোদির ছবি নিয়ে প্রশ্ন—রেখা পাত্রের বক্তব্য ঘিরে তীব্র বিতর্ক",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "76",
+        "headline": "অস্ত্রোপচার সফল, কয়েক সপ্তাহের মধ্যে ফিরতে চান মার্তিনেজ",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "77",
+        "headline": "জিম্বাবুয়ের কাছে বড় হার, ঘুরে দাঁড়ানোর অপেক্ষায় বাংলাদেশ আফগানিস্তানের বিপক্ষে ম্যাচে ঘুরে দাঁড়ানোর চ্যালেঞ্জ টাইগারদের",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "78",
+        "headline": "পরীমণির নামে বিকৃত ভিডিও ছড়িয়ে তোলপাড়, দায়বদ্ধতা নিয়ে প্রশ্ন",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
