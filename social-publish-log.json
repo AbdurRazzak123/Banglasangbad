@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T10:30:19.227190+00:00",
+  "generated_at": "2026-10-19T11:52:44.914500+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2282,10 +2282,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "81"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -2831,7 +2829,7 @@
       },
       {
         "id": "79",
-        "headline": "ভারতে প্রকাশ্যে টাইটার শ্রফের গাড়িতে গুলি, নিরাপত্তা নিয়ে প্রশ্ন; প্রতিবেশীদের ‘জঙ্গি’ বলার আগে আত্মসমালোচনা জরুরি",
+        "headline": "ভারতে প্রকাশ্যে টাইগার শ্রফের গাড়িতে গুলি, নিরাপত্তা নিয়ে প্রশ্ন; প্রতিবেশীদের ‘জঙ্গি’ বলার আগে আত্মসমালোচনা জরুরি",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
@@ -2846,20 +2844,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "81",
+        "headline": "প্রতিমন্ত্রীর পদ থেকে স্বেচ্ছায় অব্যাহতি চাইলেন ইশরাক হোসেন, মাদকবিরোধী অভিযান চালিয়ে যাওয়ার ঘোষণা",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
