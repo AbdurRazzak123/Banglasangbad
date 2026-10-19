@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T09:57:59.924292+00:00",
+  "generated_at": "2026-10-19T10:25:40.921521+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2174,6 +2174,57 @@
       "social_card": "social-media/79.jpg",
       "instagram_social_card": "social-media/instagram/79.jpg",
       "updated_at": "2026-10-19T09:57:33.461704+00:00"
+    },
+    "80": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-19T10:25:23.806886+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114554095487710",
+            "post_id": "1240194305854019_122114554095487710",
+            "photo_id": "122114554071487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/80.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114554095487710_1824886518532917"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-19T10:25:40.921494+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18129974437806953",
+            "creation_id": "18116789843125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/80.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-19T10:25:13.088992+00:00",
+      "social_card": "social-media/80.jpg",
+      "instagram_social_card": "social-media/instagram/80.jpg",
+      "updated_at": "2026-10-19T10:25:13.473476+00:00"
     }
   },
   "last_run": {
@@ -2182,7 +2233,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "79"
+      "80"
     ],
     "skipped": [
       {
@@ -2722,6 +2773,15 @@
         "id": "78",
         "headline": "পরীমণির নামে বিকৃত ভিডিও ছড়িয়ে তোলপাড়, দায়বদ্ধতা নিয়ে প্রশ্ন",
         "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "79",
+        "headline": "ভারতে প্রকাশ্যে টাইটার শ্রফের গাড়িতে গুলি, নিরাপত্তা নিয়ে প্রশ্ন; প্রতিবেশীদের ‘জঙ্গি’ বলার আগে আত্মসমালোচনা জরুরি",
+        "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
           "instagram"
