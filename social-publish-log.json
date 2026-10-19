@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T15:31:27.245391+00:00",
+  "generated_at": "2026-10-19T18:48:33.320888+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2384,10 +2384,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "83"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -2966,20 +2964,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "83",
+        "headline": "তামাক ব্যবহারে বিশ্বে এগিয়ে কোন দেশ? বাংলাদেশ, ভারতসহ চমকে দেওয়ার মতো পরিসংখ্যান",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
