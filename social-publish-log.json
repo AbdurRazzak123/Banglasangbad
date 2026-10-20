@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T05:47:47.230145+00:00",
+  "generated_at": "2026-10-20T05:49:38.846582+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2561,6 +2561,21 @@
       "last_attempt_at": "2026-10-20T05:47:46.576306+00:00",
       "error": "cannot identify image file '/home/runner/work/Banglasangbad/Banglasangbad/.social-tmp/88.jpg'",
       "updated_at": "2026-10-20T05:47:47.230125+00:00"
+    },
+    "89": {
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-20T05:49:38.846360+00:00",
+      "error": "No usable news image for article 89",
+      "updated_at": "2026-10-20T05:49:38.846573+00:00"
     }
   },
   "last_run": {
@@ -2569,7 +2584,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "88"
+      "89"
     ],
     "skipped": [
       {
@@ -3189,6 +3204,15 @@
       {
         "id": "87",
         "headline": "আমার সোনার যৌবন নষ্ট করলাম তোমার পানে চাইয়া | Amar Sonar Jowbon | দশ দুয়ারি মাইয়া",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "88",
+        "headline": "কার প্রেমে মজিয়া রইলা রে | @alokchakrabarty01 || Kar Preme Mojiya Roila Re || Imon | AAlok | Kausar",
         "reason": "previously attempted; automatic retry blocked for safety",
         "platforms": [
           "facebook",

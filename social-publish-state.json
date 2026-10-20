@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-20T05:47:45.400431+00:00"
+      "updated_at": "2026-10-20T05:49:37.637548+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -2723,7 +2723,22 @@
       "last_attempt_at": "2026-10-20T05:47:46.576306+00:00",
       "error": "cannot identify image file '/home/runner/work/Banglasangbad/Banglasangbad/.social-tmp/88.jpg'",
       "updated_at": "2026-10-20T05:47:47.230125+00:00"
+    },
+    "89": {
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-20T05:49:38.846360+00:00",
+      "error": "No usable news image for article 89",
+      "updated_at": "2026-10-20T05:49:38.846573+00:00"
     }
   },
-  "updated_at": "2026-10-20T05:47:47.230142+00:00"
+  "updated_at": "2026-10-20T05:49:38.846580+00:00"
 }
