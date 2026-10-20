@@ -2110,6 +2110,29 @@
         "https://youtu.be/Pmi-Dk44cEA?si=0mW8bwjQwnEgIQ8Y"
       ],
       "images": []
+    },
+    {
+      "id": "88",
+      "category": "বিনোদন",
+      "headline": "কার প্রেমে মজিয়া রইলা রে | @alokchakrabarty01 || Kar Preme Mojiya Roila Re || Imon | AAlok | Kausar",
+      "details": "​⁠ || Kar Preme Mojiya Roila Re || Imon | AAlok | Kausar",
+      "date": "2026-10-20",
+      "video": "",
+      "keyword": "",
+      "publish": "YES",
+      "facebook": "YES",
+      "instagram": "YES",
+      "x": "NO",
+      "threads": "NO",
+      "youtube": "NO",
+      "social_status": "Pending",
+      "posted_time": "",
+      "image_urls": [
+        "https://www.youtube.com/watch?v=7S_Bdxy61jo",
+        "",
+        ""
+      ],
+      "images": []
     }
   ],
   "table": {
@@ -5015,8 +5038,42 @@
             "v": ""
           }
         ]
+      },
+      {
+        "c": [
+          {
+            "v": "88"
+          },
+          {
+            "v": "বিনোদন"
+          },
+          {
+            "v": "কার প্রেমে মজিয়া রইলা রে | @alokchakrabarty01 || Kar Preme Mojiya Roila Re || Imon | AAlok | Kausar"
+          },
+          {
+            "v": "​⁠ || Kar Preme Mojiya Roila Re || Imon | AAlok | Kausar"
+          },
+          {
+            "v": "https://www.youtube.com/watch?v=7S_Bdxy61jo"
+          },
+          {
+            "v": "2026-10-20"
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          }
+        ]
       }
     ]
   },
-  "updated_at": "2026-10-20T05:25:27.727469Z"
+  "updated_at": "2026-10-20T05:46:57.681112Z"
 }
