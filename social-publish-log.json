@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T05:49:38.846582+00:00",
+  "generated_at": "2026-10-20T06:04:48.855232+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2582,10 +2582,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "89"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3218,20 +3216,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "89",
+        "headline": "কার প্রেমে মজিয়া রইলা রে || Kar Preme Mojiya Roila Re || Imon | AAlok | Kausar",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
