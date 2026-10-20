@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-10-20T04:55:37.011543+00:00"
+      "updated_at": "2026-10-20T05:26:14.328868+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -2693,7 +2693,22 @@
       "social_card": "social-media/86.jpg",
       "instagram_social_card": "social-media/instagram/86.jpg",
       "updated_at": "2026-10-20T04:55:38.012162+00:00"
+    },
+    "87": {
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-20T05:26:14.862736+00:00",
+      "error": "cannot identify image file '/home/runner/work/Banglasangbad/Banglasangbad/.social-tmp/87.jpg'",
+      "updated_at": "2026-10-20T05:26:16.032269+00:00"
     }
   },
-  "updated_at": "2026-10-20T04:56:01.272571+00:00"
+  "updated_at": "2026-10-20T05:26:16.032284+00:00"
 }
