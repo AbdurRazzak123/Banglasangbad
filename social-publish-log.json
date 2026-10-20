@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T06:33:46.808947+00:00",
+  "generated_at": "2026-10-20T08:18:34.568008+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2576,14 +2576,67 @@
       "last_attempt_at": "2026-10-20T05:49:38.846360+00:00",
       "error": "No usable news image for article 89",
       "updated_at": "2026-10-20T05:49:38.846573+00:00"
+    },
+    "90": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-20T08:18:25.251190+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114811621487710",
+            "post_id": "1240194305854019_122114811621487710",
+            "photo_id": "122114811591487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/90.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114811621487710_1416602260046048"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-20T08:18:34.567979+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18027401219696792",
+            "creation_id": "18116995238125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/90.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-20T08:18:13.821078+00:00",
+      "social_card": "social-media/90.jpg",
+      "instagram_social_card": "social-media/instagram/90.jpg",
+      "updated_at": "2026-10-20T08:18:14.226804+00:00"
     }
   },
   "last_run": {
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 0,
-    "processed": [],
+    "candidate_count": 1,
+    "processed": [
+      "90"
+    ],
     "skipped": [
       {
         "id": "2",
@@ -3227,6 +3280,18 @@
         ]
       }
     ],
-    "meta_preflight": null
+    "meta_preflight": {
+      "status": "ok",
+      "facebook": {
+        "status": "ok",
+        "id": "1240194305854019",
+        "name": "বাংলা সংবাদ"
+      },
+      "instagram": {
+        "status": "ok",
+        "id": "17841433750507793",
+        "username": "banglasangbad2026"
+      }
+    }
   }
 }
