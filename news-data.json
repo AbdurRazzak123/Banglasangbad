@@ -2087,6 +2087,29 @@
       "images": [
         "assets/news/86-1.png"
       ]
+    },
+    {
+      "id": "87",
+      "category": "বিনোদন",
+      "headline": "আমার সোনার যৌবন নষ্ট করলাম তোমার পানে চাইয়া | Amar Sonar Jowbon | দশ দুয়ারি মাইয়া",
+      "details": "গানটি শুনতে মূল YouTube ভিডিওর লিংকে ক্লিক করুন",
+      "date": "2026-10-20",
+      "video": "",
+      "keyword": "",
+      "publish": "YES",
+      "facebook": "YES",
+      "instagram": "YES",
+      "x": "NO",
+      "threads": "NO",
+      "youtube": "NO",
+      "social_status": "Pending",
+      "posted_time": "",
+      "image_urls": [
+        "",
+        "",
+        "https://youtu.be/Pmi-Dk44cEA?si=0mW8bwjQwnEgIQ8Y"
+      ],
+      "images": []
     }
   ],
   "table": {
@@ -4958,8 +4981,42 @@
             "v": ""
           }
         ]
+      },
+      {
+        "c": [
+          {
+            "v": "87"
+          },
+          {
+            "v": "বিনোদন"
+          },
+          {
+            "v": "আমার সোনার যৌবন নষ্ট করলাম তোমার পানে চাইয়া | Amar Sonar Jowbon | দশ দুয়ারি মাইয়া"
+          },
+          {
+            "v": "গানটি শুনতে মূল YouTube ভিডিওর লিংকে ক্লিক করুন"
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": "2026-10-20"
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": "https://youtu.be/Pmi-Dk44cEA?si=0mW8bwjQwnEgIQ8Y"
+          },
+          {
+            "v": ""
+          },
+          {
+            "v": ""
+          }
+        ]
       }
     ]
   },
-  "updated_at": "2026-10-20T04:54:48.320298Z"
+  "updated_at": "2026-10-20T05:25:27.727469Z"
 }
