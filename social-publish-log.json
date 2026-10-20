@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T05:26:16.032287+00:00",
+  "generated_at": "2026-10-20T05:47:47.230145+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2546,6 +2546,21 @@
       "last_attempt_at": "2026-10-20T05:26:14.862736+00:00",
       "error": "cannot identify image file '/home/runner/work/Banglasangbad/Banglasangbad/.social-tmp/87.jpg'",
       "updated_at": "2026-10-20T05:26:16.032269+00:00"
+    },
+    "88": {
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-20T05:47:46.576306+00:00",
+      "error": "cannot identify image file '/home/runner/work/Banglasangbad/Banglasangbad/.social-tmp/88.jpg'",
+      "updated_at": "2026-10-20T05:47:47.230125+00:00"
     }
   },
   "last_run": {
@@ -2554,7 +2569,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "87"
+      "88"
     ],
     "skipped": [
       {
@@ -3166,6 +3181,15 @@
         "id": "86",
         "headline": "‘প্যারিস শিগগিরই মুসলিম শহর হবে’, মন্তব্য ট্রাম্পের; ফ্রান্সের অভিবাসননীতি নিয়ে সমালোচনা",
         "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "87",
+        "headline": "আমার সোনার যৌবন নষ্ট করলাম তোমার পানে চাইয়া | Amar Sonar Jowbon | দশ দুয়ারি মাইয়া",
+        "reason": "previously attempted; automatic retry blocked for safety",
         "platforms": [
           "facebook",
           "instagram"
