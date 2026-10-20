@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T04:20:26.673075+00:00",
+  "generated_at": "2026-10-20T04:39:12.817662+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2429,6 +2429,57 @@
       "social_card": "social-media/84.jpg",
       "instagram_social_card": "social-media/instagram/84.jpg",
       "updated_at": "2026-10-20T04:20:00.317806+00:00"
+    },
+    "85": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-10-20T04:39:05.406427+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122114769249487710",
+            "post_id": "1240194305854019_122114769249487710",
+            "photo_id": "122114769219487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/85.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122114769249487710_1480674107453023"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-10-20T04:39:12.817635+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17958422268254276",
+            "creation_id": "18116961788125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/85.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-10-20T04:38:52.770456+00:00",
+      "social_card": "social-media/85.jpg",
+      "instagram_social_card": "social-media/instagram/85.jpg",
+      "updated_at": "2026-10-20T04:38:52.994386+00:00"
     }
   },
   "last_run": {
@@ -2437,7 +2488,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "84"
+      "85"
     ],
     "skipped": [
       {
@@ -3021,6 +3072,15 @@
       {
         "id": "83",
         "headline": "তামাক ব্যবহারে বিশ্বে এগিয়ে কোন দেশ? বাংলাদেশ, ভারতসহ চমকে দেওয়ার মতো পরিসংখ্যান",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "84",
+        "headline": "নাটোরে বাস-ট্রাকের মুখোমুখি সংঘর্ষ, প্রাণ গেল ১৩ জনের; আহত অন্তত ২৫",
         "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
