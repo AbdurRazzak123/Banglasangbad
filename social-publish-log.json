@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T09:16:04.473041+00:00",
+  "generated_at": "2026-10-20T11:25:32.427904+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2684,10 +2684,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "91"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3338,20 +3336,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "91",
+        "headline": "পৃথিবী অস্ত্রের শক্তি দেখে, ফিলিস্তিন দেখায় বুকের সাহস!",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
