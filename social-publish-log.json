@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-21T03:10:49.150576+00:00",
+  "generated_at": "2026-10-21T05:25:15.534378+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2735,10 +2735,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "92"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3398,20 +3396,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "92",
+        "headline": "চ্যাম্পিয়ন্স লিগে বার্সেলোনাকে ৪-২ গোলে হারাল পিএসজি, শেষদিকে দুই গোলে জয় নিশ্চিত",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
