@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T16:46:34.772156+00:00",
+  "generated_at": "2026-10-22T19:20:18.487878+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2837,11 +2837,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 2,
-    "processed": [
-      "94",
-      "93"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3510,20 +3507,26 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "93",
+        "headline": "ভয়াবহ আগুনে ঢেকে গেল আকাশ, বসতবাড়ির দিকে ছড়াল লেলিহান শিখা—ইন্দোনেশিয়ায় আতঙ্কিত মানুষ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "94",
+        "headline": "ভয়াবহ আগুনে ঢেকে গেল আকাশ, বসতবাড়ির দিকে ছড়াল লেলিহান শিখা—ইন্দোনেশিয়ায় আতঙ্কিত মানুষ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
