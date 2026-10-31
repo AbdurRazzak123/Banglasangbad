@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T11:38:03.072413+00:00",
+  "generated_at": "2026-10-31T12:56:11.189295+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2990,10 +2990,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "97"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3698,20 +3696,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "97",
+        "headline": "ইনক্রিমেন্ট ও বেতন বৃদ্ধির দাবিতে মিরপুর-১০ অবরুদ্ধ! রাস্তায় শত শত পোশাকশ্রমিক, থমকে গেল যান চলাচল",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
