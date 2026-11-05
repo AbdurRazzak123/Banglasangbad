@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T02:52:23.711386+00:00",
+  "generated_at": "2026-11-05T04:38:17.743504+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -2984,14 +2984,52 @@
       "social_card": "social-media/97.jpg",
       "instagram_social_card": "social-media/instagram/97.jpg",
       "updated_at": "2026-10-31T11:37:42.180867+00:00"
+    },
+    "98": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-11-05T04:38:17.645209+00:00",
+          "error": "Facebook rejected META_PAGE_ACCESS_TOKEN (invalid/expired token). Verify the latest Page access token is saved in the GitHub Secret META_PAGE_ACCESS_TOKEN. Original error: POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating application. Application has been deleted.', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'AbT5RLeNMQotPGmWIVq1lHP'}}"
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-11-05T04:38:17.742936+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating application. Application has been deleted.', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'ACkWlMMeLtFOn3BWKBNjhUe'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-05T04:38:13.538950+00:00",
+      "social_card": "social-media/98.jpg",
+      "instagram_social_card": "social-media/instagram/98.jpg",
+      "updated_at": "2026-11-05T04:38:13.964672+00:00"
     }
   },
   "last_run": {
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 0,
-    "processed": [],
+    "candidate_count": 1,
+    "processed": [
+      "98"
+    ],
     "skipped": [
       {
         "id": "2",
@@ -3707,6 +3745,16 @@
         ]
       }
     ],
-    "meta_preflight": null
+    "meta_preflight": {
+      "status": "failed",
+      "facebook": {
+        "status": "failed",
+        "error": "GET https://graph.facebook.com/v26.0/1240194305854019 -> HTTP 400: {'error': {'message': 'Error validating application. Application has been deleted.', 'type': 'OAuthException', 'code': 190, 'fbtrace_id': 'A4Z601ZC4n6yZrUCVZBXg-l'}}"
+      },
+      "instagram": {
+        "status": "failed",
+        "error": "GET https://graph.facebook.com/v26.0/17841433750507793 -> HTTP 400: {'error': {'message': 'Error validating application. Application has been deleted.', 'code': 190, 'type': 'OAuthException', 'fbtrace_id': 'AytUJ-akhFxus0JXtIJZLxL'}}"
+      }
+    }
   }
 }
