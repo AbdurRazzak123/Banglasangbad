@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T11:40:04.319920+00:00",
+  "generated_at": "2026-11-07T12:54:24.914321+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3107,6 +3107,57 @@
       "social_card": "social-media/100.jpg",
       "instagram_social_card": "social-media/instagram/100.jpg",
       "updated_at": "2026-11-07T11:40:01.189120+00:00"
+    },
+    "101": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-11-07T12:54:15.834507+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122119954275487710",
+            "post_id": "1240194305854019_122119954275487710",
+            "photo_id": "122119954251487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/101.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122119954275487710_1792353962041275"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-11-07T12:54:24.914294+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17953543611049662",
+            "creation_id": "18121181480125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/101.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-07T12:54:03.285938+00:00",
+      "social_card": "social-media/101.jpg",
+      "instagram_social_card": "social-media/instagram/101.jpg",
+      "updated_at": "2026-11-07T12:54:03.618414+00:00"
     }
   },
   "last_run": {
@@ -3115,7 +3166,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "100"
+      "101"
     ],
     "skipped": [
       {
@@ -3848,17 +3899,28 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "100",
+        "headline": "তাওহিদ হৃদয়ের মহাকাব্যিক ২৪২ রানে বাংলাদেশের লিড, চাপে ওয়েস্ট ইন্ডিজ",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
     "meta_preflight": {
-      "status": "failed",
+      "status": "ok",
       "facebook": {
-        "status": "failed",
-        "error": "GET https://graph.facebook.com/v26.0/1240194305854019 -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 00:00:00 PST. The current time is Saturday, 07-Nov-26 03:40:00 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AQqe32hTgQh-LMVZ-yUg1su'}}"
+        "status": "ok",
+        "id": "1240194305854019",
+        "name": "বাংলা সংবাদ"
       },
       "instagram": {
-        "status": "failed",
-        "error": "GET https://graph.facebook.com/v26.0/17841433750507793 -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 00:00:00 PST. The current time is Saturday, 07-Nov-26 03:40:00 PST.', 'code': 190, 'type': 'OAuthException', 'error_subcode': 463, 'fbtrace_id': 'ATQbeX_iWIPXAZBHZiAbfyq'}}"
+        "status": "ok",
+        "id": "17841433750507793",
+        "username": "banglasangbad2026"
       }
     }
   }
