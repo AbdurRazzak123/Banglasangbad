@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T07:18:20.761103+00:00",
+  "generated_at": "2026-11-07T07:49:10.206962+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3077,10 +3077,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "99"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3803,20 +3801,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "99",
+        "headline": "তাওহিদ হৃদয়ের প্রথম টেস্ট সেঞ্চুরি, ওয়েস্ট ইন্ডিজের বিপক্ষে লড়াইয়ে বাংলাদেশ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
