@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-11-07T08:03:52.970024+00:00"
+      "updated_at": "2026-11-07T11:40:00.886413+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -3233,7 +3233,43 @@
       "social_card": "social-media/99.jpg",
       "instagram_social_card": "social-media/instagram/99.jpg",
       "updated_at": "2026-11-07T07:17:57.540321+00:00"
+    },
+    "100": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-11-07T11:40:04.262062+00:00",
+          "error": "Facebook rejected META_PAGE_ACCESS_TOKEN (invalid/expired token). Verify the latest Page access token is saved in the GitHub Secret META_PAGE_ACCESS_TOKEN. Original error: POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 00:00:00 PST. The current time is Saturday, 07-Nov-26 03:40:04 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AE5e5RctqQkLDbnJkAjAOOy'}}"
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-11-07T11:40:04.319649+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 00:00:00 PST. The current time is Saturday, 07-Nov-26 03:40:04 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AbK14dYz-ne_XCDPiWmRJKL'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-07T11:40:00.991353+00:00",
+      "social_card": "social-media/100.jpg",
+      "instagram_social_card": "social-media/instagram/100.jpg",
+      "updated_at": "2026-11-07T11:40:01.189120+00:00"
     }
   },
-  "updated_at": "2026-11-07T08:03:52.971350+00:00"
+  "updated_at": "2026-11-07T11:40:04.319916+00:00"
 }
