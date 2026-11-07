@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T13:05:22.116706+00:00",
+  "generated_at": "2026-11-07T14:23:36.500314+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3215,10 +3215,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "102"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -3968,20 +3966,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "102",
+        "headline": "চ্যাম্পিয়ন্স লিগে ইতিহাস! লঁসকে ৯-১ গোলে উড়িয়ে দিল কোমো, শেষ মুহূর্তে রিয়ালকে বাঁচালেন ভালভার্দে",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
