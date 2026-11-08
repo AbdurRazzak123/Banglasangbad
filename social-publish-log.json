@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T03:14:19.696793+00:00",
+  "generated_at": "2026-11-08T04:30:39.799038+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3296,6 +3296,42 @@
       "social_card": "social-media/104.jpg",
       "instagram_social_card": "social-media/instagram/104.jpg",
       "updated_at": "2026-11-08T03:13:57.775911+00:00"
+    },
+    "105": {
+      "status": "partial_failure",
+      "platforms": {
+        "facebook": {
+          "status": "failed",
+          "updated_at": "2026-11-08T04:30:39.528271+00:00",
+          "error": "Facebook rejected META_PAGE_ACCESS_TOKEN (invalid/expired token). Verify the latest Page access token is saved in the GitHub Secret META_PAGE_ACCESS_TOKEN. Original error: POST https://graph.facebook.com/v26.0/1240194305854019/photos -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 20:00:00 PST. The current time is Saturday, 07-Nov-26 20:30:39 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AAEUnydGseCSWMHGPFsYJ8P'}}"
+        },
+        "instagram": {
+          "status": "failed",
+          "updated_at": "2026-11-08T04:30:39.798317+00:00",
+          "error": "POST https://graph.facebook.com/v26.0/17841433750507793/media -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 20:00:00 PST. The current time is Saturday, 07-Nov-26 20:30:39 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'ASJp8VL-sPu6HerersAGTQX'}}"
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-08T04:30:35.507732+00:00",
+      "social_card": "social-media/105.jpg",
+      "instagram_social_card": "social-media/instagram/105.jpg",
+      "updated_at": "2026-11-08T04:30:35.774162+00:00"
     }
   },
   "last_run": {
@@ -3304,7 +3340,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "104"
+      "105"
     ],
     "skipped": [
       {
@@ -4073,19 +4109,26 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "104",
+        "headline": "মিস ইউনিভার্সের মুকুট জিতলেন সামিরা খান মাহি, আন্তর্জাতিক মঞ্চে যাচ্ছেন বাংলাদেশের প্রতিনিধি হয়ে",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
     "meta_preflight": {
-      "status": "ok",
+      "status": "failed",
       "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
+        "status": "failed",
+        "error": "GET https://graph.facebook.com/v26.0/1240194305854019 -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 20:00:00 PST. The current time is Saturday, 07-Nov-26 20:30:35 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AhF9KnPRcXZjLuwq-2Dbc_m'}}"
       },
       "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
+        "status": "failed",
+        "error": "GET https://graph.facebook.com/v26.0/17841433750507793 -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 20:00:00 PST. The current time is Saturday, 07-Nov-26 20:30:35 PST.', 'code': 190, 'type': 'OAuthException', 'error_subcode': 463, 'fbtrace_id': 'A0RIjgFpSelVJKr8DZBUxba'}}"
       }
     }
   }
