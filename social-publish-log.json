@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T04:30:39.799038+00:00",
+  "generated_at": "2026-11-08T07:53:16.036609+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3338,10 +3338,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "105"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -4118,18 +4116,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "105",
+        "headline": "২২৯ উইকেটের অভিজ্ঞ পেসারকে কি যথাযথ বিদায় দিতে পারল ভারত? শামির অবসরের পর উঠছে নানা প্রশ্ন",
+        "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "failed",
-      "facebook": {
-        "status": "failed",
-        "error": "GET https://graph.facebook.com/v26.0/1240194305854019 -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 20:00:00 PST. The current time is Saturday, 07-Nov-26 20:30:35 PST.', 'type': 'OAuthException', 'code': 190, 'error_subcode': 463, 'fbtrace_id': 'AhF9KnPRcXZjLuwq-2Dbc_m'}}"
-      },
-      "instagram": {
-        "status": "failed",
-        "error": "GET https://graph.facebook.com/v26.0/17841433750507793 -> HTTP 400: {'error': {'message': 'Error validating access token: Session has expired on Saturday, 07-Nov-26 20:00:00 PST. The current time is Saturday, 07-Nov-26 20:30:35 PST.', 'code': 190, 'type': 'OAuthException', 'error_subcode': 463, 'fbtrace_id': 'A0RIjgFpSelVJKr8DZBUxba'}}"
-      }
-    }
+    "meta_preflight": null
   }
 }
