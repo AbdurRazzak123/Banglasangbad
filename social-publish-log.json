@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T13:58:35.463711+00:00",
+  "generated_at": "2026-11-14T14:29:28.335920+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3383,6 +3383,57 @@
       "social_card": "social-media/106.jpg",
       "instagram_social_card": "social-media/instagram/106.jpg",
       "updated_at": "2026-11-14T13:58:12.913222+00:00"
+    },
+    "107": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-11-14T14:29:18.997174+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122122563795487710",
+            "post_id": "1240194305854019_122122563795487710",
+            "photo_id": "122122563771487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/107.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122122563795487710_1127280320025073"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-11-14T14:29:28.335888+00:00",
+          "result": {
+            "status": "posted",
+            "id": "18107977946457490",
+            "creation_id": "18122889014125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/107.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-14T14:29:06.885013+00:00",
+      "social_card": "social-media/107.jpg",
+      "instagram_social_card": "social-media/instagram/107.jpg",
+      "updated_at": "2026-11-14T14:29:07.145911+00:00"
     }
   },
   "last_run": {
@@ -3391,7 +3442,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "106"
+      "107"
     ],
     "skipped": [
       {
@@ -4174,6 +4225,15 @@
         "id": "105",
         "headline": "২২৯ উইকেটের অভিজ্ঞ পেসারকে কি যথাযথ বিদায় দিতে পারল ভারত? শামির অবসরের পর উঠছে নানা প্রশ্ন",
         "reason": "previously attempted; automatic retry blocked for safety",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "106",
+        "headline": "২১ বছরের অপেক্ষা ঘুচিয়ে সাফের ফাইনালে ওঠার লড়াইয়ে আজ পাকিস্তানের মুখোমুখি বাংলাদেশ",
+        "reason": "all requested platforms already posted",
         "platforms": [
           "facebook",
           "instagram"
