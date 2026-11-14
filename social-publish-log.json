@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T14:29:28.335920+00:00",
+  "generated_at": "2026-11-14T14:45:44.981643+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3440,10 +3440,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "107"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -4238,20 +4236,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "107",
+        "headline": "রুপালি পর্দার শক্তিমান অভিনেতা রাজীবের ২২তম মৃত্যুবার্ষিকী আজ",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
