@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-16T11:42:38.217676+00:00",
+  "generated_at": "2026-11-16T17:30:33.539099+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3557,10 +3557,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "110"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -4382,20 +4380,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "110",
+        "headline": "গোপালগঞ্জের টুঙ্গিপাড়ায় থমথমে পরিস্থিতি! হামলা-অগ্নিসংযোগের পর ১০ প্লাটুন বিজিবি মোতায়েন",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
