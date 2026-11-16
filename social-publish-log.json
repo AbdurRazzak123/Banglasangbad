@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-16T11:00:21.053161+00:00",
+  "generated_at": "2026-11-16T11:13:01.920575+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3449,6 +3449,57 @@
       "last_attempt_at": "2026-11-16T11:00:21.052906+00:00",
       "error": "No usable news image for article 108",
       "updated_at": "2026-11-16T11:00:21.053150+00:00"
+    },
+    "109": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-11-16T11:12:53.671292+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122123020305487710",
+            "post_id": "1240194305854019_122123020305487710",
+            "photo_id": "122123020281487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/109.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122123020305487710_1758579105232947"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-11-16T11:13:01.920527+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17981850468135927",
+            "creation_id": "18123400889125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/109.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-16T11:12:37.935457+00:00",
+      "social_card": "social-media/109.jpg",
+      "instagram_social_card": "social-media/instagram/109.jpg",
+      "updated_at": "2026-11-16T11:12:38.191354+00:00"
     }
   },
   "last_run": {
@@ -3457,7 +3508,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "108"
+      "109"
     ],
     "skipped": [
       {
@@ -4258,6 +4309,15 @@
         "id": "107",
         "headline": "রুপালি পর্দার শক্তিমান অভিনেতা রাজীবের ২২তম মৃত্যুবার্ষিকী আজ",
         "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "108",
+        "headline": "প্রথম বলেই উইকেট হারিয়ে বিপর্যয়, হৃদয়-লিটনের রেকর্ড জুটিতে ৪০০ রানে বাংলাদেশ",
+        "reason": "previously attempted; automatic retry blocked for safety",
         "platforms": [
           "facebook",
           "instagram"
