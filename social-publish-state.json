@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-11-26T10:57:03.298502+00:00"
+      "updated_at": "2026-11-26T11:49:45.432696+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -3713,7 +3713,22 @@
       "social_card": "social-media/110.jpg",
       "instagram_social_card": "social-media/instagram/110.jpg",
       "updated_at": "2026-11-16T11:42:14.527792+00:00"
+    },
+    "111": {
+      "status": "failed_preflight",
+      "platforms": {},
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-26T11:49:46.026479+00:00",
+      "error": "No usable news image for article 111",
+      "updated_at": "2026-11-26T11:49:46.026658+00:00"
     }
   },
-  "updated_at": "2026-11-26T10:57:03.299583+00:00"
+  "updated_at": "2026-11-26T11:49:46.026663+00:00"
 }
