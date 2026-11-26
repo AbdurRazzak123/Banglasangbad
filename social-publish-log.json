@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T11:49:46.026665+00:00",
+  "generated_at": "2026-11-26T11:55:04.602419+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3566,6 +3566,57 @@
       "last_attempt_at": "2026-11-26T11:49:46.026479+00:00",
       "error": "No usable news image for article 111",
       "updated_at": "2026-11-26T11:49:46.026658+00:00"
+    },
+    "112": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-11-26T11:54:54.081620+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122126056101487710",
+            "post_id": "1240194305854019_122126056101487710",
+            "photo_id": "122126056077487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/112.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122126056101487710_1828771721780503"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-11-26T11:55:04.602386+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17957796978299070",
+            "creation_id": "18125363654125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/112.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-26T11:54:39.059434+00:00",
+      "social_card": "social-media/112.jpg",
+      "instagram_social_card": "social-media/instagram/112.jpg",
+      "updated_at": "2026-11-26T11:54:39.415255+00:00"
     }
   },
   "last_run": {
@@ -3574,7 +3625,7 @@
     "limit": 20,
     "candidate_count": 1,
     "processed": [
-      "111"
+      "112"
     ],
     "skipped": [
       {
@@ -4402,6 +4453,15 @@
         "id": "110",
         "headline": "গোপালগঞ্জের টুঙ্গিপাড়ায় থমথমে পরিস্থিতি! হামলা-অগ্নিসংযোগের পর ১০ প্লাটুন বিজিবি মোতায়েন",
         "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
+      },
+      {
+        "id": "111",
+        "headline": "১৬ ডিসেম্বরের মধ্যে বাংলাদেশ দখলের হুমকি! ভারতীয় মন্ত্রী অর্জুন সিংয়ের বক্তব্যে তীব্র বিতর্ক, কী বলছেন অন্য নেতারা?",
+        "reason": "previously attempted; automatic retry blocked for safety",
         "platforms": [
           "facebook",
           "instagram"

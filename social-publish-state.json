@@ -135,7 +135,7 @@
         "threads": false,
         "youtube": false
       },
-      "updated_at": "2026-11-26T11:49:45.432696+00:00"
+      "updated_at": "2026-11-26T11:54:38.761814+00:00"
     },
     "9999": {
       "status": "waiting_sheet_publish",
@@ -3728,7 +3728,58 @@
       "last_attempt_at": "2026-11-26T11:49:46.026479+00:00",
       "error": "No usable news image for article 111",
       "updated_at": "2026-11-26T11:49:46.026658+00:00"
+    },
+    "112": {
+      "status": "posted_all",
+      "platforms": {
+        "facebook": {
+          "status": "posted",
+          "updated_at": "2026-11-26T11:54:54.081620+00:00",
+          "result": {
+            "status": "posted",
+            "id": "1240194305854019_122126056101487710",
+            "post_id": "1240194305854019_122126056101487710",
+            "photo_id": "122126056077487710",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/112.jpg",
+            "link_comment": {
+              "status": "posted",
+              "id": "122126056101487710_1828771721780503"
+            }
+          }
+        },
+        "instagram": {
+          "status": "posted",
+          "updated_at": "2026-11-26T11:55:04.602386+00:00",
+          "result": {
+            "status": "posted",
+            "id": "17957796978299070",
+            "creation_id": "18125363654125017",
+            "image_url": "https://raw.githubusercontent.com/AbdurRazzak123/Banglasangbad/main/social-media/instagram/112.jpg"
+          }
+        },
+        "x": {
+          "status": "not_selected"
+        },
+        "threads": {
+          "status": "not_selected"
+        },
+        "youtube": {
+          "status": "not_selected"
+        }
+      },
+      "sheet_controls": {
+        "publish": true,
+        "facebook": true,
+        "instagram": true,
+        "x": false,
+        "threads": false,
+        "youtube": false
+      },
+      "last_attempt_at": "2026-11-26T11:54:39.059434+00:00",
+      "social_card": "social-media/112.jpg",
+      "instagram_social_card": "social-media/instagram/112.jpg",
+      "updated_at": "2026-11-26T11:54:39.415255+00:00"
     }
   },
-  "updated_at": "2026-11-26T11:49:46.026663+00:00"
+  "updated_at": "2026-11-26T11:55:04.602417+00:00"
 }
