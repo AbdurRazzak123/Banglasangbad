@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T11:55:04.602419+00:00",
+  "generated_at": "2026-11-26T18:24:39.549808+00:00",
   "articles": {
     "33": {
       "status": "posted_all",
@@ -3623,10 +3623,8 @@
     "dry_run": false,
     "retry_failed": false,
     "limit": 20,
-    "candidate_count": 1,
-    "processed": [
-      "112"
-    ],
+    "candidate_count": 0,
+    "processed": [],
     "skipped": [
       {
         "id": "2",
@@ -4466,20 +4464,17 @@
           "facebook",
           "instagram"
         ]
+      },
+      {
+        "id": "112",
+        "headline": "১৬ ডিসেম্বরের মধ্যে বাংলাদেশ দখলের হুমকি! ভারতীয় মন্ত্রী অর্জুন সিংয়ের বক্তব্যে তীব্র বিতর্ক, কী বলছেন অন্য নেতারা?",
+        "reason": "all requested platforms already posted",
+        "platforms": [
+          "facebook",
+          "instagram"
+        ]
       }
     ],
-    "meta_preflight": {
-      "status": "ok",
-      "facebook": {
-        "status": "ok",
-        "id": "1240194305854019",
-        "name": "বাংলা সংবাদ"
-      },
-      "instagram": {
-        "status": "ok",
-        "id": "17841433750507793",
-        "username": "banglasangbad2026"
-      }
-    }
+    "meta_preflight": null
   }
 }
